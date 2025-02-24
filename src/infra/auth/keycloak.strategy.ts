@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import JwksRsa from 'jwks-rsa';
+import * as jwksRsa from 'jwks-rsa';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
       ignoreExpiration: false,
       issuer: 'http://localhost:8080/realms/nestjs-realm',
       algorithms: ['RS256'],
-      secretOrKeyProvider: JwksRsa.passportJwtSecret({
+      secretOrKeyProvider: jwksRsa.passportJwtSecret({
         jwksUri:
           'http://localhost:8080/realms/nestjs-realm/protocol/openid-connect/certs',
       }),
