@@ -1,28 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import * as jwksRsa from 'jwks-rsa';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Strategy } from 'passport-keycloak-oauth2';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
-  constructor() {
+export class KeycloakOAuthStrategy extends PassportStrategy(
+  Strategy,
+  'keycloak',
+) {
+  constructor(configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      issuer: 'http://localhost:8080/realms/nestjs-realm',
-      algorithms: ['RS256'],
-      secretOrKeyProvider: jwksRsa.passportJwtSecret({
-        jwksUri:
-          'http://localhost:8080/realms/nestjs-realm/protocol/openid-connect/certs',
-      }),
+      clientID: configService.get<string>('KEYCLOAK_CLIENT_ID'),
+      clientSecret: configService.get<string>('KEYCLOAK_CLIENT_SECRET'),
+      callbackURL: configService.get<string>('KEYCLOAK_CALLBACK_URL'),
+      authorizationURL: `${configService.get<string>('KEYCLOAK_URL')}/realms/${configService.get<string>('KEYCLOAK_REALM')}/protocol/openid-connect/auth`,
+      tokenURL: `${configService.get<string>('KEYCLOAK_URL')}/realms/${configService.get<string>('KEYCLOAK_REALM')}/protocol/openid-connect/token`,
+      userInfoURL: `${configService.get<string>('KEYCLOAK_URL')}/realms/${configService.get<string>('KEYCLOAK_REALM')}/protocol/openid-connect/userinfo`,
+      scope: ['openid', 'profile', 'email'],
+      pkce: true, // Enable PKCE for better security
     });
   }
 
-  async validate(payload: any) {
+  async validate(accessToken: string, refreshToken: string, profile: any) {
     return {
-      sub: payload.sub,
-      username: payload.preferred_username,
-      roles: payload.realm_access?.roles || [],
+      accessToken,
+      refreshToken,
+      profile,
     };
   }
 }
