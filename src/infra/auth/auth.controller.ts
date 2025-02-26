@@ -8,6 +8,8 @@ export class AuthController {
     'http://localhost:8080/realms/nestjs-realm/protocol/openid-connect/token';
   private keycloakUrl =
     'http://localhost:8080/realms/nestjs-realm/protocol/openid-connect/auth';
+  private keycloakLogoutUrl =
+    'http://localhost:8080/realms/nestjs-realm/protocol/openid-connect/logout';
   private clientId = 'gemini-api-client';
   private redirectUri = 'http://localhost:3000/auth/callback';
 
@@ -17,6 +19,12 @@ export class AuthController {
     return res.redirect(authUrl);
   }
 
+  @Get('logout')
+  logout(@Req() req: Request, @Res() res: Response) {
+    const logoutUrl = `${this.keycloakLogoutUrl}?client_id=${this.clientId}&post_logout_redirect_uri=${this.redirectUri}`;
+
+    return res.redirect(logoutUrl); // Redirect user to Keycloak logout
+  }
   @Get('callback')
   async callback(@Query('code') code: string, @Res() res: Response) {
     try {
