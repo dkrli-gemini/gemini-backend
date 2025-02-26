@@ -19,6 +19,12 @@ export class AuthController {
     return res.redirect(authUrl);
   }
 
+  @Get('register')
+  register(@Res() res: Response) {
+    const registerUrl = `${this.keycloakUrl}?client_id=${this.clientId}&redirect_uri=${this.redirectUri}&response_type=code&kc_action=register`;
+    return res.redirect(registerUrl);
+  }
+
   @Get('logout')
   logout(@Req() req: Request, @Res() res: Response) {
     const logoutUrl = `${this.keycloakLogoutUrl}?client_id=${this.clientId}&post_logout_redirect_uri=${this.redirectUri}`;
