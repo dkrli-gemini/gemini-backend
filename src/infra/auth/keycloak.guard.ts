@@ -2,7 +2,7 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  Inject,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { KeycloakConfigService } from './keycloak.config';
 import * as KeycloakConnect from 'keycloak-connect';
@@ -12,7 +12,7 @@ export class Protected implements CanActivate {
   private keycloak: KeycloakConnect.Keycloak;
 
   constructor(private readonly keycloakConfigService: KeycloakConfigService) {
-    this.keycloak = this.keycloakConfigService.getKeycloak(); // ✅ Proper way to get Keycloak instance
+    this.keycloak = this.keycloakConfigService.getKeycloak();
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -22,11 +22,15 @@ export class Protected implements CanActivate {
     return new Promise<boolean>((resolve, reject) => {
       this.keycloak.protect()(request, response, (err?: any) => {
         if (err) {
-          reject(false);
+          reject(
+            new UnauthorizedException('Unauthorized: Invalid or missing token'),
+          );
         } else {
           resolve(true);
         }
       });
+    }).catch(() => {
+      throw new UnauthorizedException('Unauthorized: Invalid or missing token');
     });
   }
 }

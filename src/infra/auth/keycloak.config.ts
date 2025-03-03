@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as KeycloakConnect from 'keycloak-connect'; 
+import * as KeycloakConnect from 'keycloak-connect';
 
 import * as session from 'express-session';
 
@@ -18,6 +18,7 @@ export class KeycloakConfigService {
         'ssl-required': 'external',
         resource: 'gemini-api-client',
         'confidential-port': 0,
+        'bearer-only': true,
       },
     );
   }
