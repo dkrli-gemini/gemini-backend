@@ -1,9 +1,12 @@
 import { Controller, Get, Query, Req, Res } from '@nestjs/common';
 import axios from 'axios';
 import { Response, Request } from 'express';
+import { IUserRepository } from 'src/domain/repository/user.repository';
 
 @Controller('auth')
 export class AuthController {
+  constructor(private readonly userRepository: IUserRepository) {}
+
   private tokenUrl =
     'http://localhost:8080/realms/nestjs-realm/protocol/openid-connect/token';
   private keycloakUrl =
@@ -63,15 +66,21 @@ export class AuthController {
         new URLSearchParams({
           grant_type: 'authorization_code',
           client_id: this.clientId,
-          redirect_uri: this.redirectUri,
-          code,
+          redirect_uri: this.redirectUriRegister,
+          code, 
         }),
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
       );
 
+      await this.userRepository.create({
+        name: 'Test name',
+        email: 'Test email',
+      });
       const { access_token } = response.data;
+
       return res.json({ access_token });
     } catch (error) {
+      console.log(error);
       return res
         .status(400)
         .json({ error: 'Failed to exchange code for token' });
