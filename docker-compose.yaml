@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: gemini
+    ports:
+      - '5429:5432'
+    volumes:
+      - gemini_data:/var/lib/postgresql/data
+
+volumes:
+  gemini_data:
