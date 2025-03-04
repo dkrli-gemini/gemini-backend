@@ -14,7 +14,27 @@ datasource db {
 }
 
 model User {
-  id    String @id @default(uuid()) @db.Uuid
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String
+  email       String
+  UserProject ProjectUser[]
+}
+
+model Project {
+  id    String        @id @default(uuid()) @db.Uuid
+  users ProjectUser[]
   name  String
-  email String
+}
+
+enum Role {
+  OWNER
+}
+
+model ProjectUser {
+  id        String   @id @default(uuid()) @db.Uuid
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?  @db.Uuid
+  Project   Project? @relation(fields: [projectId], references: [id])
+  projectId String?  @db.Uuid
+  role      Role
 }

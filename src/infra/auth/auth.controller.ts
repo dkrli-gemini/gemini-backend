@@ -57,7 +57,7 @@ export class AuthController {
         .json({ error: 'Failed to exchange code for token' });
     }
   }
-
+  
   @Get('register-callback')
   async registerCallback(@Query('code') code: string, @Res() res: Response) {
     try {
