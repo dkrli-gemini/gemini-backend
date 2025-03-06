@@ -9,7 +9,7 @@ export class UserRepositoryAdapter implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(user: IUser): Promise<User> {
-    return this.prisma.user.create({
+    return this.prisma.userModel.create({
       data: {
         name: user.name,
         email: user.email,

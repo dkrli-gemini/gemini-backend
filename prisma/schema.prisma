@@ -13,16 +13,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          String        @id @default(uuid()) @db.Uuid
+model UserModel {
+  id          String             @id @default(uuid()) @db.Uuid
   name        String
   email       String
-  UserProject ProjectUser[]
+  UserProject ProjectUserModel[]
 }
 
-model Project {
-  id    String        @id @default(uuid()) @db.Uuid
-  users ProjectUser[]
+model ProjectModel {
+  id    String             @id @default(uuid()) @db.Uuid
+  users ProjectUserModel[]
   name  String
 }
 
@@ -30,11 +30,11 @@ enum Role {
   OWNER
 }
 
-model ProjectUser {
-  id        String   @id @default(uuid()) @db.Uuid
-  user      User?    @relation(fields: [userId], references: [id])
-  userId    String?  @db.Uuid
-  Project   Project? @relation(fields: [projectId], references: [id])
-  projectId String?  @db.Uuid
+model ProjectUserModel {
+  id        String        @id @default(uuid()) @db.Uuid
+  user      UserModel?    @relation(fields: [userId], references: [id])
+  userId    String?       @db.Uuid
+  Project   ProjectModel? @relation(fields: [projectId], references: [id])
+  projectId String?       @db.Uuid
   role      Role
 }
