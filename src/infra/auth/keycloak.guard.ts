@@ -5,32 +5,35 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { KeycloakConfigService } from './keycloak.config';
-import * as KeycloakConnect from 'keycloak-connect';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class Protected implements CanActivate {
-  private keycloak: KeycloakConnect.Keycloak;
-
-  constructor(private readonly keycloakConfigService: KeycloakConfigService) {
-    this.keycloak = this.keycloakConfigService.getKeycloak();
-  }
+  constructor(private readonly keycloakConfigService: KeycloakConfigService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
+    const authHeader = request.headers['authorization'];
 
-    return new Promise<boolean>((resolve, reject) => {
-      this.keycloak.protect()(request, response, (err?: any) => {
-        if (err) {
-          reject(
-            new UnauthorizedException('Unauthorized: Invalid or missing token'),
-          );
-        } else {
-          resolve(true);
-        }
-      });
-    }).catch(() => {
-      throw new UnauthorizedException('Unauthorized: Invalid or missing token');
-    });
+    if (!authHeader) {
+      throw new UnauthorizedException('Missing Authorization Header');
+    }
+
+    const token = authHeader.split(' ')[1]; // Extract token
+    if (!token) {
+      throw new UnauthorizedException('Invalid Bearer Token');
+    }
+
+    try {
+      const decoded = jwt.decode(token); // Decode the JWT
+      if (!decoded) {
+        throw new UnauthorizedException('Invalid Token');
+      }
+
+      request.user = decoded; // Attach user to request
+      return true;
+    } catch (error) {
+      throw new UnauthorizedException('Token Validation Failed');
+    }
   }
 }

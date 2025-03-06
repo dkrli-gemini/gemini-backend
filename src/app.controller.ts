@@ -13,4 +13,10 @@ export class AppController {
   getProtectedData() {
     return { message: 'authenticated' };
   }
+
+  @Get('test')
+  @UseGuards(Protected)
+  createProject(@Req() req: Request) {
+    console.log(req.user as any);
+  }
 }
