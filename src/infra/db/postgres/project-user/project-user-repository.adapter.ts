@@ -11,7 +11,14 @@ import { PrismaService } from '../../prisma.service';
 export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
   constructor(private readonly prisma: PrismaService) {}
   createProjectUser(projectUser: IProjectUser): Promise<IProjectUser> {
-    throw new Error('Method not implemented.');
+    return this.prisma.projectUserModel.create({
+      data: {
+        user: {
+          connect: { id: projectUser.user.id },
+        },
+        projec
+      },
+    });
   }
 
   mapToDomain(persistencyObject: any): IProjectUser {
