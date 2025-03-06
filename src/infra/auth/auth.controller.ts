@@ -2,6 +2,7 @@ import { Controller, Get, Query, Req, Res } from '@nestjs/common';
 import axios from 'axios';
 import { Response, Request } from 'express';
 import { IUserRepository } from 'src/domain/repository/user.repository';
+import * as jwt_decode from 'jwt-decode';
 
 @Controller('auth')
 export class AuthController {
@@ -57,7 +58,7 @@ export class AuthController {
         .json({ error: 'Failed to exchange code for token' });
     }
   }
-  
+
   @Get('register-callback')
   async registerCallback(@Query('code') code: string, @Res() res: Response) {
     try {
@@ -67,16 +68,17 @@ export class AuthController {
           grant_type: 'authorization_code',
           client_id: this.clientId,
           redirect_uri: this.redirectUriRegister,
-          code, 
+          code,
         }),
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
       );
 
-      
+      jwt.decode('');
 
       await this.userRepository.create({
-        name: 'Test name',
-        email: 'Test email',
+        name: data?.name,
+        email: data.email,
+        authId: data.sub,
       });
       const { access_token } = response.data;
 
