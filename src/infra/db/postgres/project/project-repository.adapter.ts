@@ -1,7 +1,6 @@
 import { Injectable, Provider } from '@nestjs/common';
 import { RoleModel } from '@prisma/client';
 import { IProject } from 'src/domain/entities/project';
-import { IUser } from 'src/domain/entities/user';
 import { IProjectRepository } from 'src/domain/repository/project.respository';
 import { PrismaService } from '../../prisma.service';
 
@@ -18,7 +17,7 @@ export class ProjectRepositoryAdapter implements IProjectRepository {
         },
       },
     });
- 
+
     return this.mapToDomain(projectModel);
   }
   mapToDomain(persistencyObject: any): IProject {
