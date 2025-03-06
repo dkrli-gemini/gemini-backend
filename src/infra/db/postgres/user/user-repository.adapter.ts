@@ -17,8 +17,26 @@ export class UserRepositoryAdapter implements IUserRepository {
       },
     });
   }
+
+  async getUserByAuthId(authId: string): Promise<IUser> {
+    const userModel = await this.prisma.userModel.findFirst({
+      where: {
+        authId: authId,
+      },
+    });
+
+    return this.mapToDomain(userModel);
+  }
+
   mapToDomain(persistencyObject: any): IUser {
-    throw new Error('Method not implemented.');
+    const user: IUser = {
+      authId: persistencyObject.authId,
+      id: persistencyObject.id,
+      email: persistencyObject.email,
+      name: persistencyObject.name,
+    };
+
+    return user;
   }
 }
 
