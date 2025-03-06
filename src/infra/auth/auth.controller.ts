@@ -2,7 +2,7 @@ import { Controller, Get, Query, Req, Res } from '@nestjs/common';
 import axios from 'axios';
 import { Response, Request } from 'express';
 import { IUserRepository } from 'src/domain/repository/user.repository';
-import * as jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 @Controller('auth')
 export class AuthController {
@@ -73,12 +73,12 @@ export class AuthController {
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
       );
 
-      jwt.decode('');
+      const data = jwtDecode(response.data);
 
       await this.userRepository.create({
-        name: data?.name,
-        email: data.email,
-        authId: data.sub,
+        name: (data as any).name,
+        email: (data as any).email,
+        authId: data.sub as string,
       });
       const { access_token } = response.data;
 
