@@ -13,6 +13,7 @@ export class UserRepositoryAdapter implements IUserRepository {
       data: {
         name: user.name,
         email: user.email,
+        authId: user.authId,
       },
     });
   }

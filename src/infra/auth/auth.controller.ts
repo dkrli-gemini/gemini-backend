@@ -72,6 +72,8 @@ export class AuthController {
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
       );
 
+      
+
       await this.userRepository.create({
         name: 'Test name',
         email: 'Test email',
