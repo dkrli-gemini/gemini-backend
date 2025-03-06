@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ProjectDataModule } from './data-layer/use-cases/project/project-data.module';
 import { AuthModule } from './infra/auth/auth.module';
 import { ProjectRepositoryModule } from './infra/db/postgres/project/project-repository.module';
 import { UserRepositoryModule } from './infra/db/postgres/user/user-repository.module';
@@ -10,8 +11,7 @@ import { UserRepositoryModule } from './infra/db/postgres/user/user-repository.m
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
-    ProjectRepositoryModule,
-    UserRepositoryModule,
+    ProjectDataModule,
   ],
   controllers: [AppController],
   providers: [AppService],

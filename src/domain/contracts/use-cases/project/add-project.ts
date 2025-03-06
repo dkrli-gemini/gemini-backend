@@ -4,7 +4,7 @@ import { IUseCase } from '../../use-case';
 
 export interface IAddProjectInput {
   name: string;
-  user: IUser;
+  user: Partial<IUser>;
 }
 
 export type IAddProjectOutput = IProject;

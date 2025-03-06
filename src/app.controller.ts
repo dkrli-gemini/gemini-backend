@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
 import { Request, Response } from 'express';
@@ -7,13 +7,13 @@ import { IProjectRepository } from './domain/repository/project.respository';
 import { IUserRepository } from './domain/repository/user.repository';
 import { IProject } from './domain/entities/project';
 import { IUser } from './domain/entities/user';
+import { IAddProject } from './domain/contracts/use-cases/project/add-project';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private readonly projectRepository: IProjectRepository,
-    private readonly userRepository: IUserRepository,
+    private readonly addProjectUseCase: IAddProject,
   ) {}
 
   @Get('protected')
@@ -25,22 +25,11 @@ export class AppController {
   @Get('test')
   @UseGuards(Protected)
   async createProject(@Req() req: Request) {
-    const user: IUser = await this.userRepository.getUserByAuthId(
-      (req.user as any).sub,
-    );
+    const project = await this.addProjectUseCase.execute({
+      name: 'Project Name',
+      user: { authId: (req.user as any).sub },
+    });
 
-    const project: IProject = {
-      name: 'Project 2',
-    };
-
-    const projectCreated = await this.projectRepository.createProject(
-      project,
-      user.id as string,
-    );
-
-    return {
-      projectCreated,
-      user,
-    };
+    return project;
   }
 }
