@@ -18,7 +18,7 @@ export class ProjectRepositoryAdapter implements IProjectRepository {
         },
       },
     });
-
+ 
     return this.mapToDomain(projectModel);
   }
   mapToDomain(persistencyObject: any): IProject {
