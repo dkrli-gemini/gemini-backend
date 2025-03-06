@@ -25,7 +25,6 @@ export class ProjectRepositoryAdapter implements IProjectRepository {
     const project: IProject = {
       id: persistencyObject.id,
       name: persistencyObject.name,
-      users: [persistencyObject.users[0]],
     };
     return project;
   }
