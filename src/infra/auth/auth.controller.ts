@@ -73,7 +73,9 @@ export class AuthController {
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
       );
 
-      const data = jwtDecode(response.data);
+      console.log(response.data);
+
+      const data = jwtDecode(response.data.access_token);
 
       await this.userRepository.create({
         name: (data as any).name,
