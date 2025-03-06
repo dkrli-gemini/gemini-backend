@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { ProjectUserModel, RoleModel } from '@prisma/client';
 import { User } from 'src/data-layer/models/user';
 import { IProject } from 'src/domain/entities/project';
@@ -39,3 +39,8 @@ export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
     return projectUser;
   }
 }
+
+export const ProjectUserRepositoryProvider: Provider = {
+  provide: IProjectUserRepository,
+  useClass: ProjectUserRepositoryAdapter,
+};
