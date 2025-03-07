@@ -9,10 +9,7 @@ import { IUserRepository } from 'src/domain/repository/user.repository';
 
 @Injectable()
 export class AddProject implements IAddProject {
-  constructor(
-    private readonly projectRepository: IProjectRepository,
-    private readonly userRepository: IUserRepository,
-  ) {}
+  constructor(private readonly projectRepository: IProjectRepository) {}
 
   async execute(input: IAddProjectInput): Promise<IProject> {
     const project = await this.projectRepository.createProject(

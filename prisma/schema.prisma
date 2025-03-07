@@ -28,6 +28,8 @@ model ProjectModel {
 
 enum RoleModel {
   OWNER
+  ADMIN
+  MEMBER
 }
 
 model ProjectUserModel {
