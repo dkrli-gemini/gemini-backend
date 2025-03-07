@@ -21,7 +21,6 @@ export class AddProjectController
     @Req() req: Request,
   ): Promise<IHttpResponse<AddProjectOutputDto | Error>> {
     const authId = (req.user as any).sub;
-    console.log(input, authId);
 
     this.validate(input, authId);
 
