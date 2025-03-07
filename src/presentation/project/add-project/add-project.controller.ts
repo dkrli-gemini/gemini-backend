@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { IController } from 'src/domain/contracts/controller';
 import { created, IHttpResponse } from 'src/domain/contracts/http';
 import { AddProjectInputDto } from './dtos/add-project-input.dto';
@@ -6,20 +6,25 @@ import { AddProjectOutputDto } from './dtos/add-project-output.dto';
 import { Request } from 'express';
 import { IAddProject } from 'src/domain/contracts/use-cases/project/add-project';
 import { IProject } from 'src/domain/entities/project';
-
-@Controller('project')
+import { Validator } from 'src/utilities/validator';
+import { Protected } from 'src/infra/auth/keycloak.guard';
+@Controller('projects')
 export class AddProjectController
   implements IController<AddProjectInputDto, AddProjectOutputDto>
 {
   constructor(private readonly useCase: IAddProject) {}
 
-  @Post('/create-project')
+  @Post('/add-project')
+  @UseGuards(Protected)
   async handle(
     @Body() input: AddProjectInputDto,
     @Req() req: Request,
   ): Promise<IHttpResponse<AddProjectOutputDto | Error>> {
-    const authId = req.user as any;
+    const authId = (req.user as any).sub;
+    console.log(input, authId);
+
     this.validate(input, authId);
+
     const project = await this.useCase.execute({
       name: input.name,
       user: { authId },

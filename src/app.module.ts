@@ -6,12 +6,14 @@ import { ProjectDataModule } from './data-layer/use-cases/project/project-data.m
 import { AuthModule } from './infra/auth/auth.module';
 import { ProjectRepositoryModule } from './infra/db/postgres/project/project-repository.module';
 import { UserRepositoryModule } from './infra/db/postgres/user/user-repository.module';
+import { AddProjectModule } from './presentation/project/add-project/add-project.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     ProjectDataModule,
+    AddProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

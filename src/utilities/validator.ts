@@ -1,4 +1,4 @@
-class Validator<T> {
+export class Validator<T> {
   private value: T;
 
   constructor(value: T) {
@@ -6,7 +6,7 @@ class Validator<T> {
   }
 
   static expect<T>(value: T) {
-    return new Validator(value);
+    return new Validator<T>(value);
   }
 
   toBeNotNull(): this {
