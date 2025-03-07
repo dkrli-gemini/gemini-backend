@@ -3,11 +3,14 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { RoleModel } from '@prisma/client';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { PrismaService } from '../db/prisma.service';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -18,8 +21,16 @@ export class RolesGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
+    const authHeader = request.headers.authorization;
 
-    const authId = (request.user as any).sub;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or invalid token');
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.decode(token) as any;
+
+    const authId = decoded.sub;
     if (!authId) {
       throw new ForbiddenException('User not authenticated');
     }
@@ -36,10 +47,15 @@ export class RolesGuard implements CanActivate {
         },
       })
     ).id;
+
+    console.log(userId);
+    console.log(projectId);
+
     const hasAccess = await this.prisma.projectUserModel.findFirst({
       where: {
         projectId: projectId,
         userId: userId,
+        role: RoleModel.OWNER,
       },
     });
 

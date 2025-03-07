@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
 import { Request, Response } from 'express';
@@ -8,6 +16,7 @@ import { IUserRepository } from './domain/repository/user.repository';
 import { IProject } from './domain/entities/project';
 import { IUser } from './domain/entities/user';
 import { IAddProject } from './domain/contracts/use-cases/project/add-project';
+import { RolesGuard } from './infra/roles/roles.guard';
 
 @Controller()
 export class AppController {
@@ -22,14 +31,13 @@ export class AppController {
     return { message: 'authenticated' };
   }
 
-  @Get('test')
+  @Get('test/:id')
   @UseGuards(Protected)
-  async createProject(@Req() req: Request) {
-    const project = await this.addProjectUseCase.execute({
-      name: 'Project Name',
-      user: { authId: (req.user as any).sub },
-    });
-
-    return project;
+  @UseGuards(RolesGuard)
+  async createProject(@Param('id') id: string, @Req() req: Request) {
+    return {
+      message: 'accessed!',
+      user: (req.user as any).sub,
+    };
   }
 }
