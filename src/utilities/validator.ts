@@ -15,4 +15,11 @@ class Validator<T> {
     }
     return this;
   }
+
+  toBeString(): this {
+    if (typeof this.value != 'string') {
+      throw new Error('Expected value to be a string');
+    }
+    return this;
+  }
 }
