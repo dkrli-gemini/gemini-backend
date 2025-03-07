@@ -4,6 +4,6 @@ import { IUser } from '../entities/user';
 
 export abstract class IUserRepository implements IRepositoryBase<IUser> {
   abstract create(user: IUser, authId: string): Promise<User>;
-  abstract getUserByAuthId(authId: string): Promise<IUser>;
+  abstract getUserById(authId: string): Promise<IUser>;
   abstract mapToDomain(persistencyObject: any): IUser;
 }

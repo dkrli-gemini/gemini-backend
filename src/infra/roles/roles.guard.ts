@@ -39,18 +39,10 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('Project ID not found');
     }
 
-    const userId = (
-      await this.prisma.userModel.findFirst({
-        where: {
-          authId: authId,
-        },
-      })
-    ).id;
-
     const hasAccess = await this.prisma.projectUserModel.findFirst({
       where: {
         projectId: projectId,
-        userId: userId,
+        userId: authId,
         role: RoleModel.OWNER,
       },
     });

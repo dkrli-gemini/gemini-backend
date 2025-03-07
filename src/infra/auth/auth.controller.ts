@@ -75,11 +75,13 @@ export class AuthController {
 
       const data = jwtDecode(response.data.access_token);
 
-      await this.userRepository.create({
-        name: (data as any).name,
-        email: (data as any).email,
-        authId: data.sub as string,
-      });
+      await this.userRepository.create(
+        {
+          name: (data as any).name,
+          email: (data as any).email,
+        },
+        data.sub,
+      );
       const { access_token } = response.data;
 
       return res.json({ access_token });

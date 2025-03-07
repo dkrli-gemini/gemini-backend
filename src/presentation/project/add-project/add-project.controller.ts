@@ -26,7 +26,7 @@ export class AddProjectController
 
     const project = await this.useCase.execute({
       name: input.name,
-      user: { authId },
+      user: { id: authId },
     });
 
     const response = this.mapOutputDto(project);

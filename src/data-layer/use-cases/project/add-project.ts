@@ -15,12 +15,11 @@ export class AddProject implements IAddProject {
   ) {}
 
   async execute(input: IAddProjectInput): Promise<IProject> {
-    const user = await this.userRepository.getUserByAuthId(input.user.authId);
     const project = await this.projectRepository.createProject(
       {
         name: input.name,
       },
-      user.id,
+      input.user.id,
     );
 
     return project;
