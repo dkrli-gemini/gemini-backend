@@ -8,7 +8,6 @@ import {
 import { Reflector } from '@nestjs/core';
 import { RoleModel } from '@prisma/client';
 import { Request } from 'express';
-import { Observable } from 'rxjs';
 import { PrismaService } from '../db/prisma.service';
 import * as jwt from 'jsonwebtoken';
 
@@ -47,9 +46,6 @@ export class RolesGuard implements CanActivate {
         },
       })
     ).id;
-
-    console.log(userId);
-    console.log(projectId);
 
     const hasAccess = await this.prisma.projectUserModel.findFirst({
       where: {

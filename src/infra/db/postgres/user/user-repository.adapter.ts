@@ -8,12 +8,12 @@ import { PrismaService } from '../../prisma.service';
 export class UserRepositoryAdapter implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(user: IUser): Promise<User> {
+  async create(user: IUser, authId: string): Promise<User> {
     return this.prisma.userModel.create({
       data: {
+        id: authId,
         name: user.name,
         email: user.email,
-        authId: user.authId,
       },
     });
   }

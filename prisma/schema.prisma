@@ -15,7 +15,6 @@ datasource db {
 
 model UserModel {
   id          String             @id @default(uuid()) @db.Uuid
-  authId      String
   name        String
   email       String
   UserProject ProjectUserModel[]
