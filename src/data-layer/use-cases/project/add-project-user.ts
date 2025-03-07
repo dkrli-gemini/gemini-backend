@@ -1,4 +1,4 @@
-import { Provider } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import {
   IAddProjectUser,
   IAddProjectUserInput,
@@ -8,6 +8,7 @@ import { IProjectUser } from 'src/domain/entities/project-user';
 import { IUser } from 'src/domain/entities/user';
 import { IProjectUserRepository } from 'src/domain/repository/project-user.repository';
 
+@Injectable()
 export class AddProjectUser implements IAddProjectUser {
   constructor(private readonly projectUserRepository: IProjectUserRepository) {}
 

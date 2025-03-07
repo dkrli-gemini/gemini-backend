@@ -12,6 +12,7 @@ import { PrismaService } from '../../prisma.service';
 export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
   constructor(private readonly prisma: PrismaService) {}
   async createProjectUser(projectUser: IProjectUser): Promise<IProjectUser> {
+    console.log(projectUser);
     const projectUserModel = await this.prisma.projectUserModel.create({
       data: {
         user: {
