@@ -22,7 +22,7 @@ export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
             id: projectUser.project.id,
           },
         },
-        role: RoleModel.OWNER,
+        role: projectUser.role,
       },
     });
 
