@@ -8,8 +8,10 @@ import { IAddProject } from 'src/domain/contracts/use-cases/project/add-project'
 import { IProject } from 'src/domain/entities/project';
 import { Validator } from 'src/utilities/validator';
 import { Protected } from 'src/infra/auth/keycloak.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('projects')
+@ApiTags('projects')
 export class AddProjectController
   implements IController<AddProjectInputDto, AddProjectOutputDto>
 {

@@ -1,4 +1,5 @@
 import { Body, Controller, Param, Post, Req } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { RoleModel } from '@prisma/client';
 import { Request } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
@@ -14,6 +15,7 @@ import { AddProjectUserInputDto } from './dtos/add-project-user-input.dto';
 import { AddProjectUserOutputDto } from './dtos/add-project-user-output.dto';
 
 @Controller('projects')
+@ApiTags('projects')
 export class AddProjectUserController
   implements IController<AddProjectUserInputDto, AddProjectUserOutputDto>
 {
