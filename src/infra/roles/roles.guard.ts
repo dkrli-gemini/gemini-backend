@@ -10,6 +10,7 @@ import { RoleModel } from '@prisma/client';
 import { Request } from 'express';
 import { PrismaService } from '../db/prisma.service';
 import * as jwt from 'jsonwebtoken';
+import { ROLES_KEY } from './roles.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -39,11 +40,16 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('Project ID not found');
     }
 
+    const requiredRoles = this.reflector.get<RoleModel[]>(
+      ROLES_KEY,
+      context.getHandler(),
+    );
+
     const hasAccess = await this.prisma.projectUserModel.findFirst({
       where: {
         projectId: projectId,
         userId: authId,
-        role: RoleModel.OWNER,
+        role: { in: requiredRoles },
       },
     });
 

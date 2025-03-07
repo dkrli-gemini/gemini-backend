@@ -17,6 +17,8 @@ import { IProject } from './domain/entities/project';
 import { IUser } from './domain/entities/user';
 import { IAddProject } from './domain/contracts/use-cases/project/add-project';
 import { RolesGuard } from './infra/roles/roles.guard';
+import { Roles } from './infra/roles/roles.decorator';
+import { RoleModel } from '@prisma/client';
 
 @Controller()
 export class AppController {
@@ -34,6 +36,7 @@ export class AppController {
   @Get('test/:id')
   @UseGuards(Protected)
   @UseGuards(RolesGuard)
+  @Roles(RoleModel.OWNER)
   async createProject(@Param('id') id: string, @Req() req: Request) {
     return {
       message: 'accessed!',
