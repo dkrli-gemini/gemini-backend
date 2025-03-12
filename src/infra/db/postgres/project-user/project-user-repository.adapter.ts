@@ -45,6 +45,7 @@ export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
 
   mapToDomain(persistencyObject: any): IProjectUser {
     const projectUser: IProjectUser = {
+      id: persistencyObject.id,
       project: { id: persistencyObject.projectId } as IProject,
       user: { id: persistencyObject.userId } as IUser,
       role: persistencyObject.role,
