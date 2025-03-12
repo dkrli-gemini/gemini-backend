@@ -14,6 +14,9 @@ export class GetProjectUsers implements IGetProjectUsers {
     const projectUsers = await this.projectUserRepository.getProjectUsers(
       input.projectId,
     );
+
+    
+
     return projectUsers;
   }
 }

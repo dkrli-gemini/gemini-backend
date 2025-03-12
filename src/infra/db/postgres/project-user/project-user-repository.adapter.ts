@@ -36,6 +36,9 @@ export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
       where: {
         projectId: projectId,
       },
+      include: {
+        user: true,
+      },
     });
 
     let result = projectUsers.map((user) => {
@@ -50,11 +53,15 @@ export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
     const projectUser: IProjectUser = {
       id: persistencyObject.id,
       project: { id: persistencyObject.projectId } as IProject,
-      user: { id: persistencyObject.userId } as IUser,
+      user: {
+        id: persistencyObject.userId,
+        email: persistencyObject.user.email ?? null,
+        name: persistencyObject.user.name ?? null,
+      } as IUser,
       role: persistencyObject.role,
     };
 
-    return projectUser;
+    return projectUser as IProjectUser;
   }
 }
 
