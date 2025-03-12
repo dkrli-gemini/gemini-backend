@@ -13,3 +13,10 @@ export const created = <T = any>(data: T): IHttpResponse => {
     message: data,
   };
 };
+
+export const ok = <T = any>(data: T): IHttpResponse => {
+  return {
+    statusCode: HttpStatus.OK,
+    message: data,
+  };
+};

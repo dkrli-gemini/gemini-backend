@@ -38,12 +38,15 @@ export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
       },
     });
 
-    return Array.from({ length: projectUsers.length }, (element, i) =>
-      this.mapToDomain(element),
-    );
+    let result = projectUsers.map((user) => {
+      return this.mapToDomain(user);
+    });
+    return result;
   }
 
   mapToDomain(persistencyObject: any): IProjectUser {
+    console.log(persistencyObject);
+
     const projectUser: IProjectUser = {
       id: persistencyObject.id,
       project: { id: persistencyObject.projectId } as IProject,

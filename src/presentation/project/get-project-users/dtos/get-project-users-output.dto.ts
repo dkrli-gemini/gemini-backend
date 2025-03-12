@@ -19,6 +19,8 @@ export class GetProjectUsersOutputDto {
   users: ProjectUserDto[];
 
   constructor(usersInput: IProjectUser[]) {
+    this.users = [];
+
     usersInput.forEach((user) => {
       this.users.push(new ProjectUserDto(user));
     });

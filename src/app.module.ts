@@ -9,6 +9,7 @@ import { UserRepositoryModule } from './infra/db/postgres/user/user-repository.m
 import { AddProjectUserModule } from './presentation/project/add-project-user/add-project-user.module';
 import { AddProjectUserOutputDto } from './presentation/project/add-project-user/dtos/add-project-user-output.dto';
 import { AddProjectModule } from './presentation/project/add-project/add-project.module';
+import { GetProjectUsersModule } from './presentation/project/get-project-users/get-project-users.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AddProjectModule } from './presentation/project/add-project/add-project
     ProjectDataModule,
     AddProjectModule,
     AddProjectUserModule,
+    GetProjectUsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
