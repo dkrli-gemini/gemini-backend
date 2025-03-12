@@ -6,5 +6,6 @@ export abstract class IProjectUserRepository
   implements IRepositoryBase<IProjectUser>
 {
   abstract createProjectUser(projectUser: IProjectUser): Promise<IProjectUser>;
+  abstract getProjectUsers(projectId: string): Promise<IProjectUser[]>;
   abstract mapToDomain(persistencyObject: any): IProjectUser;
 }

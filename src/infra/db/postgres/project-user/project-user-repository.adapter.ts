@@ -11,6 +11,7 @@ import { PrismaService } from '../../prisma.service';
 @Injectable()
 export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
   constructor(private readonly prisma: PrismaService) {}
+
   async createProjectUser(projectUser: IProjectUser): Promise<IProjectUser> {
     console.log(projectUser);
     const projectUserModel = await this.prisma.projectUserModel.create({
@@ -28,6 +29,18 @@ export class ProjectUserRepositoryAdapter implements IProjectUserRepository {
     });
 
     return this.mapToDomain(projectUserModel);
+  }
+
+  async getProjectUsers(projectId: string): Promise<IProjectUser[]> {
+    const projectUsers = await this.prisma.projectUserModel.findMany({
+      where: {
+        projectId: projectId,
+      },
+    });
+
+    return Array.from({ length: projectUsers.length }, (element, i) =>
+      this.mapToDomain(element),
+    );
   }
 
   mapToDomain(persistencyObject: any): IProjectUser {
