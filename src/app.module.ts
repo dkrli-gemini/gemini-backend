@@ -10,6 +10,7 @@ import { AddProjectUserModule } from './presentation/project/add-project-user/ad
 import { AddProjectUserOutputDto } from './presentation/project/add-project-user/dtos/add-project-user-output.dto';
 import { AddProjectModule } from './presentation/project/add-project/add-project.module';
 import { GetProjectUsersModule } from './presentation/project/get-project-users/get-project-users.module';
+import { GetUserModule } from './presentation/user/get-user/get-user.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { GetProjectUsersModule } from './presentation/project/get-project-users/
     AddProjectModule,
     AddProjectUserModule,
     GetProjectUsersModule,
+    GetUserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
