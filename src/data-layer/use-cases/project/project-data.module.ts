@@ -4,6 +4,7 @@ import { ProjectRepositoryModule } from 'src/infra/db/postgres/project/project-r
 import { UserRepositoryModule } from 'src/infra/db/postgres/user/user-repository.module';
 import { AddProjectProvider } from './add-project';
 import { AddProjectUserProvider } from './add-project-user';
+import { GetProjectUserProvider } from './get-project-users';
 
 @Module({
   imports: [
@@ -11,7 +12,11 @@ import { AddProjectUserProvider } from './add-project-user';
     UserRepositoryModule,
     ProjectUserRepositoryModule,
   ],
-  providers: [AddProjectProvider, AddProjectUserProvider],
-  exports: [AddProjectProvider, AddProjectUserProvider],
+  providers: [
+    AddProjectProvider,
+    AddProjectUserProvider,
+    GetProjectUserProvider,
+  ],
+  exports: [AddProjectProvider, AddProjectUserProvider, GetProjectUserProvider],
 })
 export class ProjectDataModule {}
