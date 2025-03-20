@@ -1,3 +1,13 @@
-import { UserDto } from 'src/presentation/project/get-project-users/dtos/get-project-users-output.dto';
+import { IUser } from 'src/domain/entities/user';
 
-export type GetUserOutputDto = UserDto;
+export class GetUserOutputDto {
+  id: string;
+  name: string;
+  email: string;
+
+  constructor(user: IUser) {
+    this.id = user.id;
+    this.name = user.name;
+    this.email = user.email;
+  }
+}

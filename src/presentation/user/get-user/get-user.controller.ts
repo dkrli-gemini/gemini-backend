@@ -8,7 +8,6 @@ import { IHttpResponse, ok } from 'src/domain/contracts/http';
 import { IGetUser } from 'src/domain/contracts/use-cases/user/get-user';
 import { IUser } from 'src/domain/entities/user';
 import { Secured } from 'src/infra/auth/auth.decorator';
-import { UserDto } from 'src/presentation/project/get-project-users/dtos/get-project-users-output.dto';
 import { GetUserOutputDto } from './dtos/get-user-output.dto';
 
 @Controller('users')
@@ -23,14 +22,14 @@ export class GetUserController implements IController<null, GetUserOutputDto> {
     @Req()
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     projectId?: string,
-  ): Promise<IHttpResponse<UserDto | Error>> {
+  ): Promise<IHttpResponse<GetUserOutputDto | Error>> {
     const userId = (req.user as any).sub;
     const user = await this.useCase.execute({ userId });
     const response = this.mapToOutput(user);
     return ok(response);
   }
 
-  private mapToOutput(user: IUser): UserDto {
-    return new UserDto(user);
+  private mapToOutput(user: IUser): GetUserOutputDto {
+    return new GetUserOutputDto(user);
   }
 }

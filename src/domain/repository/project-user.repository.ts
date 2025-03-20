@@ -1,4 +1,3 @@
-import { ProjectUserModel } from '@prisma/client';
 import { IRepositoryBase } from '../contracts/repository-base';
 import { IProjectUser } from '../entities/project-user';
 
