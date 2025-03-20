@@ -9,14 +9,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
-import { Request, Response } from 'express';
 import { Protected } from './infra/auth/keycloak.guard';
-import { IProjectRepository } from './domain/repository/project.respository';
-import { IUserRepository } from './domain/repository/user.repository';
-import { IProject } from './domain/entities/project';
-import { IUser } from './domain/entities/user';
-import { IAddProject } from './domain/contracts/use-cases/project/add-project';
-import { Secured } from './infra/auth/auth.decorator';
+
 import {
   CloudstackCommands,
   CloudstackService,

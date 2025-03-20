@@ -1,7 +1,13 @@
 import { IEntityBase } from '../models/entity-base';
-import { IProjectUser } from './project-user';
+import { IDomain } from './domain';
+
+export enum ProjectTypeEnum {
+  ROOT = 'ROOT',
+  MEMBER = 'MEMBER',
+}
 
 export interface IProject extends IEntityBase {
   name: string;
-  users?: IProjectUser[];
+  type: ProjectTypeEnum;
+  domain?: IDomain;
 }
