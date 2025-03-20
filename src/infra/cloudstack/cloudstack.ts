@@ -13,7 +13,7 @@ export enum CloudstackCommands {
 
 export interface CloudstackServiceInput {
   command: string;
-  additionalParams: CloudstackParams;
+  additionalParams?: CloudstackParams;
 }
 
 @Injectable()
@@ -55,7 +55,7 @@ export class CloudstackService {
 
     try {
       const response = await axios.get(this.cloudstackUrl, { params });
-      return response;
+      return response.data;
     } catch (error) {
       console.error('Error in Cloudstack API Request', error);
       return {

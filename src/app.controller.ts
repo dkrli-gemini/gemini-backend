@@ -20,13 +20,28 @@ import { RolesGuard } from './infra/roles/roles.guard';
 import { Roles, UserRoles } from './infra/roles/roles.decorator';
 import { RoleModel } from '@prisma/client';
 import { Secured } from './infra/auth/auth.decorator';
+import {
+  CloudstackCommands,
+  CloudstackService,
+} from './infra/cloudstack/cloudstack';
+import { ok } from './domain/contracts/http';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly addProjectUseCase: IAddProject,
+    private readonly cloudstackService: CloudstackService,
   ) {}
+
+  @Get('list-machines')
+  async listMachines() {
+    const response = await this.cloudstackService.handle({
+      command: CloudstackCommands.ListVirtualMachines,
+    });
+
+    return ok(response);
+  }
 
   @Get('protected')
   @UseGuards(Protected)
