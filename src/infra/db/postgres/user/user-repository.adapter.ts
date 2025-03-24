@@ -7,15 +7,16 @@ import { PrismaService } from '../../prisma.service';
 export class UserRepositoryAdapter implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(user: IUser, authId: string): Promise<IUser> {
-    // return this.prisma.userModel.create({
-    //   data: {
-    //     id: authId,
-    //     name: user.name,
-    //     email: user.email,
-    //   },
-    // });
-    return null;
+  async create(user: IUser): Promise<IUser> {
+    const result = await this.prisma.userModel.create({
+      data: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+
+    return this.mapToDomain(result);
   }
 
   async getUserById(userId: string): Promise<IUser> {
@@ -33,7 +34,7 @@ export class UserRepositoryAdapter implements IUserRepository {
       id: persistencyObject.id,
       email: persistencyObject.email,
       name: persistencyObject.name,
-    } as IUser;
+    };
 
     return user;
   }
