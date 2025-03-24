@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
-import { Protected } from './infra/auth/keycloak.guard';
 
 import {
   CloudstackCommands,
@@ -31,7 +30,6 @@ export class AppController {
   }
 
   @Get('protected')
-  @UseGuards(Protected)
   getProtectedData() {
     return { message: 'authenticated' };
   }
