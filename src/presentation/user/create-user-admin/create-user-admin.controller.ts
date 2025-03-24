@@ -8,7 +8,7 @@ import { IHttpResponse, ok } from 'src/domain/contracts/http';
 import { ICreateUser } from 'src/domain/contracts/use-cases/user/create-user';
 import { IUser } from 'src/domain/entities/user';
 import { KeycloakAuthGuard } from 'src/infra/auth/keycloak.guard';
-import { Roles, RolesGuard } from 'src/infra/auth/roles.guard';
+import { Roles, RolesEnum, RolesGuard } from 'src/infra/auth/roles.guard';
 import { CreateUserAdminInputDto } from './dtos/create-user-admin.input.dto';
 import { CreateUserAdminOutputDto } from './dtos/create-user-admin.output.dto';
 
@@ -20,7 +20,7 @@ export class CreateUserAdminController
 {
   constructor(private readonly createUser: ICreateUser) {}
 
-  @Roles('admin')
+  @Roles(RolesEnum.ADMIN)
   @Post('create-user-admin')
   async handle(
     @Body() input: CreateUserAdminInputDto,

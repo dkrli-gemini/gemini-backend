@@ -7,6 +7,10 @@ import {
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
+export enum RolesEnum {
+  ADMIN = 'admin',
+}
+
 export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 
 @Injectable()
