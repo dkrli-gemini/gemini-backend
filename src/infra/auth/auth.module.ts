@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './roles.guard';
 import { Reflector } from '@nestjs/core';
 import * as Keycloak from 'keycloak-connect';
 import { KeycloakAuthGuard } from './keycloak.guard';
 
+@Global()
 @Module({
   providers: [
     Reflector,

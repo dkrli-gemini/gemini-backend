@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './infra/auth/auth.module';
 import { CloudstackModule } from './infra/cloudstack/cloudstack.module';
+import { CreateUserAdmin } from './presentation/user/create-user-admin/create-user-admin.module';
 // import { GetUserModule } from './presentation/user/get-user/get-user.module';
 
 @Module({
@@ -11,6 +12,7 @@ import { CloudstackModule } from './infra/cloudstack/cloudstack.module';
     ConfigModule.forRoot({ isGlobal: true }),
     CloudstackModule,
     AuthModule,
+    CreateUserAdmin,
     // GetUserModule,
   ],
   controllers: [AppController],
