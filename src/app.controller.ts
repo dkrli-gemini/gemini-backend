@@ -15,6 +15,8 @@ import {
   CloudstackService,
 } from './infra/cloudstack/cloudstack';
 import { ok } from './domain/contracts/http';
+import { KeycloakAuthGuard } from './infra/auth/keycloak.guard';
+import { Roles, RolesGuard } from './infra/auth/roles.guard';
 
 @Controller()
 export class AppController {
@@ -29,8 +31,10 @@ export class AppController {
     return ok(response);
   }
 
+  @UseGuards(KeycloakAuthGuard, RolesGuard)
+  @Roles('admin')
   @Get('protected')
-  getProtectedData() {
+  async getProtectedData(@Req() req) {
     return { message: 'authenticated' };
   }
 }

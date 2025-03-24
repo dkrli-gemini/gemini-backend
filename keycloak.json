@@ -1,0 +1,11 @@
+{
+  "realm": "nestjs-realm",
+  "auth-server-url": "http://localhost:8080/",
+  "resource": "gemini-api-client",
+  "verify-token-audience": true,
+  "credentials": {
+    "secret": "wMvdEEXkUcL4on0uvsM6ay35cuOGmaMt"
+  },
+  "confidential-port": 0,
+  "ssl-required": "external"
+}

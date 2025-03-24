@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import * as session from 'express-session';
+import * as KeycloakConnect from 'keycloak-connect';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 dotenv.config();
@@ -25,6 +26,13 @@ async function bootstrap() {
       saveUninitialized: true,
     }),
   );
+
+  const keycloak = new KeycloakConnect({});
+  try {
+    app.use(keycloak.middleware());
+  } catch (e) {
+    console.error(e);
+  }
 
   await app.listen(process.env.PORT ?? 3000);
 }

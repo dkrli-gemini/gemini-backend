@@ -1,5 +1,4 @@
 import { Injectable, Provider } from '@nestjs/common';
-import { User } from 'src/data-layer/models/user';
 import { IUser } from 'src/domain/entities/user';
 import { IUserRepository } from 'src/domain/repository/user.repository';
 import { PrismaService } from '../../prisma.service';
@@ -8,14 +7,15 @@ import { PrismaService } from '../../prisma.service';
 export class UserRepositoryAdapter implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(user: IUser, authId: string): Promise<User> {
-    return this.prisma.userModel.create({
-      data: {
-        id: authId,
-        name: user.name,
-        email: user.email,
-      },
-    });
+  async create(user: IUser, authId: string): Promise<IUser> {
+    // return this.prisma.userModel.create({
+    //   data: {
+    //     id: authId,
+    //     name: user.name,
+    //     email: user.email,
+    //   },
+    // });
+    return null;
   }
 
   async getUserById(userId: string): Promise<IUser> {
@@ -33,7 +33,7 @@ export class UserRepositoryAdapter implements IUserRepository {
       id: persistencyObject.id,
       email: persistencyObject.email,
       name: persistencyObject.name,
-    };
+    } as IUser;
 
     return user;
   }
