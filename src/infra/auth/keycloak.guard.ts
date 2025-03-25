@@ -43,7 +43,7 @@ export class KeycloakAuthGuard implements CanActivate {
     return request.headers.authorization?.split(' ')[1] || null;
   }
 
-      // Type-safe token validation
+  // Type-safe token validation
   private decodeToken(token: string): any {
     try {
       const base64Payload = token.split('.')[1];

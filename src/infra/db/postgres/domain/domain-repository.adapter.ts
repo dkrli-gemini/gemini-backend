@@ -1,5 +1,6 @@
 import { Injectable, Provider } from '@nestjs/common';
 import { ProjectRoleModel, ProjectTypeModel } from '@prisma/client';
+import { map, mapTo } from 'rxjs';
 import { IDomain } from 'src/domain/entities/domain';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
 import { PrismaService } from '../../prisma.service';
@@ -39,6 +40,39 @@ export class DomainRepositoryAdapter implements IDomainRepository {
 
     return this.mapToDomain(result);
   }
+
+  async findByOwner(ownerId: string): Promise<IDomain[]> {
+    const members = await this.prismaService.projectModel.findMany({
+      where: {
+        type: ProjectTypeModel.ROOT,
+        DomainMemberModel: {
+          some: {
+            userId: ownerId,
+            role: ProjectRoleModel.OWNER,
+          },
+        },
+      },
+    });
+
+    const domain = await Promise.all(
+      members.map(async (member) => {
+        const d = await this.prismaService.domainModel.findFirst({
+          where: {
+            rootProjectId: member.id,
+          },
+          include: {
+            rootProject: true,
+          },
+        });
+        return d;
+      }),
+    );
+
+    console.log(domain);
+    const result = domain.map((d) => this.mapToDomain(d));
+    return result;
+  }
+
   mapToDomain(persistencyObject: any): IDomain {
     const domain: IDomain = {
       id: persistencyObject.id,

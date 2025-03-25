@@ -67,7 +67,12 @@ export class CloudstackService {
     params['signature'] = signature;
 
     try {
-      const response = await axios.get(this.cloudstackUrl, { params });
+      const response = await axios.get(this.cloudstackUrl, {
+        params,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
       return response.data;
     } catch (error) {
       console.error('Error in Cloudstack API Request', error);

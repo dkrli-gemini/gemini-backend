@@ -36,16 +36,20 @@ export class AppController {
     return ok(response);
   }
 
-  @AuthorizedTo(RolesEnum.BASIC)
   @Get('protected')
+  @AuthorizedTo(RolesEnum.ADMIN)
   async getProtectedData(@Req() req) {
-    const result = await this.createDomain.execute({
-      cloudstackAccountId: 'accountid',
-      cloudstackDomainId: 'domainid',
-      name: 'name',
-      ownerId: 'dbae6e8d-7e30-413e-9f6e-4406b983fd10',
-    });
+    const result = await this.domainRepository.findByOwner(req.user.id);
+    console.log('ID:', result[0].cloudstackDomainId);
 
-    return result;
+    const machines = await this.cloudstackService.handle({
+      command: CloudstackCommands.VirtualMachine.ListVirtualMachines,
+      additionalParams: {
+        domainid: result[0].cloudstackDomainId,
+      },
+    });
+    console.log(machines);
+
+    return machines;
   }
 }
