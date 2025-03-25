@@ -6,18 +6,48 @@ import {
 import { IDomain } from 'src/domain/entities/domain';
 import { IProject } from 'src/domain/entities/project';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
+import {
+  CloudstackCommands,
+  CloudstackService,
+} from 'src/infra/cloudstack/cloudstack';
 
 @Injectable()
 export class CreateDomain implements ICreateDomain {
-  constructor(private readonly domainRepository: IDomainRepository) {}
+  constructor(
+    private readonly domainRepository: IDomainRepository,
+    private readonly cloudstackService: CloudstackService,
+  ) {}
 
   async execute(input: ICreateDomainInput): Promise<IDomain> {
+    const domainResponse = await this.cloudstackService.handle({
+      command: CloudstackCommands.Domain.CreateDomain,
+      additionalParams: {
+        name: input.name,
+      },
+    });
+
+    const accountResponse = await this.cloudstackService.handle({
+      command: CloudstackCommands.Account.CreateAccount,
+      additionalParams: {
+        email: input.accountEmail,
+        firstname: input.accountName,
+        lastname: input.accountName,
+        password: input.accountPassword,
+        username: input.accountName,
+        account: input.accountName,
+        accounttype: '2',
+      },
+    });
+
+    console.log(accountResponse);
+    console.log(domainResponse);
+
     const domain = await this.domainRepository.createDomain(
       {
         name: input.name,
         rootProject: {} as IProject,
-        cloudstackAccountId: input.cloudstackAccountId,
-        cloudstackDomainId: input.cloudstackDomainId,
+        cloudstackAccountId: accountResponse.createaccountresponse.account.id,
+        cloudstackDomainId: domainResponse.createdomainresponse.domain.id,
       },
       input.ownerId,
     );

@@ -21,6 +21,10 @@ export namespace CloudstackCommands {
   }
   export enum Account {
     ListAccounts = 'listAccounts',
+    CreateAccount = 'createAccount',
+  }
+  export enum Domain {
+    CreateDomain = 'createDomain',
   }
 }
 

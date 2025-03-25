@@ -5,4 +5,7 @@ export class CreateDomainAdminInputDto {
   name: string;
   cloudstackDomainId: string;
   cloudstackAccountId: string;
+  accountName: string;
+  accountEmail: string;
+  accountPassword: string;
 }

@@ -31,6 +31,9 @@ export class CreateDomainAdminController
       cloudstackDomainId: input.cloudstackDomainId,
       name: input.name,
       ownerId: input.ownerId,
+      accountEmail: input.accountEmail,
+      accountName: input.accountName,
+      accountPassword: input.accountPassword,
     });
 
     const response = this.mapToOutput(domain);

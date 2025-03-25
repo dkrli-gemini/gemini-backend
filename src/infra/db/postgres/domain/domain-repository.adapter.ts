@@ -74,6 +74,7 @@ export class DomainRepositoryAdapter implements IDomainRepository {
   }
 
   mapToDomain(persistencyObject: any): IDomain {
+    console.log(persistencyObject);
     const domain: IDomain = {
       id: persistencyObject.id,
       cloudstackDomainId: persistencyObject.cloudstackDomainId,
