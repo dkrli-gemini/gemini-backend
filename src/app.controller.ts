@@ -39,29 +39,15 @@ export class AppController {
   @Get('protected')
   @AuthorizedTo(RolesEnum.ADMIN)
   async getProtectedData(@Req() req) {
-    // const result = await this.domainRepository.findByOwner(req.user.id);
-    // console.log('ID:', result[0].cloudstackDomainId);
-    // const machines = await this.cloudstackService.handle({
-    //   command: CloudstackCommands.VirtualMachine.ListVirtualMachines,
-    //   additionalParams: {
-    //     domainid: result[0].cloudstackDomainId,
-    //   },
-    // });
-    // console.log(machines);
-    // return machines;
-    const result = await this.cloudstackService.handle({
-      command: CloudstackCommands.Account.CreateAccount,
+    const result = await this.domainRepository.findByOwner(req.user.id);
+    console.log('ID:', result[0].cloudstackDomainId);
+    const machines = await this.cloudstackService.handle({
+      command: CloudstackCommands.VirtualMachine.ListVirtualMachines,
       additionalParams: {
-        email: 'testmail@gmail.com',
-        firstname: 'Test',
-        lastname: 'Name',
-        password: 'admin',
-        username: 'username',
-        accounttype: '2',
-        
+        domainid: result[1].cloudstackDomainId,
       },
     });
-    console.log(result);
-    return result;
+    console.log(machines);
+    return machines;
   }
 }

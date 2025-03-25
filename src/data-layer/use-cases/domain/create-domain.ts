@@ -35,6 +35,7 @@ export class CreateDomain implements ICreateDomain {
         password: input.accountPassword,
         username: input.accountName,
         account: input.accountName,
+        domainid: domainResponse.createdomainresponse.domain.id,
         accounttype: '2',
       },
     });
