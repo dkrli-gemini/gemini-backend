@@ -13,7 +13,7 @@ def create_nest_module(full_module_name: str):
     module_class = full_module_name.replace('Module', '')
 
     # Define paths
-    base_dir = os.path.join("src", "presentation", module_kebab)
+    base_dir = os.path.join("../", "src", "presentation", module_kebab)
     dtos_dir = os.path.join(base_dir, "dtos")
     os.makedirs(dtos_dir, exist_ok=True)
 
