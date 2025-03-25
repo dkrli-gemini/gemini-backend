@@ -14,25 +14,41 @@ import {
 } from './infra/cloudstack/cloudstack';
 import { ok } from './domain/contracts/http';
 import { KeycloakAuthGuard } from './infra/auth/keycloak.guard';
-import { Roles, RolesGuard } from './infra/auth/roles.guard';
+import { Roles, RolesEnum, RolesGuard } from './infra/auth/roles.guard';
+import { AuthorizedTo } from './infra/auth/auth.decorator';
+import { IDomainRepository } from './domain/repository/domain.repoitory';
 
 @Controller()
 export class AppController {
-  constructor(private readonly cloudstackService: CloudstackService) {}
+  constructor(
+    private readonly cloudstackService: CloudstackService,
+    private readonly domainRepository: IDomainRepository,
+  ) {}
 
   @Get('list-machines')
   async listMachines() {
     const response = await this.cloudstackService.handle({
-      command: CloudstackCommands.ListVirtualMachines,
+      command: CloudstackCommands.VirtualMachine.ListVirtualMachines,
     });
 
     return ok(response);
   }
 
-  @UseGuards(KeycloakAuthGuard, RolesGuard)
-  @Roles('admin')
+  @AuthorizedTo(RolesEnum.BASIC)
   @Get('protected')
   async getProtectedData(@Req() req) {
-    return { message: 'authenticated' };
+    const result = await this.domainRepository.createDomain(
+      {
+        name: 'Name',
+        rootProject: {
+          name: 'Root Proj',
+          type: null,
+        },
+        cloudstackDomainId: 'testdomainid',
+      },
+      'dbae6e8d-7e30-413e-9f6e-4406b983fd10',
+    );
+
+    return result;
   }
 }

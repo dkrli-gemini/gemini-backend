@@ -25,9 +25,6 @@ model DomainMemberModel {
   user   UserModel? @relation(fields: [userId], references: [id])
   userId String?    @db.Uuid
 
-  domain   DomainModel? @relation(fields: [domainId], references: [id])
-  domainId String?      @db.Uuid
-
   project        ProjectModel? @relation(fields: [projectModelId], references: [id])
   projectModelId String?       @db.Uuid
 
@@ -35,13 +32,12 @@ model DomainMemberModel {
 }
 
 model DomainModel {
-  id                  String              @id @default(uuid()) @db.Uuid
+  id                  String        @id @default(uuid()) @db.Uuid
   name                String
   cloudstackDomainId  String
   cloudstackAccountId String?
-  rootProject         ProjectModel?       @relation(fields: [rootProjectId], references: [id])
-  rootProjectId       String?             @db.Uuid
-  members             DomainMemberModel[]
+  rootProject         ProjectModel? @relation(fields: [rootProjectId], references: [id])
+  rootProjectId       String?       @db.Uuid
 }
 
 model ProjectModel {

@@ -7,8 +7,21 @@ export interface CloudstackParams {
   [key: string]: string;
 }
 
-export enum CloudstackCommands {
-  ListVirtualMachines = 'listVirtualMachines',
+export namespace CloudstackCommands {
+  export enum VirtualMachine {
+    ListVirtualMachines = 'listVirtualMachines',
+  }
+  export enum Network {
+    ListNetworks = 'listNetworks',
+  }
+  export enum User {
+    ListUsers = 'listUsers',
+    CreateUser = 'createUser',
+    DeleteUser = 'deleteUser',
+  }
+  export enum Account {
+    ListAccounts = 'listAccounts',
+  }
 }
 
 export interface CloudstackServiceInput {
