@@ -5,7 +5,6 @@ export interface ICreateDomainInput {
   name: string;
   cloudstackDomainId: string;
   cloudstackAccountId: string;
-  rootProjectName: string;
   ownerId: string;
 }
 

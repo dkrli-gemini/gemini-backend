@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
+import { DomainDataModule } from './data-layer/use-cases/domain/domain-data.module';
 import { AuthModule } from './infra/auth/auth.module';
 import { CloudstackModule } from './infra/cloudstack/cloudstack.module';
 import { DomainRepositoryModule } from './infra/db/postgres/domain/domain-repository.module';
@@ -15,6 +16,7 @@ import { GetUserModule } from './presentation/user/get-user/get-user.module';
     CreateUserAdmin,
     GetUserModule,
     DomainRepositoryModule,
+    DomainDataModule,
   ],
   controllers: [AppController],
 })

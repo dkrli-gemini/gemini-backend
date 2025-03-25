@@ -12,11 +12,12 @@ export class DomainRepositoryAdapter implements IDomainRepository {
     const result = await this.prismaService.domainModel.create({
       data: {
         cloudstackDomainId: domain.cloudstackDomainId,
+        cloudstackAccountId: domain.cloudstackAccountId,
         name: domain.name,
 
         rootProject: {
           create: {
-            name: domain.rootProject.name,
+            name: 'root',
             type: ProjectTypeModel.ROOT,
             DomainMemberModel: {
               create: {
@@ -35,8 +36,6 @@ export class DomainRepositoryAdapter implements IDomainRepository {
         rootProject: true,
       },
     });
-
-    console.log(result);
 
     return this.mapToDomain(result);
   }

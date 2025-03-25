@@ -15,9 +15,7 @@ export class CreateDomain implements ICreateDomain {
     const domain = await this.domainRepository.createDomain(
       {
         name: input.name,
-        rootProject: {
-          name: input.rootProjectName,
-        } as IProject,
+        rootProject: {} as IProject,
         cloudstackAccountId: input.cloudstackAccountId,
         cloudstackDomainId: input.cloudstackDomainId,
       },

@@ -17,12 +17,14 @@ import { KeycloakAuthGuard } from './infra/auth/keycloak.guard';
 import { Roles, RolesEnum, RolesGuard } from './infra/auth/roles.guard';
 import { AuthorizedTo } from './infra/auth/auth.decorator';
 import { IDomainRepository } from './domain/repository/domain.repoitory';
+import { ICreateDomain } from './domain/contracts/use-cases/domain/create-domain';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly cloudstackService: CloudstackService,
     private readonly domainRepository: IDomainRepository,
+    private readonly createDomain: ICreateDomain,
   ) {}
 
   @Get('list-machines')
@@ -37,17 +39,12 @@ export class AppController {
   @AuthorizedTo(RolesEnum.BASIC)
   @Get('protected')
   async getProtectedData(@Req() req) {
-    const result = await this.domainRepository.createDomain(
-      {
-        name: 'Name',
-        rootProject: {
-          name: 'Root Proj',
-          type: null,
-        },
-        cloudstackDomainId: 'testdomainid',
-      },
-      'dbae6e8d-7e30-413e-9f6e-4406b983fd10',
-    );
+    const result = await this.createDomain.execute({
+      cloudstackAccountId: 'accountid',
+      cloudstackDomainId: 'domainid',
+      name: 'name',
+      ownerId: 'dbae6e8d-7e30-413e-9f6e-4406b983fd10',
+    });
 
     return result;
   }
