@@ -12,7 +12,7 @@ import { KeycloakAuthGuard } from './keycloak.guard';
     {
       provide: 'KEYCLOAK_INSTANCE',
       useFactory: () => {
-        return new Keycloak({}, './keycloak.json'); // Ensure path is correct
+        return new Keycloak({}, './keycloak.json');
       },
     },
     {
@@ -24,6 +24,6 @@ import { KeycloakAuthGuard } from './keycloak.guard';
       useClass: RolesGuard,
     },
   ],
-  exports: ['KEYCLOAK_INSTANCE'], // Add this line
+  exports: ['KEYCLOAK_INSTANCE'],
 })
 export class AuthModule {}

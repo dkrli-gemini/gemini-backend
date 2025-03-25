@@ -9,6 +9,7 @@ import { Reflector } from '@nestjs/core';
 
 export enum RolesEnum {
   ADMIN = 'admin',
+  BASOC = 'basic',
 }
 
 export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
