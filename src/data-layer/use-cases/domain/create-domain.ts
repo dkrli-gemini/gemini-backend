@@ -30,13 +30,13 @@ export class CreateDomain implements ICreateDomain {
       command: CloudstackCommands.Account.CreateAccount,
       additionalParams: {
         email: input.accountEmail,
-        firstname: input.accountName,
-        lastname: input.accountName,
+        firstname: input.name,
+        lastname: input.name,
         password: input.accountPassword,
-        username: input.accountName,
-        account: input.accountName,
+        username: input.name,
+        account: input.name,
         domainid: domainResponse.createdomainresponse.domain.id,
-        accounttype: '2',
+        accounttype: '2', // For domain and account admin
       },
     });
 

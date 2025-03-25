@@ -32,7 +32,6 @@ export class CreateDomainAdminController
       name: input.name,
       ownerId: input.ownerId,
       accountEmail: input.accountEmail,
-      accountName: input.accountName,
       accountPassword: input.accountPassword,
     });
 

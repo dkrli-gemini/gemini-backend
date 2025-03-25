@@ -6,7 +6,6 @@ export interface ICreateDomainInput {
   cloudstackDomainId: string;
   cloudstackAccountId: string;
   ownerId: string;
-  accountName: string;
   accountEmail: string;
   accountPassword: string;
 }
