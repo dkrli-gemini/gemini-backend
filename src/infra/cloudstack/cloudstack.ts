@@ -26,6 +26,9 @@ export namespace CloudstackCommands {
   export enum Domain {
     CreateDomain = 'createDomain',
   }
+  export enum VPC {
+    CreateVPC = 'createVPC',
+  }
 }
 
 export interface CloudstackServiceInput {

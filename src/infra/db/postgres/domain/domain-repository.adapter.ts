@@ -14,6 +14,16 @@ export class DomainRepositoryAdapter implements IDomainRepository {
       data: {
         cloudstackDomainId: domain.cloudstackDomainId,
         cloudstackAccountId: domain.cloudstackAccountId,
+        vpc: {
+          create: {
+            cidr: domain.vpc.cidr,
+            cloudstackId: domain.vpc.cloudstackId,
+            dns1: domain.vpc.dns1,
+            dns2: domain.vpc.dns2,
+            name: domain.vpc.name,
+            state: domain.vpc.state,
+          },
+        },
         name: domain.name,
 
         rootProject: {
@@ -35,6 +45,7 @@ export class DomainRepositoryAdapter implements IDomainRepository {
       },
       include: {
         rootProject: true,
+        vpc: true
       },
     });
 
@@ -76,6 +87,14 @@ export class DomainRepositoryAdapter implements IDomainRepository {
   mapToDomain(persistencyObject: any): IDomain {
     console.log(persistencyObject);
     const domain: IDomain = {
+      vpc: {
+        cidr: persistencyObject.vpc.cidr,
+        cloudstackId: persistencyObject.vpc.cloudstackId,
+        dns1: persistencyObject.vpc.dns1,
+        dns2: persistencyObject.vpc.dns2,
+        name: persistencyObject.vpc.name,
+        state: persistencyObject.vpc.state,
+      },
       id: persistencyObject.id,
       cloudstackDomainId: persistencyObject.cloudstackDomainId,
       cloudstackAccountId: persistencyObject.cloudstackAccountId,

@@ -25,8 +25,8 @@ export class CreateDomain implements ICreateDomain {
     this.defaultVpcOfferingId = this.configService.get<string>(
       'CLOUDSTACK_DEFAULT_VPC_OFFERING',
     );
-    this.defaultVpcOfferingId = this.configService.get<string>(
-      'CLOUDSTACK_DEFALT_ZONE_ID',
+    this.defaultZoneId = this.configService.get<string>(
+      'CLOUDSTACK_DEFAULT_ZONE_ID',
     );
   }
 
@@ -52,10 +52,32 @@ export class CreateDomain implements ICreateDomain {
       },
     });
 
+    const vpcResponse = await this.cloudstackService.handle({
+      command: CloudstackCommands.VPC.CreateVPC,
+      additionalParams: {
+        name: `${input.name}-private-cloud`,
+        cidr: '10.128.0.0/20',
+        vpcofferingid: this.defaultVpcOfferingId,
+        zoneid: this.defaultZoneId,
+        domainid: domainResponse.createdomainresponse.domain.id,
+        account: accountResponse.createaccountresponse.account.name,
+        dns1: '1.1.1.1',
+        dns2: '1.0.0.1',
+      },
+    });
+    console.log(vpcResponse.createvpcresponse);
 
     const domain = await this.domainRepository.createDomain(
       {
         name: input.name,
+        vpc: {
+          cidr: '10.128.0.0/20',
+          name: `${input.name}-private-cloud`,
+          cloudstackId: vpcResponse.createvpcresponse.id,
+          dns1: '1.1.1.1',
+          dns2: '1.0.0.1',
+          state: 'on',
+        },
         rootProject: {} as IProject,
         cloudstackAccountId: accountResponse.createaccountresponse.account.id,
         cloudstackDomainId: domainResponse.createdomainresponse.domain.id,
