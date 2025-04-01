@@ -1,4 +1,5 @@
 import { Injectable, Provider } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ICreateDomain,
   ICreateDomainInput,
@@ -13,10 +14,21 @@ import {
 
 @Injectable()
 export class CreateDomain implements ICreateDomain {
+  private defaultVpcOfferingId: string;
+  private defaultZoneId: string;
+
   constructor(
     private readonly domainRepository: IDomainRepository,
     private readonly cloudstackService: CloudstackService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.defaultVpcOfferingId = this.configService.get<string>(
+      'CLOUDSTACK_DEFAULT_VPC_OFFERING',
+    );
+    this.defaultVpcOfferingId = this.configService.get<string>(
+      'CLOUDSTACK_DEFALT_ZONE_ID',
+    );
+  }
 
   async execute(input: ICreateDomainInput): Promise<IDomain> {
     const domainResponse = await this.cloudstackService.handle({
@@ -40,8 +52,6 @@ export class CreateDomain implements ICreateDomain {
       },
     });
 
-    console.log(accountResponse);
-    console.log(domainResponse);
 
     const domain = await this.domainRepository.createDomain(
       {
@@ -52,6 +62,7 @@ export class CreateDomain implements ICreateDomain {
       },
       input.ownerId,
     );
+
     return domain;
   }
 }

@@ -34,10 +34,23 @@ model DomainMemberModel {
 model DomainModel {
   id                  String        @id @default(uuid()) @db.Uuid
   name                String
+  vpc                 VPCModel?     @relation(fields: [vpcId], references: [id])
+  vpcId               String?       @db.Uuid
   cloudstackDomainId  String
   cloudstackAccountId String?
   rootProject         ProjectModel? @relation(fields: [rootProjectId], references: [id])
   rootProjectId       String?       @db.Uuid
+}
+
+model VPCModel {
+  id           String        @id @default(uuid()) @db.Uuid
+  name         String
+  cloudstackId String
+  cidr         String
+  dns1         String
+  dns2         String
+  state        String
+  DomainModel  DomainModel[]
 }
 
 model ProjectModel {

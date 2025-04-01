@@ -32,14 +32,9 @@ export class AppController {
   @AuthorizedTo(RolesEnum.ADMIN)
   async getProtectedData(@Req() req) {
     const result = await this.domainRepository.findByOwner(req.user.id);
-    console.log('ID:', result[0].cloudstackDomainId);
     const machines = await this.cloudstackService.handle({
-      command: CloudstackCommands.VirtualMachine.ListVirtualMachines,
-      additionalParams: {
-        domainid: result[1].cloudstackDomainId,
-      },
+      command: 'listZones',
     });
-    console.log(machines);
     return machines;
   }
 }
