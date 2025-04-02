@@ -16,6 +16,9 @@ import {
 export class CreateDomain implements ICreateDomain {
   private defaultVpcOfferingId: string;
   private defaultZoneId: string;
+  private defaultCidr: string;
+  private defaultDns1: string;
+  private defaultDns2: string;
 
   constructor(
     private readonly domainRepository: IDomainRepository,
@@ -28,6 +31,9 @@ export class CreateDomain implements ICreateDomain {
     this.defaultZoneId = this.configService.get<string>(
       'CLOUDSTACK_DEFAULT_ZONE_ID',
     );
+    this.defaultCidr = this.configService.get<string>('DEFAULT_CIDR');
+    this.defaultDns1 = this.configService.get<string>('DEFAULT_DNS1');
+    this.defaultDns2 = this.configService.get<string>('DEFAULT_DNS2');
   }
 
   async execute(input: ICreateDomainInput): Promise<IDomain> {
@@ -55,14 +61,14 @@ export class CreateDomain implements ICreateDomain {
     const vpcResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.VPC.CreateVPC,
       additionalParams: {
-        name: `${input.name}-private-cloud`,
-        cidr: '10.128.0.0/20',
+        name: `${input.name}-VPC`,
+        cidr: this.defaultCidr,
         vpcofferingid: this.defaultVpcOfferingId,
         zoneid: this.defaultZoneId,
         domainid: domainResponse.createdomainresponse.domain.id,
         account: accountResponse.createaccountresponse.account.name,
-        dns1: '1.1.1.1',
-        dns2: '1.0.0.1',
+        dns1: this.defaultDns1,
+        dns2: this.defaultDns2,
       },
     });
     console.log(vpcResponse.createvpcresponse);
@@ -71,11 +77,11 @@ export class CreateDomain implements ICreateDomain {
       {
         name: input.name,
         vpc: {
-          cidr: '10.128.0.0/20',
-          name: `${input.name}-private-cloud`,
+          cidr: this.defaultCidr,
+          name: `${input.name}-VPC`,
           cloudstackId: vpcResponse.createvpcresponse.id,
-          dns1: '1.1.1.1',
-          dns2: '1.0.0.1',
+          dns1: this.defaultDns1,
+          dns2: this.defaultDns2,
           state: 'on',
         },
         rootProject: {} as IProject,

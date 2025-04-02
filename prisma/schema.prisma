@@ -32,14 +32,35 @@ model DomainMemberModel {
 }
 
 model DomainModel {
-  id                  String        @id @default(uuid()) @db.Uuid
-  name                String
-  vpc                 VPCModel?     @relation(fields: [vpcId], references: [id])
-  vpcId               String?       @db.Uuid
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+
   cloudstackDomainId  String
   cloudstackAccountId String?
-  rootProject         ProjectModel? @relation(fields: [rootProjectId], references: [id])
-  rootProjectId       String?       @db.Uuid
+
+  // VPC
+  vpc   VPCModel? @relation(fields: [vpcId], references: [id])
+  vpcId String?   @db.Uuid
+
+  // Root Project
+  rootProject   ProjectModel? @relation(fields: [rootProjectId], references: [id])
+  rootProjectId String?       @db.Uuid
+
+  // Network
+  networks NetworkModel[]
+}
+
+model NetworkModel {
+  id                String @id @default(uuid()) @db.Uuid
+  name              String
+  cloudstackOfferId String
+  cloudstackAclId   String
+  gateway           String
+  netmask           String
+
+  // Domain Model
+  DomainModel   DomainModel? @relation(fields: [domainModelId], references: [id])
+  domainModelId String?      @db.Uuid
 }
 
 model VPCModel {

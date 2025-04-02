@@ -31,10 +31,20 @@ export class AppController {
   @Get('protected')
   @AuthorizedTo(RolesEnum.ADMIN)
   async getProtectedData(@Req() req) {
-    const result = await this.domainRepository.findByOwner(req.user.id);
-    const machines = await this.cloudstackService.handle({
-      command: 'listZones',
-    });
-    return machines;
+    // const machines = await this.cloudstackService.handle({
+    //   command: 'deployVirtualMachine',
+    //   additionalParams: {
+    //     serviceofferingid: 'a3490a4c-2213-4636-86f1-c021e7da9bea',
+    //     templateid: 'f014cdff-5c6f-4d29-a9fd-72f01ea05505',
+    //     zoneid: '649f8516-bda4-4523-ba00-b236cd97d953',
+    //     domainid: 'b9efa435-845a-4241-8b82-c4e0a8c71c35',
+    //     account: 'Test-Client',
+    //   },
+    // });
+    // const machines = await this.cloudstackService.handle({
+    //   command: 'listNetworkOfferings',
+    // });
+    // return machines;
+    console.log(req.user.id);
   }
 }
