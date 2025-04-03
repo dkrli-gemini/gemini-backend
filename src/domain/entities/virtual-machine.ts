@@ -6,7 +6,7 @@ export interface IVirtualMachine extends IEntityBase {
   os: string;
   state: string;
   ipAddress: string;
-  cloustackTemplateId: string;
+  cloudstackTemplateId: string;
   cloudstackOfferId: string;
   project: IProject;
 }

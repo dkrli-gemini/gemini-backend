@@ -91,6 +91,7 @@ model VirtualMachineModel {
   ipAddress            String
   cloudstackTemplateId String
   cloudstackOfferId    String
+  state                String
 
   // Project
   project   ProjectModel? @relation(fields: [projectId], references: [id])
