@@ -10,6 +10,7 @@ import { Roles, RolesEnum, RolesGuard } from './infra/auth/roles.guard';
 import { AuthorizedTo } from './infra/auth/auth.decorator';
 import { IDomainRepository } from './domain/repository/domain.repoitory';
 import { ICreateDomain } from './domain/contracts/use-cases/domain/create-domain';
+import { IAddNetwork } from './domain/contracts/use-cases/networks/add-network';
 
 @Controller()
 export class AppController {
@@ -17,6 +18,7 @@ export class AppController {
     private readonly cloudstackService: CloudstackService,
     private readonly domainRepository: IDomainRepository,
     private readonly createDomain: ICreateDomain,
+    private readonly createNetwork: IAddNetwork,
   ) {}
 
   @Get('list-machines')
@@ -45,6 +47,14 @@ export class AppController {
     //   command: 'listNetworkOfferings',
     // });
     // return machines;
-    console.log(req.user.id);
+    const network = await this.createNetwork.execute({
+      name: 'Test-Network',
+      domainId: '4d4a6e68-bcc1-411c-9f3b-a2ba0e68f98d',
+      gateway: '10.128.2.3',
+      netmask: '255.255.255.0',
+      cloudstackAclId: '022c64eb-fe8d-11ef-ad17-000c2918dc6d',
+      cloudstackOfferId: '7c8adb87-e709-465a-a63c-bb33036bd56f',
+    });
+    return ok(network);
   }
 }

@@ -71,7 +71,6 @@ export class CreateDomain implements ICreateDomain {
         dns2: this.defaultDns2,
       },
     });
-    console.log(vpcResponse.createvpcresponse);
 
     const domain = await this.domainRepository.createDomain(
       {

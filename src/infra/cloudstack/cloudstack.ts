@@ -13,6 +13,7 @@ export namespace CloudstackCommands {
   }
   export enum Network {
     ListNetworks = 'listNetworks',
+    CreateNetwork = 'createNetwork',
   }
   export enum User {
     ListUsers = 'listUsers',

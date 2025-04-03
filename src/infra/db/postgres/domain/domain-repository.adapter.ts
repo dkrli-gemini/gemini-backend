@@ -45,7 +45,21 @@ export class DomainRepositoryAdapter implements IDomainRepository {
       },
       include: {
         rootProject: true,
-        vpc: true
+        vpc: true,
+      },
+    });
+
+    return this.mapToDomain(result);
+  }
+
+  async getDomain(id: string): Promise<IDomain> {
+    const result = await this.prismaService.domainModel.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        vpc: true,
+        rootProject: true,
       },
     });
 
