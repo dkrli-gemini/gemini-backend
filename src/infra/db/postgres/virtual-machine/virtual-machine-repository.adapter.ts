@@ -1,9 +1,10 @@
-import { Provider } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { IProject } from 'src/domain/entities/project';
 import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
 import { PrismaService } from '../../prisma.service';
 
+@Injectable()
 export class VirtualMachineRepositoryAdapter
   implements IVirtualMachineRepository
 {
@@ -21,6 +22,9 @@ export class VirtualMachineRepositoryAdapter
         os: input.os,
         projectId: input.project.id,
         state: input.state,
+      },
+      include: {
+        project: true,
       },
     });
 

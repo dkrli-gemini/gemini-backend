@@ -10,6 +10,7 @@ export interface CloudstackParams {
 export namespace CloudstackCommands {
   export enum VirtualMachine {
     ListVirtualMachines = 'listVirtualMachines',
+    DeployVirtualMachine = 'deployVirtualMachine',
   }
   export enum Network {
     ListNetworks = 'listNetworks',

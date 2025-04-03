@@ -25,6 +25,17 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
 
     return this.mapToDomain(networkCreated);
   }
+
+  async getNetwork(networkId: string): Promise<INetwork> {
+    const network = await this.prisma.networkModel.findUnique({
+      where: {
+        id: networkId,
+      },
+    });
+
+    return this.mapToDomain(network);
+  }
+
   mapToDomain(persistencyObject: any): INetwork {
     const network: INetwork = {
       id: persistencyObject.id,

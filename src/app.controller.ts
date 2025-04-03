@@ -11,6 +11,9 @@ import { AuthorizedTo } from './infra/auth/auth.decorator';
 import { IDomainRepository } from './domain/repository/domain.repoitory';
 import { ICreateDomain } from './domain/contracts/use-cases/domain/create-domain';
 import { IAddNetwork } from './domain/contracts/use-cases/networks/add-network';
+import { IProjectRepository } from './domain/repository/project.repository';
+import { IAddProject } from './domain/contracts/use-cases/project/add-project';
+import { IAddVirtualMachine } from './domain/contracts/use-cases/project/add-virtual-machine';
 
 @Controller()
 export class AppController {
@@ -19,6 +22,8 @@ export class AppController {
     private readonly domainRepository: IDomainRepository,
     private readonly createDomain: ICreateDomain,
     private readonly createNetwork: IAddNetwork,
+    private readonly projectRepository: IProjectRepository,
+    private readonly addVM: IAddVirtualMachine,
   ) {}
 
   @Get('list-machines')
@@ -47,14 +52,33 @@ export class AppController {
     //   command: 'listNetworkOfferings',
     // });
     // return machines;
-    const network = await this.createNetwork.execute({
-      name: 'Test-Network',
-      domainId: '4d4a6e68-bcc1-411c-9f3b-a2ba0e68f98d',
-      gateway: '10.128.2.3',
-      netmask: '255.255.255.0',
-      cloudstackAclId: '022c64eb-fe8d-11ef-ad17-000c2918dc6d',
-      cloudstackOfferId: '7c8adb87-e709-465a-a63c-bb33036bd56f',
+    // const network = await this.createNetwork.execute({
+    //   name: 'Test-Network',
+    //   domainId: '4d4a6e68-bcc1-411c-9f3b-a2ba0e68f98d',
+    //   gateway: '10.128.2.3',
+    //   netmask: '255.255.255.0',
+    //   cloudstackAclId: '022c64eb-fe8d-11ef-ad17-000c2918dc6d',
+    //   cloudstackOfferId: '7c8adb87-e709-465a-a63c-bb33036bd56f',
+    // });
+    // return ok(network);]
+    const project = await this.addVM.execute({
+      name: 'TestVM029',
+      projectId: '0e9a1009-bce5-4d05-9761-b35e09acb8fa',
+      cloudstackOfferId: 'a3490a4c-2213-4636-86f1-c021e7da9bea',
+      cloudstackTemplateId: '625fdb7e-fe8c-11ef-ad17-000c2918dc6d',
+      networkId: '37db46d5-362b-4199-bb53-fff55119f7b3',
     });
-    return ok(network);
+
+    return project;
+
+    // const test = await this.cloudstackService.handle({
+    //   command: 'listTemplates',
+    //   additionalParams: {
+    //     templatefilter: 'all',
+    //     id: '625fdb7e-fe8c-11ef-ad17-000c2918dc6d',
+    //   },
+    // });
+
+    // console.log(test);
   }
 }
