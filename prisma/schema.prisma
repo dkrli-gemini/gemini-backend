@@ -76,11 +76,25 @@ model VPCModel {
 }
 
 model ProjectModel {
-  id                String              @id() @default(uuid()) @db.Uuid
-  name              String
-  type              ProjectTypeModel?
-  DomainModel       DomainModel[]
-  DomainMemberModel DomainMemberModel[]
+  id                  String                @id() @default(uuid()) @db.Uuid
+  name                String
+  type                ProjectTypeModel?
+  DomainModel         DomainModel[]
+  DomainMemberModel   DomainMemberModel[]
+  VirtualMachineModel VirtualMachineModel[]
+}
+
+model VirtualMachineModel {
+  id                   String @id() @default(uuid()) @db.Uuid
+  name                 String
+  os                   String
+  ipAddress            String
+  cloudstackTemplateId String
+  cloudstackOfferId    String
+
+  // Project
+  project   ProjectModel? @relation(fields: [projectId], references: [id])
+  projectId String?       @db.Uuid
 }
 
 enum ProjectTypeModel {
