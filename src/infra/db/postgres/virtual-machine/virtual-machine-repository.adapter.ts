@@ -1,3 +1,4 @@
+import { Provider } from '@nestjs/common';
 import { IProject } from 'src/domain/entities/project';
 import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
@@ -35,8 +36,13 @@ export class VirtualMachineRepositoryAdapter
       project: {
         id: persistencyObject.project.id,
       } as IProject,
-      state: '',
+      state: persistencyObject.state,
     };
     return machine;
   }
 }
+
+export const VirtualMachineRepositoryProvider: Provider = {
+  provide: IVirtualMachineRepository,
+  useClass: VirtualMachineRepositoryAdapter,
+};
