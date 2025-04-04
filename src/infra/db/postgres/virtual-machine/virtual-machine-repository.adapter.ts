@@ -32,6 +32,7 @@ export class VirtualMachineRepositoryAdapter
   }
   mapToDomain(persistencyObject: any): IVirtualMachine {
     const machine: IVirtualMachine = {
+      id: persistencyObject.id,
       cloudstackOfferId: persistencyObject.cloudstackOfferId,
       cloudstackTemplateId: persistencyObject.cloustackTemplateId,
       name: persistencyObject.name,

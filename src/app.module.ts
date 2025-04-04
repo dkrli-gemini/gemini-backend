@@ -10,6 +10,7 @@ import { DomainRepositoryModule } from './infra/db/postgres/domain/domain-reposi
 import { ProjectRepositoryModule } from './infra/db/postgres/project/project-repository.module';
 import { CreateDomainAdmin } from './presentation/domain/create-domain-admin/create-domain-admin.module';
 import { AddNetworkModule } from './presentation/network/add-network/add-network.module';
+import { AddVirtualMachineModule } from './presentation/project/add-virtual-machine/add-virtual-machine.module';
 import { CreateUserAdmin } from './presentation/user/create-user-admin/create-user-admin.module';
 import { GetUserModule } from './presentation/user/get-user/get-user.module';
 
@@ -27,6 +28,7 @@ import { GetUserModule } from './presentation/user/get-user/get-user.module';
     AddNetworkModule,
     ProjectRepositoryModule,
     ProjectDataModule,
+    AddVirtualMachineModule,
   ],
   controllers: [AppController],
 })
