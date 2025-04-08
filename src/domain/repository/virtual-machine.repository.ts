@@ -7,5 +7,6 @@ export abstract class IVirtualMachineRepository
   abstract createVirtualMachine(
     virtualMachine: Partial<IVirtualMachine>,
   ): Promise<IVirtualMachine>;
+  abstract listVirtualMachines(projectId: string): Promise<IVirtualMachine[]>;
   abstract mapToDomain(persistencyObject: any): IVirtualMachine;
 }

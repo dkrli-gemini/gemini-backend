@@ -30,6 +30,21 @@ export class VirtualMachineRepositoryAdapter
 
     return this.mapToDomain(virtualMachineCreated);
   }
+
+  async listVirtualMachines(projectId: string): Promise<IVirtualMachine[]> {
+    const machines = await this.prisma.virtualMachineModel.findMany({
+      where: {
+        projectId: projectId,
+      },
+      include: { project: true },
+    });
+
+    const response = machines.map((machine) => {
+      return this.mapToDomain(machine);
+    });
+    return response;
+  }
+
   mapToDomain(persistencyObject: any): IVirtualMachine {
     const machine: IVirtualMachine = {
       id: persistencyObject.id,

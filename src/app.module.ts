@@ -12,6 +12,7 @@ import { CreateDomainAdmin } from './presentation/domain/create-domain-admin/cre
 import { GetDomainModule } from './presentation/domain/get-domain/get-domain.module';
 import { AddNetworkModule } from './presentation/network/add-network/add-network.module';
 import { AddVirtualMachineModule } from './presentation/project/add-virtual-machine/add-virtual-machine.module';
+import { ListVirtualMachinesModule } from './presentation/project/list-virtual-machines/list-virtual-machines.module';
 import { CreateUserAdmin } from './presentation/user/create-user-admin/create-user-admin.module';
 import { GetUserModule } from './presentation/user/get-user/get-user.module';
 
@@ -31,6 +32,7 @@ import { GetUserModule } from './presentation/user/get-user/get-user.module';
     ProjectDataModule,
     AddVirtualMachineModule,
     GetDomainModule,
+    ListVirtualMachinesModule,
   ],
   controllers: [AppController],
 })
