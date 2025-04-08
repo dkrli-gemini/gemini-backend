@@ -10,6 +10,8 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors();
+
   const config = new DocumentBuilder()
     .setTitle('Gemini API')
     .setVersion('0.1')
@@ -34,6 +36,6 @@ async function bootstrap() {
     console.error(e);
   }
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(3003);
 }
 bootstrap();

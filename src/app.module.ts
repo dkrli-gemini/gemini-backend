@@ -9,6 +9,7 @@ import { CloudstackModule } from './infra/cloudstack/cloudstack.module';
 import { DomainRepositoryModule } from './infra/db/postgres/domain/domain-repository.module';
 import { ProjectRepositoryModule } from './infra/db/postgres/project/project-repository.module';
 import { CreateDomainAdmin } from './presentation/domain/create-domain-admin/create-domain-admin.module';
+import { GetDomainModule } from './presentation/domain/get-domain/get-domain.module';
 import { AddNetworkModule } from './presentation/network/add-network/add-network.module';
 import { AddVirtualMachineModule } from './presentation/project/add-virtual-machine/add-virtual-machine.module';
 import { CreateUserAdmin } from './presentation/user/create-user-admin/create-user-admin.module';
@@ -29,6 +30,7 @@ import { GetUserModule } from './presentation/user/get-user/get-user.module';
     ProjectRepositoryModule,
     ProjectDataModule,
     AddVirtualMachineModule,
+    GetDomainModule,
   ],
   controllers: [AppController],
 })
