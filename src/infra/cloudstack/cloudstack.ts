@@ -7,6 +7,7 @@ export interface CloudstackParams {
   [key: string]: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace CloudstackCommands {
   export enum VirtualMachine {
     ListVirtualMachines = 'listVirtualMachines',

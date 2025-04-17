@@ -1,10 +1,10 @@
 {
-  "realm": "nestjs-realm",
+  "realm": "gemini",
   "auth-server-url": "http://localhost:8080/",
-  "resource": "gemini-api-client",
+  "resource": "gemini",
   "verify-token-audience": true,
   "credentials": {
-    "secret": "wMvdEEXkUcL4on0uvsM6ay35cuOGmaMt"
+    "secret": "mp3A02M2eJMDxaDNXmUSv4ADiE0GVdxc"
   },
   "confidential-port": 0,
   "ssl-required": "external"
