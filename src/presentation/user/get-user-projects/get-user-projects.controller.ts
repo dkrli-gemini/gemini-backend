@@ -27,6 +27,9 @@ export class GetUserProjectsController
       where: {
         userId: (req.user as any).id,
       },
+      include: {
+        project: true,
+      },
     });
     const output = this.mapToOutput(response);
     return ok(output);

@@ -12,6 +12,7 @@ export namespace CloudstackCommands {
   export enum VirtualMachine {
     ListVirtualMachines = 'listVirtualMachines',
     DeployVirtualMachine = 'deployVirtualMachine',
+    GetConsole = 'createConsoleEndpoint',
   }
   export enum Network {
     ListNetworks = 'listNetworks',

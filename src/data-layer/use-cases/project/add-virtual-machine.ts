@@ -64,6 +64,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
       await this.virtualMachineRepository.createVirtualMachine({
         cloudstackOfferId: input.cloudstackOfferId,
         cloudstackTemplateId: input.cloudstackTemplateId,
+        cloudstackId: jobResponse.deployvirtualmachineresponse.id,
         ipAddress: '',
         name: input.name,
         os: template[0].name,

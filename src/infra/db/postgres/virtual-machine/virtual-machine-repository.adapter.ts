@@ -22,6 +22,7 @@ export class VirtualMachineRepositoryAdapter
         os: input.os,
         projectId: input.project.id,
         state: input.state,
+        cloudstackId: input.cloudstackId,
       },
       include: {
         project: true,
@@ -51,6 +52,7 @@ export class VirtualMachineRepositoryAdapter
       cloudstackOfferId: persistencyObject.cloudstackOfferId,
       cloudstackTemplateId: persistencyObject.cloustackTemplateId,
       name: persistencyObject.name,
+      cloudstackId: persistencyObject.cloudstackId,
       ipAddress: persistencyObject.ipAddress,
       os: persistencyObject.os,
       project: {

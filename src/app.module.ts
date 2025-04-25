@@ -16,6 +16,8 @@ import { ListVirtualMachinesModule } from './presentation/project/list-virtual-m
 import { CreateUserAdmin } from './presentation/user/create-user-admin/create-user-admin.module';
 import { GetUserModule } from './presentation/user/get-user/get-user.module';
 import { GetUserProjectsModule } from './presentation/user/get-user-projects/get-user-projects.module';
+import { GetMachineConsoleModule } from './presentation/project/get-machine-console/get-machine-console.module';
+import { ListNetworksModule } from './presentation/project/list-networks/list-networks.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { GetUserProjectsModule } from './presentation/user/get-user-projects/get
     GetDomainModule,
     ListVirtualMachinesModule,
     GetUserProjectsModule,
+    GetMachineConsoleModule,
+    ListNetworksModule,
   ],
   controllers: [AppController],
 })
