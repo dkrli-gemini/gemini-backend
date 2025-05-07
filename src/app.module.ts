@@ -18,10 +18,16 @@ import { GetUserModule } from './presentation/user/get-user/get-user.module';
 import { GetUserProjectsModule } from './presentation/user/get-user-projects/get-user-projects.module';
 import { GetMachineConsoleModule } from './presentation/project/get-machine-console/get-machine-console.module';
 import { ListNetworksModule } from './presentation/project/list-networks/list-networks.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { JobsModule } from './infra/job/job.module';
+import { TurnOnMachineModule } from './presentation/virtual-machine/turn-on-machine/turn-on-machine.module';
+import { StopMachineModule } from './presentation/virtual-machine/stop-machine/stop-machine.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
+    JobsModule,
     CloudstackModule,
     AuthModule,
     CreateUserAdmin,
@@ -39,6 +45,8 @@ import { ListNetworksModule } from './presentation/project/list-networks/list-ne
     GetUserProjectsModule,
     GetMachineConsoleModule,
     ListNetworksModule,
+    TurnOnMachineModule,
+    StopMachineModule,
   ],
   controllers: [AppController],
 })

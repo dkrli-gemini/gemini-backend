@@ -20,3 +20,10 @@ export const ok = <T = any>(data: T): IHttpResponse => {
     message: data,
   };
 };
+
+export const badRequest = <T = any>(data: T): IHttpResponse => {
+  return {
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: data,
+  };
+};

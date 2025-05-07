@@ -13,10 +13,15 @@ export namespace CloudstackCommands {
     ListVirtualMachines = 'listVirtualMachines',
     DeployVirtualMachine = 'deployVirtualMachine',
     GetConsole = 'createConsoleEndpoint',
+    StartMachine = 'startVirtualMachine',
+    StopMachine = 'stopVirtualMachine',
   }
   export enum Network {
     ListNetworks = 'listNetworks',
     CreateNetwork = 'createNetwork',
+  }
+  export enum Jobs {
+    QueryJobResult = 'queryAsyncJobResult',
   }
   export enum User {
     ListUsers = 'listUsers',

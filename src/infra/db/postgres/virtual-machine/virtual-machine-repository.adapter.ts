@@ -10,6 +10,16 @@ export class VirtualMachineRepositoryAdapter
 {
   constructor(private readonly prisma: PrismaService) {}
 
+  async getMachine(id: string): Promise<IVirtualMachine> {
+    const machine = await this.prisma.virtualMachineModel.findUnique({
+      where: {
+        id: id,
+      },
+      include: { project: true },
+    });
+    return this.mapToDomain(machine);
+  }
+
   async createVirtualMachine(
     input: Partial<IVirtualMachine>,
   ): Promise<IVirtualMachine> {

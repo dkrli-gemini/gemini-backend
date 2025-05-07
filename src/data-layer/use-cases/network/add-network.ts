@@ -12,6 +12,7 @@ import {
   CloudstackCommands,
   CloudstackService,
 } from 'src/infra/cloudstack/cloudstack';
+import { PrismaService } from 'src/infra/db/prisma.service';
 
 @Injectable()
 export class AddNetwork implements IAddNetwork {
@@ -22,6 +23,7 @@ export class AddNetwork implements IAddNetwork {
     private readonly cloudstackService: CloudstackService,
     private readonly domainRepository: IDomainRepository,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) {
     this.defaultZoneId = this.configService.get<string>(
       'CLOUDSTACK_DEFAULT_ZONE_ID',
@@ -29,7 +31,14 @@ export class AddNetwork implements IAddNetwork {
   }
 
   async execute(input: IAddNetworkInput): Promise<INetwork> {
-    const domain = await this.domainRepository.getDomain(input.domainId);
+    const domain = await this.prisma.domainModel.findFirst({
+      where: {
+        rootProjectId: input.domainId,
+      },
+      include: {
+        vpc: true,
+      },
+    });
 
     const cloudstackNetwork = await this.cloudstackService.handle({
       command: CloudstackCommands.Network.CreateNetwork,
@@ -50,7 +59,7 @@ export class AddNetwork implements IAddNetwork {
       cloudstackAclId: input.cloudstackAclId,
       cloudstackOfferId: input.cloudstackOfferId,
       domain: {
-        id: input.domainId,
+        id: domain.id,
       } as IDomain,
       cloudstackId: cloudstackNetwork.createnetworkresponse.network.id,
       gateway: input.gateway,

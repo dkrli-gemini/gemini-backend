@@ -1,6 +1,5 @@
 import { Injectable, Provider } from '@nestjs/common';
 import { ProjectRoleModel, ProjectTypeModel } from '@prisma/client';
-import { map, mapTo } from 'rxjs';
 import { IDomain } from 'src/domain/entities/domain';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
 import { PrismaService } from '../../prisma.service';
