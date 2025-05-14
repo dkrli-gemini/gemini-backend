@@ -39,6 +39,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
       command: CloudstackCommands.VirtualMachine.DeployVirtualMachine,
       additionalParams: {
         serviceofferingid: input.cloudstackOfferId,
+        startvm: 'false',
         templateid: input.cloudstackTemplateId,
         zoneid: this.defaultZoneId,
         domainid: project.domain.cloudstackDomainId,
@@ -71,7 +72,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         project: {
           id: input.projectId,
         } as IProject,
-        state: 'on',
+        state: 'STOPPED',
       });
 
     return virtualMachineCreated;

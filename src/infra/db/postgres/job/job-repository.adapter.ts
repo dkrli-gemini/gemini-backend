@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { IJob } from 'src/domain/entities/job';
+import { IJob, JobStatusEnum } from 'src/domain/entities/job';
 import { IJobRepository } from 'src/domain/repository/job.repository';
 import { PrismaService } from '../../prisma.service';
-import { JobStatusEnum } from '@prisma/client';
 import { Injectable, Logger, Provider } from '@nestjs/common';
 
 @Injectable()
@@ -23,6 +22,14 @@ export class JobRepositoryAdapter implements IJobRepository {
     });
 
     return this.mapToDomain(jobCreated);
+  }
+
+  async getJobStatus(jobId: string): Promise<JobStatusEnum> {
+    const job = await this.prisma.jobModel.findUnique({
+      where: { id: jobId },
+    });
+
+    return job.status as JobStatusEnum;
   }
 
   async findPendingJobs(): Promise<IJob[]> {
