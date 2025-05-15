@@ -24,6 +24,8 @@ export class KeycloakAuthGuard implements CanActivate {
       if (typeof result === 'string') {
         const decoded = this.decodeToken(result);
         request.user = this.createUserPayload(decoded);
+
+        console.log(request.user);
         return true;
       } else if (result === false) {
         throw new Error('Invalid token');

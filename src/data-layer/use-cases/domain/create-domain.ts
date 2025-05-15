@@ -4,7 +4,7 @@ import {
   ICreateDomain,
   ICreateDomainInput,
 } from 'src/domain/contracts/use-cases/domain/create-domain';
-import { IDomain } from 'src/domain/entities/domain';
+import { IDomain, IDomainType } from 'src/domain/entities/domain';
 import { IProject } from 'src/domain/entities/project';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
 import {
@@ -37,11 +37,17 @@ export class CreateDomain implements ICreateDomain {
   }
 
   async execute(input: ICreateDomainInput): Promise<IDomain> {
+    const rootDomain = await this.domainRepository.getDomain(input.rootId);
+
+    const domainParams = {
+      name: input.name,
+    };
+    if (rootDomain.cloudstackDomainId != 'root') {
+      domainParams['parentdomainid'] = rootDomain.cloudstackDomainId;
+    }
     const domainResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.Domain.CreateDomain,
-      additionalParams: {
-        name: input.name,
-      },
+      additionalParams: domainParams,
     });
 
     const accountResponse = await this.cloudstackService.handle({
@@ -75,6 +81,10 @@ export class CreateDomain implements ICreateDomain {
     const domain = await this.domainRepository.createDomain(
       {
         name: input.name,
+        root: {
+          id: input.rootId,
+        } as IDomain,
+        type: IDomainType.PARTNER, // Alter this
         vpc: {
           cidr: this.defaultCidr,
           name: `${input.name}-VPC`,
@@ -90,7 +100,7 @@ export class CreateDomain implements ICreateDomain {
       input.ownerId,
     );
 
-    return domain;
+    return domain as IDomain;
   }
 }
 

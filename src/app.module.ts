@@ -22,6 +22,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { JobsModule } from './infra/job/job.module';
 import { TurnOnMachineModule } from './presentation/virtual-machine/turn-on-machine/turn-on-machine.module';
 import { StopMachineModule } from './presentation/virtual-machine/stop-machine/stop-machine.module';
+import { CreateRootDomainModule } from './presentation/domain/create-root-domain/create-root-domain.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { StopMachineModule } from './presentation/virtual-machine/stop-machine/s
     ListNetworksModule,
     TurnOnMachineModule,
     StopMachineModule,
+    CreateRootDomainModule,
   ],
   controllers: [AppController],
 })

@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Body, Controller, Post, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
@@ -23,16 +24,16 @@ export class CreateDomainAdminController
   @Post('/create-domain-admin')
   async handle(
     @Body() input: CreateDomainAdminInputDto,
+    @Req()
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    projectId?: string,
+    _projectId?: string,
   ): Promise<IHttpResponse<CreateDomainAdminOutputDto | Error>> {
     const domain = await this.useCase.execute({
-      cloudstackAccountId: input.cloudstackAccountId,
-      cloudstackDomainId: input.cloudstackDomainId,
       name: input.name,
       ownerId: input.ownerId,
       accountEmail: input.accountEmail,
       accountPassword: input.accountPassword,
+      rootId: input.rootId,
     });
 
     const response = this.mapToOutput(domain);

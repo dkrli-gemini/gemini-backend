@@ -31,9 +31,20 @@ model DomainMemberModel {
   role ProjectRoleModel
 }
 
+enum DomainTypeModel {
+  ROOT
+  PARTNER
+  CLIENT
+}
+
 model DomainModel {
   id   String @id @default(uuid()) @db.Uuid
   name String
+  type DomainTypeModel @default(ROOT)
+
+  rootId String? @db.Uuid
+  root DomainModel? @relation("RootDomain", fields: [rootId], references: [id])
+  children DomainModel[] @relation("RootDomain")
 
   cloudstackDomainId  String
   cloudstackAccountId String?
@@ -48,6 +59,7 @@ model DomainModel {
 
   // Network
   networks NetworkModel[]
+
 }
 
 model NetworkModel {

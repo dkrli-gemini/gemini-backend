@@ -1,6 +1,6 @@
 import { Injectable, Provider } from '@nestjs/common';
 import { ProjectRoleModel, ProjectTypeModel } from '@prisma/client';
-import { IDomain } from 'src/domain/entities/domain';
+import { IDomain, IDomainType } from 'src/domain/entities/domain';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
 import { PrismaService } from '../../prisma.service';
 
@@ -8,11 +8,51 @@ import { PrismaService } from '../../prisma.service';
 export class DomainRepositoryAdapter implements IDomainRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
+  async createRootDomain(domain: Partial<IDomain>, ownerId: string) {
+    const result = await this.prismaService.domainModel.create({
+      data: {
+        cloudstackDomainId: 'root',
+        cloudstackAccountId: domain.cloudstackAccountId,
+        type: IDomainType.ROOT,
+        name: domain.name,
+        rootProject: {
+          create: {
+            name: 'root',
+            type: ProjectTypeModel.ROOT,
+            DomainMemberModel: {
+              create: {
+                role: ProjectRoleModel.OWNER,
+                user: {
+                  connect: {
+                    id: ownerId,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      include: {
+        rootProject: true,
+      },
+    });
+
+    return this.mapToDomain(result);
+  }
+
   async createDomain(domain: IDomain, ownerId: string): Promise<IDomain> {
     const result = await this.prismaService.domainModel.create({
       data: {
         cloudstackDomainId: domain.cloudstackDomainId,
         cloudstackAccountId: domain.cloudstackAccountId,
+        type: domain.type,
+        root: domain.root
+          ? {
+              connect: {
+                id: domain.root.id,
+              },
+            }
+          : undefined,
         vpc: {
           create: {
             cidr: domain.vpc.cidr,
@@ -100,16 +140,20 @@ export class DomainRepositoryAdapter implements IDomainRepository {
   mapToDomain(persistencyObject: any): IDomain {
     console.log(persistencyObject);
     const domain: IDomain = {
-      vpc: {
-        cidr: persistencyObject.vpc.cidr,
-        cloudstackId: persistencyObject.vpc.cloudstackId,
-        dns1: persistencyObject.vpc.dns1,
-        dns2: persistencyObject.vpc.dns2,
-        name: persistencyObject.vpc.name,
-        state: persistencyObject.vpc.state,
-      },
-      id: persistencyObject.id,
-      cloudstackDomainId: persistencyObject.cloudstackDomainId,
+      vpc: persistencyObject.vpc
+        ? {
+            cidr: persistencyObject.vpc.cidr,
+            cloudstackId: persistencyObject.vpc.cloudstackId,
+            dns1: persistencyObject.vpc.dns1,
+            dns2: persistencyObject.vpc.dns2,
+            name: persistencyObject.vpc.name,
+            state: persistencyObject.vpc.state,
+          }
+        : null,
+      id: persistencyObject.id ?? null,
+      root: persistencyObject.rootId ?? null,
+      type: persistencyObject.type,
+      cloudstackDomainId: persistencyObject.cloudstackDomainId ?? null,
       cloudstackAccountId: persistencyObject.cloudstackAccountId,
       name: persistencyObject.name,
       rootProject: {

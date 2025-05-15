@@ -1,5 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-
 export class CreateDomainAdminInputDto {
   ownerId: string;
   name: string;
@@ -8,4 +6,5 @@ export class CreateDomainAdminInputDto {
   accountName: string;
   accountEmail: string;
   accountPassword: string;
+  rootId: string;
 }

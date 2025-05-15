@@ -3,11 +3,10 @@ import { IUseCase } from '../../use-case';
 
 export interface ICreateDomainInput {
   name: string;
-  cloudstackDomainId: string;
-  cloudstackAccountId: string;
   ownerId: string;
   accountEmail: string;
   accountPassword: string;
+  rootId: string;
 }
 
 export type ICreateDomainOutput = IDomain;
