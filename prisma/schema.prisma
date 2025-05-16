@@ -53,13 +53,11 @@ model DomainModel {
   vpc   VPCModel? @relation(fields: [vpcId], references: [id])
   vpcId String?   @db.Uuid
 
-  // Root Project
-  rootProject   ProjectModel? @relation(fields: [rootProjectId], references: [id])
-  rootProjectId String?       @db.Uuid
-
   // Network
   networks NetworkModel[]
 
+
+  ProjectModel ProjectModel[]
 }
 
 model NetworkModel {
@@ -91,7 +89,10 @@ model ProjectModel {
   id                  String                @id() @default(uuid()) @db.Uuid
   name                String
   type                ProjectTypeModel?
-  DomainModel         DomainModel[]
+
+  domain DomainModel? @relation(fields: [domainId], references: [id])
+  domainId String @db.Uuid
+
   DomainMemberModel   DomainMemberModel[]
   VirtualMachineModel VirtualMachineModel[]
 }

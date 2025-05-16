@@ -1,16 +1,19 @@
 import { Injectable, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ProjectRoleModel } from '@prisma/client';
 import {
   ICreateDomain,
   ICreateDomainInput,
 } from 'src/domain/contracts/use-cases/domain/create-domain';
 import { IDomain, IDomainType } from 'src/domain/entities/domain';
-import { IProject } from 'src/domain/entities/project';
+import { ProjectTypeEnum } from 'src/domain/entities/project';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
+import { IProjectRepository } from 'src/domain/repository/project.repository';
 import {
   CloudstackCommands,
   CloudstackService,
 } from 'src/infra/cloudstack/cloudstack';
+import { PrismaService } from 'src/infra/db/prisma.service';
 
 @Injectable()
 export class CreateDomain implements ICreateDomain {
@@ -22,7 +25,10 @@ export class CreateDomain implements ICreateDomain {
 
   constructor(
     private readonly domainRepository: IDomainRepository,
+    private readonly projectRepository: IProjectRepository,
     private readonly cloudstackService: CloudstackService,
+    private readonly prisma: PrismaService,
+
     private readonly configService: ConfigService,
   ) {
     this.defaultVpcOfferingId = this.configService.get<string>(
@@ -93,13 +99,27 @@ export class CreateDomain implements ICreateDomain {
           dns2: this.defaultDns2,
           state: 'on',
         },
-        rootProject: {} as IProject,
         cloudstackAccountId: accountResponse.createaccountresponse.account.id,
         cloudstackDomainId: domainResponse.createdomainresponse.domain.id,
       },
       input.ownerId,
     );
 
+    const project = await this.projectRepository.createProject({
+      name: input.name,
+      type: ProjectTypeEnum.ROOT,
+      domain: {
+        id: domain.id,
+      } as IDomain,
+    });
+
+    await this.prisma.domainMemberModel.create({
+      data: {
+        role: ProjectRoleModel.OWNER,
+        projectModelId: project.id,
+        userId: input.ownerId,
+      },
+    });
     return domain as IDomain;
   }
 }

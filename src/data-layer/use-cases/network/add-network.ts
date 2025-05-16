@@ -33,7 +33,7 @@ export class AddNetwork implements IAddNetwork {
   async execute(input: IAddNetworkInput): Promise<INetwork> {
     const domain = await this.prisma.domainModel.findFirst({
       where: {
-        rootProjectId: input.domainId,
+        id: input.domainId,
       },
       include: {
         vpc: true,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { IController } from 'src/domain/contracts/controller';
 import { CreateRootDomainInputDto } from './dtos/create-root-domain.input.dto';
@@ -19,8 +20,8 @@ export class CreateRootDomainController
   async handle(
     @Body() input: CreateRootDomainInputDto,
     @Req()
-    req: Request,
-    projectId?: string,
+    _req: Request,
+    _projectId?: string,
   ): Promise<IHttpResponse<CreateRootDomainOutputDto | Error>> {
     const response = await this.useCase.execute({
       accountEmail: input.accountEmail,

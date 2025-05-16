@@ -1,4 +1,4 @@
-import { DomainMemberModel, ProjectModel } from '@prisma/client';
+import { ProjectModel, ProjectRoleModel } from '@prisma/client';
 
 export class ProjectDto {
   id: string;
@@ -14,21 +14,34 @@ export class DomainMemberDto {
   id: string;
   userId: string;
   project: ProjectDto;
+  domainName: string;
+  domainId: string;
   role: string;
 
-  constructor(domainMember: any) {
+  constructor(domainMember: IGetUserProjectsDtoOutput) {
     this.id = domainMember.id;
     this.userId = domainMember.userId;
     this.project = new ProjectDto(domainMember.project);
     this.role = domainMember.role;
+    this.domainId = domainMember.domainId;
+    this.domainName = domainMember.domainName;
   }
 }
 
-export class GetUserProjectsOutputDto {
-  projects: DomainMemberDto[];
+export interface IGetUserProjectsDtoOutput {
+  id: string;
+  userId: string | null;
+  role: ProjectRoleModel;
+  project: ProjectModel;
+  domainId: string;
+  domainName: string;
+}
 
-  constructor(domainMembers: DomainMemberModel[]) {
-    this.projects = domainMembers.map((member) => {
+export class GetUserProjectsOutputDto {
+  projectMembers: DomainMemberDto[];
+
+  constructor(domainMembers: IGetUserProjectsDtoOutput[]) {
+    this.projectMembers = domainMembers.map((member) => {
       return new DomainMemberDto(member);
     });
   }

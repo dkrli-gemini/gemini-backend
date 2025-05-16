@@ -21,14 +21,15 @@ export class ListNetworksController
     req: Request,
     @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<ListNetworksOutputDto | Error>> {
-    const domain = await this.prisma.domainModel.findFirst({
+    const project = await this.prisma.projectModel.findUnique({
       where: {
-        rootProjectId: projectId,
+        id: projectId,
       },
     });
+
     const networks = await this.prisma.networkModel.findMany({
       where: {
-        domainModelId: domain.id,
+        domainModelId: project.domainId,
       },
     });
 

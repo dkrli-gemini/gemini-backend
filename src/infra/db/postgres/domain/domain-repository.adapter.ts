@@ -1,5 +1,4 @@
 import { Injectable, Provider } from '@nestjs/common';
-import { ProjectRoleModel, ProjectTypeModel } from '@prisma/client';
 import { IDomain, IDomainType } from 'src/domain/entities/domain';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
 import { PrismaService } from '../../prisma.service';
@@ -8,39 +7,21 @@ import { PrismaService } from '../../prisma.service';
 export class DomainRepositoryAdapter implements IDomainRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createRootDomain(domain: Partial<IDomain>, ownerId: string) {
+  async createRootDomain(domain: Partial<IDomain>) {
     const result = await this.prismaService.domainModel.create({
       data: {
         cloudstackDomainId: 'root',
         cloudstackAccountId: domain.cloudstackAccountId,
         type: IDomainType.ROOT,
         name: domain.name,
-        rootProject: {
-          create: {
-            name: 'root',
-            type: ProjectTypeModel.ROOT,
-            DomainMemberModel: {
-              create: {
-                role: ProjectRoleModel.OWNER,
-                user: {
-                  connect: {
-                    id: ownerId,
-                  },
-                },
-              },
-            },
-          },
-        },
       },
-      include: {
-        rootProject: true,
-      },
+      include: {},
     });
 
     return this.mapToDomain(result);
   }
 
-  async createDomain(domain: IDomain, ownerId: string): Promise<IDomain> {
+  async createDomain(domain: IDomain): Promise<IDomain> {
     const result = await this.prismaService.domainModel.create({
       data: {
         cloudstackDomainId: domain.cloudstackDomainId,
@@ -64,26 +45,8 @@ export class DomainRepositoryAdapter implements IDomainRepository {
           },
         },
         name: domain.name,
-
-        rootProject: {
-          create: {
-            name: 'root',
-            type: ProjectTypeModel.ROOT,
-            DomainMemberModel: {
-              create: {
-                role: ProjectRoleModel.OWNER,
-                user: {
-                  connect: {
-                    id: ownerId,
-                  },
-                },
-              },
-            },
-          },
-        },
       },
       include: {
-        rootProject: true,
         vpc: true,
       },
     });
@@ -98,7 +61,6 @@ export class DomainRepositoryAdapter implements IDomainRepository {
       },
       include: {
         vpc: true,
-        rootProject: true,
       },
     });
 
@@ -106,35 +68,37 @@ export class DomainRepositoryAdapter implements IDomainRepository {
   }
 
   async findByOwner(ownerId: string): Promise<IDomain[]> {
-    const members = await this.prismaService.projectModel.findMany({
-      where: {
-        type: ProjectTypeModel.ROOT,
-        DomainMemberModel: {
-          some: {
-            userId: ownerId,
-            role: ProjectRoleModel.OWNER,
-          },
-        },
-      },
-    });
+    throw new Error('not impl');
+    // const members = await this.prismaService.projectModel.findMany({
+    //   where: {
+    //     type: ProjectTypeModel.ROOT,
+    //     DomainMemberModel: {
+    //       some: {
+    //         userId: ownerId,
+    //         role: ProjectRoleModel.OWNER,
+    //       },
+    //     },
+    //   },
+    // });
 
-    const domain = await Promise.all(
-      members.map(async (member) => {
-        const d = await this.prismaService.domainModel.findFirst({
-          where: {
-            rootProjectId: member.id,
-          },
-          include: {
-            rootProject: true,
-          },
-        });
-        return d;
-      }),
-    );
+    // const domain = await Promise.all(
+    //   members.map(async (member) => {
+    //     const d = await this.prismaService.domainModel.findFirst({
+    //       where: {
+    //         rootProjectId: member.id,
+    //       },
+    //       include: {
+    //         rootProject: true,
+    //       },
+    //     });
+    //     return d;
+    //   }),
+    // );
 
-    console.log(domain);
-    const result = domain.map((d) => this.mapToDomain(d));
-    return result;
+    // console.log(domain);
+    // const result = domain.map((d) => this.mapToDomain(d));
+    // return result;
+    return null;
   }
 
   mapToDomain(persistencyObject: any): IDomain {
@@ -156,11 +120,6 @@ export class DomainRepositoryAdapter implements IDomainRepository {
       cloudstackDomainId: persistencyObject.cloudstackDomainId ?? null,
       cloudstackAccountId: persistencyObject.cloudstackAccountId,
       name: persistencyObject.name,
-      rootProject: {
-        name: persistencyObject.rootProject.name,
-        type: persistencyObject.rootProject.type,
-        id: persistencyObject.rootProject.id,
-      },
     };
 
     return domain;

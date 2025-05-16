@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Controller, Get, Param, Req } from '@nestjs/common';
 import { IController } from 'src/domain/contracts/controller';
-import { GetUserProjectsOutputDto } from './dtos/get-user-projects.output.dto';
+import {
+  GetUserProjectsOutputDto,
+  IGetUserProjectsDtoOutput,
+} from './dtos/get-user-projects.output.dto';
 import { Request } from 'express';
 import { IHttpResponse, ok } from 'src/domain/contracts/http';
 import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
@@ -31,11 +34,42 @@ export class GetUserProjectsController
         project: true,
       },
     });
-    const output = this.mapToOutput(response);
+
+    const responseArray: IGetUserProjectsDtoOutput[] = [];
+
+    for (const member of response) {
+      const domain = await this.prisma.domainModel.findUnique({
+        where: {
+          id: member.project.domainId,
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+
+      console.log(domain);
+
+      responseArray.push({
+        domainId: domain.id,
+        domainName: domain.name,
+        id: member.id,
+        project: member.project,
+        role: member.role,
+        userId: member.userId,
+      });
+    }
+
+    console.log(response);
+
+    const output = this.mapToOutput(responseArray);
     return ok(output);
   }
 
-  private mapToOutput(projects: DomainMemberModel[]): GetUserProjectsOutputDto {
+  private mapToOutput(
+    projects: IGetUserProjectsDtoOutput[],
+  ): GetUserProjectsOutputDto {
     return new GetUserProjectsOutputDto(projects);
+    return null;
   }
 }
