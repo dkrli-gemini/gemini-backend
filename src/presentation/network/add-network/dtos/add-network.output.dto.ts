@@ -7,7 +7,7 @@ export class AddNetworkOutputDto {
   @ApiProperty({ type: String })
   name: string;
   @ApiProperty({ type: String })
-  domainId: string;
+  projectId: string;
   @ApiProperty({ type: String })
   gateway: string;
   @ApiProperty({ type: String })
@@ -20,10 +20,9 @@ export class AddNetworkOutputDto {
   constructor(network: INetwork) {
     this.id = network.id;
     this.name = network.name;
-    this.domainId = network.domain.id;
+    this.projectId = network.project.id;
     this.gateway = network.gateway;
     this.netmask = network.netmask;
-    this.cloudstackAclId;
     this.cloudstackAclId = network.cloudstackAclId;
     this.cloudstackOfferId = network.cloudstackOfferId;
   }

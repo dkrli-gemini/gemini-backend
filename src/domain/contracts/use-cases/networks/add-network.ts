@@ -2,7 +2,7 @@ import { INetwork } from 'src/domain/entities/network';
 import { IUseCase } from '../../use-case';
 
 export interface IAddNetworkInput {
-  domainId: string;
+  projectId: string;
   name: string;
   cloudstackOfferId: string;
   cloudstackAclId: string;

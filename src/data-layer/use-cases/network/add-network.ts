@@ -4,8 +4,8 @@ import {
   IAddNetwork,
   IAddNetworkInput,
 } from 'src/domain/contracts/use-cases/networks/add-network';
-import { IDomain } from 'src/domain/entities/domain';
 import { INetwork } from 'src/domain/entities/network';
+import { IProject } from 'src/domain/entities/project';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
 import { INetworkRepository } from 'src/domain/repository/network.repository';
 import {
@@ -31,14 +31,22 @@ export class AddNetwork implements IAddNetwork {
   }
 
   async execute(input: IAddNetworkInput): Promise<INetwork> {
-    const domain = await this.prisma.domainModel.findFirst({
+    const project = await this.prisma.projectModel.findUnique({
       where: {
-        id: input.domainId,
+        id: input.projectId,
+      },
+    });
+
+    const domain = await this.prisma.domainModel.findUnique({
+      where: {
+        id: project.domainId,
       },
       include: {
         vpc: true,
       },
     });
+
+    console.log(domain);
 
     const cloudstackNetwork = await this.cloudstackService.handle({
       command: CloudstackCommands.Network.CreateNetwork,
@@ -58,9 +66,9 @@ export class AddNetwork implements IAddNetwork {
     const networkCreated = await this.networkRepository.createNetwork({
       cloudstackAclId: input.cloudstackAclId,
       cloudstackOfferId: input.cloudstackOfferId,
-      domain: {
-        id: domain.id,
-      } as IDomain,
+      project: {
+        id: project.id,
+      } as IProject,
       cloudstackId: cloudstackNetwork.createnetworkresponse.network.id,
       gateway: input.gateway,
       netmask: input.netmask,

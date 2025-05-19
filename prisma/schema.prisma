@@ -53,9 +53,6 @@ model DomainModel {
   vpc   VPCModel? @relation(fields: [vpcId], references: [id])
   vpcId String?   @db.Uuid
 
-  // Network
-  networks NetworkModel[]
-
 
   ProjectModel ProjectModel[]
 }
@@ -70,8 +67,8 @@ model NetworkModel {
   netmask           String
 
   // Domain Model
-  DomainModel   DomainModel? @relation(fields: [domainModelId], references: [id])
-  domainModelId String?      @db.Uuid
+  project   ProjectModel? @relation(fields: [projectId], references: [id])
+  projectId String?      @db.Uuid
 }
 
 model VPCModel {
@@ -95,6 +92,8 @@ model ProjectModel {
 
   DomainMemberModel   DomainMemberModel[]
   VirtualMachineModel VirtualMachineModel[]
+
+  NetworkModel NetworkModel[]
 }
 
 enum JobStatusEnum {

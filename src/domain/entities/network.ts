@@ -1,5 +1,5 @@
 import { IEntityBase } from '../models/entity-base';
-import { IDomain } from './domain';
+import { IProject } from './project';
 
 export interface INetwork extends IEntityBase {
   name: string;
@@ -8,5 +8,5 @@ export interface INetwork extends IEntityBase {
   cloudstackAclId: string;
   gateway: string;
   netmask: string;
-  domain: IDomain;
+  project: IProject;
 }

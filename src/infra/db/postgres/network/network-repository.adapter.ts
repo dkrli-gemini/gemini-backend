@@ -1,10 +1,8 @@
 import { Injectable, Provider } from '@nestjs/common';
-import { Network } from 'inspector/promises';
-import { mapTo } from 'rxjs';
-import { IDomain } from 'src/domain/entities/domain';
 import { INetwork } from 'src/domain/entities/network';
 import { INetworkRepository } from 'src/domain/repository/network.repository';
 import { PrismaService } from '../../prisma.service';
+import { IProject } from 'src/domain/entities/project';
 
 @Injectable()
 export class NetworkRepositoryAdapter implements INetworkRepository {
@@ -19,7 +17,7 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
         name: input.name,
         gateway: input.gateway,
         netmask: input.netmask,
-        domainModelId: input.domain.id,
+        projectId: input.project.id,
       },
     });
 
@@ -45,9 +43,9 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
       name: persistencyObject.name,
       gateway: persistencyObject.gateway,
       netmask: persistencyObject.netmask,
-      domain: {
-        id: persistencyObject.domainModelId,
-      } as IDomain,
+      project: {
+        id: persistencyObject.projectId,
+      } as IProject,
     };
     return network;
   }

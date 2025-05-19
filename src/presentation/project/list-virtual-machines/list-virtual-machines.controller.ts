@@ -5,7 +5,6 @@ import { ParsedQs } from 'qs';
 import { IController } from 'src/domain/contracts/controller';
 import { IHttpResponse, ok } from 'src/domain/contracts/http';
 import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
-import { IProjectRepository } from 'src/domain/repository/project.repository';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
 import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
 import { RolesEnum } from 'src/infra/auth/roles.guard';

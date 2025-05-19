@@ -7,7 +7,7 @@ import { IHttpResponse, ok } from 'src/domain/contracts/http';
 import { IAddNetwork } from 'src/domain/contracts/use-cases/networks/add-network';
 import { INetwork } from 'src/domain/entities/network';
 import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
-import { Roles, RolesEnum } from 'src/infra/auth/roles.guard';
+import { RolesEnum } from 'src/infra/auth/roles.guard';
 import { AddNetworkInputDto } from './dtos/add-network.input.dto';
 import { AddNetworkOutputDto } from './dtos/add-network.output.dto';
 
@@ -18,17 +18,17 @@ export class AddNetworkController
   constructor(private readonly useCase: IAddNetwork) {}
 
   @AuthorizedTo(RolesEnum.BASIC, RolesEnum.ADMIN)
-  @Post('add-network/:domainId')
+  @Post('add-network/:projectId')
   async handle(
     @Body() input: AddNetworkInputDto,
     @Req()
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    @Param('domainId') domainId?: string,
+    @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<AddNetworkOutputDto | Error>> {
     const response = await this.useCase.execute({
       cloudstackAclId: input.cloudstackAclId,
       name: input.name,
-      domainId: domainId,
+      projectId: projectId,
       cloudstackOfferId: input.cloudstackOfferId,
       gateway: input.gateway,
       netmask: input.netmask,
