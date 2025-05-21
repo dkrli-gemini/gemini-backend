@@ -46,8 +46,6 @@ export class AddNetwork implements IAddNetwork {
       },
     });
 
-    console.log(domain);
-
     const cloudstackNetwork = await this.cloudstackService.handle({
       command: CloudstackCommands.Network.CreateNetwork,
       additionalParams: {
