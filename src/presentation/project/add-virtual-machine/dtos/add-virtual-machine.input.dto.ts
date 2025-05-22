@@ -4,7 +4,7 @@ export class AddVirtualMachineInputDto {
   @ApiProperty({ type: String, required: true })
   name: string;
   @ApiProperty({ type: String, required: true })
-  cloudstackOfferId: string;
+  instanceId: string;
   @ApiProperty({ type: String, required: true })
   cloudstackTemplateId: string;
   @ApiProperty({ type: String, required: true })

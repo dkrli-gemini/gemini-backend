@@ -11,6 +11,5 @@ export abstract class IDomainRepository implements IRepositoryBase<IDomain> {
     ownerId: string,
   ): Promise<Partial<IDomain>>;
   abstract getDomain(id: string): Promise<IDomain>;
-  abstract findByOwner(ownerId: string): Promise<IDomain[]>;
   abstract mapToDomain(persistencyObject: any): IDomain;
 }

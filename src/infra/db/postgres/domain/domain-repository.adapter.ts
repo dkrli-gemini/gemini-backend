@@ -67,40 +67,6 @@ export class DomainRepositoryAdapter implements IDomainRepository {
     return this.mapToDomain(result);
   }
 
-  async findByOwner(ownerId: string): Promise<IDomain[]> {
-    throw new Error('not impl');
-    // const members = await this.prismaService.projectModel.findMany({
-    //   where: {
-    //     type: ProjectTypeModel.ROOT,
-    //     DomainMemberModel: {
-    //       some: {
-    //         userId: ownerId,
-    //         role: ProjectRoleModel.OWNER,
-    //       },
-    //     },
-    //   },
-    // });
-
-    // const domain = await Promise.all(
-    //   members.map(async (member) => {
-    //     const d = await this.prismaService.domainModel.findFirst({
-    //       where: {
-    //         rootProjectId: member.id,
-    //       },
-    //       include: {
-    //         rootProject: true,
-    //       },
-    //     });
-    //     return d;
-    //   }),
-    // );
-
-    // console.log(domain);
-    // const result = domain.map((d) => this.mapToDomain(d));
-    // return result;
-    return null;
-  }
-
   mapToDomain(persistencyObject: any): IDomain {
     console.log(persistencyObject);
     const domain: IDomain = {

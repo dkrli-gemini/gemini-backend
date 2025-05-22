@@ -1,4 +1,5 @@
 import { IEntityBase } from '../models/entity-base';
+import { IInstance } from './instance';
 import { IProject } from './project';
 
 export enum VirtualMachineState {
@@ -12,7 +13,7 @@ export interface IVirtualMachine extends IEntityBase {
   state: string;
   ipAddress: string;
   cloudstackId: string;
+  instance: IInstance;
   cloudstackTemplateId: string;
-  cloudstackOfferId: string;
   project: IProject;
 }

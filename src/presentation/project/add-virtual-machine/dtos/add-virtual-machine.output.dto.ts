@@ -20,7 +20,6 @@ export class AddVirtualMachineOutputDto {
   constructor(machine: IVirtualMachine) {
     this.id = machine.id;
     this.name = machine.name;
-    this.cloudstackOfferId = machine.cloudstackOfferId;
     this.os = machine.os;
     this.projectId = machine.project.id;
     this.state = machine.state;

@@ -4,8 +4,10 @@ import {
   IAddVirtualMachine,
   IAddVirtualMachineInput,
 } from 'src/domain/contracts/use-cases/project/add-virtual-machine';
+import { IInstance } from 'src/domain/entities/instance';
 import { IProject } from 'src/domain/entities/project';
 import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
+import { IInstanceRepository } from 'src/domain/repository/instance.repository';
 import { INetworkRepository } from 'src/domain/repository/network.repository';
 import { IProjectRepository } from 'src/domain/repository/project.repository';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
@@ -24,6 +26,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
     private readonly configService: ConfigService,
     private readonly networkRepository: INetworkRepository,
     private readonly virtualMachineRepository: IVirtualMachineRepository,
+    private readonly instanceRepository: IInstanceRepository,
   ) {
     this.defaultZoneId = this.configService.get<string>(
       'CLOUDSTACK_DEFAULT_ZONE_ID',
@@ -33,12 +36,14 @@ export class AddVirtualMachine implements IAddVirtualMachine {
   async execute(input: IAddVirtualMachineInput): Promise<IVirtualMachine> {
     const project = await this.projectRepository.getProject(input.projectId);
     const network = await this.networkRepository.getNetwork(input.networkId);
-    console.log(network);
+    const instance = await this.instanceRepository.getInstance(
+      input.instanceId,
+    );
 
     const jobResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.VirtualMachine.DeployVirtualMachine,
       additionalParams: {
-        serviceofferingid: input.cloudstackOfferId,
+        serviceofferingid: instance.cloudstackId,
         startvm: 'false',
         templateid: input.cloudstackTemplateId,
         zoneid: this.defaultZoneId,
@@ -48,8 +53,6 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         networkids: network.cloudstackId,
       },
     });
-
-    console.log(jobResponse);
 
     const template = (
       await this.cloudstackService.handle({
@@ -63,7 +66,9 @@ export class AddVirtualMachine implements IAddVirtualMachine {
 
     const virtualMachineCreated =
       await this.virtualMachineRepository.createVirtualMachine({
-        cloudstackOfferId: input.cloudstackOfferId,
+        instance: {
+          id: instance.id,
+        } as IInstance,
         cloudstackTemplateId: input.cloudstackTemplateId,
         cloudstackId: jobResponse.deployvirtualmachineresponse.id,
         ipAddress: '',

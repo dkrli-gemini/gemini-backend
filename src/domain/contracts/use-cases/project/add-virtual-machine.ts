@@ -3,8 +3,8 @@ import { IUseCase } from '../../use-case';
 
 export interface IAddVirtualMachineInput {
   name: string;
+  instanceId: string;
   cloudstackTemplateId: string;
-  cloudstackOfferId: string;
   projectId: string;
   networkId: string;
 }

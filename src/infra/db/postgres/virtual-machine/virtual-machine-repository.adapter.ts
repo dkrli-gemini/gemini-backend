@@ -3,6 +3,7 @@ import { IProject } from 'src/domain/entities/project';
 import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
 import { PrismaService } from '../../prisma.service';
+import { IInstance } from 'src/domain/entities/instance';
 
 @Injectable()
 export class VirtualMachineRepositoryAdapter
@@ -25,17 +26,22 @@ export class VirtualMachineRepositoryAdapter
   ): Promise<IVirtualMachine> {
     const virtualMachineCreated = await this.prisma.virtualMachineModel.create({
       data: {
-        cloudstackOfferId: input.cloudstackOfferId,
+        instance: {
+          connect: {
+            id: input.instance.id,
+          },
+        },
         cloudstackTemplateId: input.cloudstackTemplateId,
         name: input.name,
         ipAddress: input.ipAddress,
         os: input.os,
-        projectId: input.project.id,
+        project: {
+          connect: {
+            id: input.project.id,
+          },
+        },
         state: input.state,
         cloudstackId: input.cloudstackId,
-      },
-      include: {
-        project: true,
       },
     });
 
@@ -59,14 +65,16 @@ export class VirtualMachineRepositoryAdapter
   mapToDomain(persistencyObject: any): IVirtualMachine {
     const machine: IVirtualMachine = {
       id: persistencyObject.id,
-      cloudstackOfferId: persistencyObject.cloudstackOfferId,
+      instance: {
+        id: persistencyObject.instanceId,
+      } as IInstance,
       cloudstackTemplateId: persistencyObject.cloustackTemplateId,
       name: persistencyObject.name,
       cloudstackId: persistencyObject.cloudstackId,
       ipAddress: persistencyObject.ipAddress,
       os: persistencyObject.os,
       project: {
-        id: persistencyObject.project.id,
+        id: persistencyObject.projectId,
       } as IProject,
       state: persistencyObject.state,
     };

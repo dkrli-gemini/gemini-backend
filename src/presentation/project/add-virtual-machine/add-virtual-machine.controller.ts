@@ -28,7 +28,7 @@ export class AddVirtualMachineController
     @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<AddVirtualMachineOutputDto | Error>> {
     const machine = await this.useCase.execute({
-      cloudstackOfferId: input.cloudstackOfferId,
+      instanceId: input.instanceId,
       cloudstackTemplateId: input.cloudstackTemplateId,
       name: input.name,
       networkId: input.networkId,

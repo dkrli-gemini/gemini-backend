@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+// User
 model UserModel {
   id           String              @id @default(uuid()) @db.Uuid
   name         String
@@ -122,8 +118,10 @@ model VirtualMachineModel {
   os                   String
   ipAddress            String
   cloudstackTemplateId String
-  cloudstackOfferId    String
   state                String
+
+  instance InstanceModel? @relation(fields: [instanceId], references: [id])
+  instanceId String? @db.Uuid
 
   // Project
   project   ProjectModel? @relation(fields: [projectId], references: [id])
@@ -139,4 +137,15 @@ enum ProjectRoleModel {
   OWNER
   ADMIN
   MEMBER
+}
+
+model InstanceModel {
+  id String @id() @default(uuid()) @db.Uuid
+  cloudstackId String
+  name String
+  memory String
+  disk String
+  cpu String
+
+  VirtualMachineModel VirtualMachineModel[]
 }

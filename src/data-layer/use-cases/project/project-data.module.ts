@@ -4,6 +4,7 @@ import { NetworkRepositoryModule } from 'src/infra/db/postgres/network/network-r
 import { ProjectRepositoryModule } from 'src/infra/db/postgres/project/project-repository.module';
 import { VirtualMachineRepositoryModule } from 'src/infra/db/postgres/virtual-machine/virtual-machine-repository.module';
 import { AddVirtualMachineProvider } from './add-virtual-machine';
+import { InstanceRepositoryModule } from 'src/infra/db/postgres/instance/instance-repository.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { AddVirtualMachineProvider } from './add-virtual-machine';
     VirtualMachineRepositoryModule,
     CloudstackModule,
     NetworkRepositoryModule,
+    InstanceRepositoryModule,
   ],
   providers: [AddVirtualMachineProvider],
   exports: [AddVirtualMachineProvider],
