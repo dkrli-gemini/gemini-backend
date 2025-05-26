@@ -23,6 +23,7 @@ import { JobsModule } from './infra/job/job.module';
 import { TurnOnMachineModule } from './presentation/virtual-machine/turn-on-machine/turn-on-machine.module';
 import { StopMachineModule } from './presentation/virtual-machine/stop-machine/stop-machine.module';
 import { CreateRootDomainModule } from './presentation/domain/create-root-domain/create-root-domain.module';
+import { AddInstanceModule } from './presentation/instance/add-instance/add-instance.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CreateRootDomainModule } from './presentation/domain/create-root-domain
     TurnOnMachineModule,
     StopMachineModule,
     CreateRootDomainModule,
+    AddInstanceModule,
   ],
   controllers: [AppController],
 })

@@ -53,7 +53,7 @@ export class VirtualMachineRepositoryAdapter
       where: {
         projectId: projectId,
       },
-      include: { project: true },
+      include: { project: true, instance: true },
     });
 
     const response = machines.map((machine) => {
@@ -63,10 +63,17 @@ export class VirtualMachineRepositoryAdapter
   }
 
   mapToDomain(persistencyObject: any): IVirtualMachine {
+    console.log(persistencyObject);
+
     const machine: IVirtualMachine = {
       id: persistencyObject.id,
       instance: {
         id: persistencyObject.instanceId,
+        cloudstackId: persistencyObject.instance.cloudstackId,
+        cpu: persistencyObject.instance.cpu,
+        disk: persistencyObject.instance.disk,
+        memory: persistencyObject.instance.memory,
+        name: persistencyObject.instance.name,
       } as IInstance,
       cloudstackTemplateId: persistencyObject.cloustackTemplateId,
       name: persistencyObject.name,

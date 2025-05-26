@@ -2,8 +2,9 @@
 import { IInstance } from 'src/domain/entities/instance';
 import { IInstanceRepository } from 'src/domain/repository/instance.repository';
 import { PrismaService } from '../../prisma.service';
-import { Provider } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 
+@Injectable()
 export class InstanceRepositoryAdapter implements IInstanceRepository {
   constructor(private readonly prisma: PrismaService) {}
 
