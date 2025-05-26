@@ -1,4 +1,3 @@
-import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
 import { IUseCase } from '../../use-case';
 
 export interface IAddVirtualMachineInput {
@@ -9,10 +8,16 @@ export interface IAddVirtualMachineInput {
   networkId: string;
 }
 
-export type IAddVirtualMachineOutput = IVirtualMachine;
+export type IAddVirtualMachineOutput = {
+  id: string;
+  cloudstackId: string;
+  jobId: string;
+};
 
 export abstract class IAddVirtualMachine
   implements IUseCase<IAddVirtualMachineInput, IAddVirtualMachineOutput>
 {
-  abstract execute(input: IAddVirtualMachineInput): Promise<IVirtualMachine>;
+  abstract execute(
+    input: IAddVirtualMachineInput,
+  ): Promise<IAddVirtualMachineOutput>;
 }

@@ -1,28 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
+import { IAddVirtualMachineOutput } from 'src/domain/contracts/use-cases/project/add-virtual-machine';
 
 export class AddVirtualMachineOutputDto {
   @ApiProperty({ type: String })
   id: string;
   @ApiProperty({ type: String })
-  name: string;
+  cloudstackId: string;
   @ApiProperty({ type: String })
-  cloudstackOfferId: string;
-  @ApiProperty({ type: String })
-  os: string;
-  @ApiProperty({ type: String })
-  projectId: string;
-  @ApiProperty({ type: String })
-  state: string;
-  @ApiProperty({ type: String })
-  ipAddress: string;
+  jobId: string;
 
-  constructor(machine: IVirtualMachine) {
+  constructor(machine: IAddVirtualMachineOutput) {
     this.id = machine.id;
-    this.name = machine.name;
-    this.os = machine.os;
-    this.projectId = machine.project.id;
-    this.state = machine.state;
-    this.ipAddress = machine.ipAddress;
+    this.cloudstackId = machine.cloudstackId;
+    this.jobId = machine.jobId;
   }
 }

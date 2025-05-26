@@ -5,6 +5,7 @@ import { ProjectRepositoryModule } from 'src/infra/db/postgres/project/project-r
 import { VirtualMachineRepositoryModule } from 'src/infra/db/postgres/virtual-machine/virtual-machine-repository.module';
 import { AddVirtualMachineProvider } from './add-virtual-machine';
 import { InstanceRepositoryModule } from 'src/infra/db/postgres/instance/instance-repository.module';
+import { JobRepositoryModule } from 'src/infra/db/postgres/job/job-repository.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { InstanceRepositoryModule } from 'src/infra/db/postgres/instance/instanc
     CloudstackModule,
     NetworkRepositoryModule,
     InstanceRepositoryModule,
+    JobRepositoryModule,
   ],
   providers: [AddVirtualMachineProvider],
   exports: [AddVirtualMachineProvider],

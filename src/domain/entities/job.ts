@@ -8,6 +8,7 @@ export enum JobStatusEnum {
 export enum JobTypeEnum {
   StartVM = 'StartVM',
   StopVM = 'StopVM',
+  CreateVM = 'CreateVM',
 }
 
 export interface IJob extends IEntityBase {

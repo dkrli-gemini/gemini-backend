@@ -5,8 +5,10 @@ import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs';
 import { IController } from 'src/domain/contracts/controller';
 import { created, IHttpResponse } from 'src/domain/contracts/http';
-import { IAddVirtualMachine } from 'src/domain/contracts/use-cases/project/add-virtual-machine';
-import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
+import {
+  IAddVirtualMachine,
+  IAddVirtualMachineOutput,
+} from 'src/domain/contracts/use-cases/project/add-virtual-machine';
 import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
 import { RolesEnum } from 'src/infra/auth/roles.guard';
 import { AddVirtualMachineInputDto } from './dtos/add-virtual-machine.input.dto';
@@ -39,7 +41,9 @@ export class AddVirtualMachineController
     return created(response);
   }
 
-  private mapToOutput(machine: IVirtualMachine): AddVirtualMachineOutputDto {
+  private mapToOutput(
+    machine: IAddVirtualMachineOutput,
+  ): AddVirtualMachineOutputDto {
     return new AddVirtualMachineOutputDto(machine);
   }
 }

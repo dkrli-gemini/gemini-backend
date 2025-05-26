@@ -43,6 +43,7 @@ export class VirtualMachineRepositoryAdapter
         state: input.state,
         cloudstackId: input.cloudstackId,
       },
+      include: { instance: true },
     });
 
     return this.mapToDomain(virtualMachineCreated);

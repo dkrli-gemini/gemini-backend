@@ -3,11 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import {
   IAddVirtualMachine,
   IAddVirtualMachineInput,
+  IAddVirtualMachineOutput,
 } from 'src/domain/contracts/use-cases/project/add-virtual-machine';
 import { IInstance } from 'src/domain/entities/instance';
+import { JobStatusEnum, JobTypeEnum } from 'src/domain/entities/job';
 import { IProject } from 'src/domain/entities/project';
-import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
 import { IInstanceRepository } from 'src/domain/repository/instance.repository';
+import { IJobRepository } from 'src/domain/repository/job.repository';
 import { INetworkRepository } from 'src/domain/repository/network.repository';
 import { IProjectRepository } from 'src/domain/repository/project.repository';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
@@ -27,13 +29,16 @@ export class AddVirtualMachine implements IAddVirtualMachine {
     private readonly networkRepository: INetworkRepository,
     private readonly virtualMachineRepository: IVirtualMachineRepository,
     private readonly instanceRepository: IInstanceRepository,
+    private readonly jobRepository: IJobRepository,
   ) {
     this.defaultZoneId = this.configService.get<string>(
       'CLOUDSTACK_DEFAULT_ZONE_ID',
     );
   }
 
-  async execute(input: IAddVirtualMachineInput): Promise<IVirtualMachine> {
+  async execute(
+    input: IAddVirtualMachineInput,
+  ): Promise<IAddVirtualMachineOutput> {
     const project = await this.projectRepository.getProject(input.projectId);
     const network = await this.networkRepository.getNetwork(input.networkId);
     const instance = await this.instanceRepository.getInstance(
@@ -53,6 +58,8 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         networkids: network.cloudstackId,
       },
     });
+
+    console.log(jobResponse);
 
     const template = (
       await this.cloudstackService.handle({
@@ -80,7 +87,19 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         state: 'STOPPED',
       });
 
-    return virtualMachineCreated;
+    await this.jobRepository.createJob({
+      cloudstackJobId: jobResponse.deployvirtualmachineresponse.jobid,
+      status: JobStatusEnum.PENDING,
+      type: JobTypeEnum.CreateVM,
+      entityId: virtualMachineCreated.id,
+    });
+
+    const output: IAddVirtualMachineOutput = {
+      id: virtualMachineCreated.id,
+      cloudstackId: jobResponse.deployvirtualmachineresponse.id,
+      jobId: jobResponse.deployvirtualmachineresponse.jobid,
+    };
+    return output;
   }
 }
 

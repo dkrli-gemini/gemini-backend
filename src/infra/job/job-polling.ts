@@ -46,6 +46,32 @@ export class JobPollingService {
         });
         break;
       }
+      case JobTypeEnum.CreateVM: {
+        this.logger.debug('Updating VM IP');
+        const dbVm = await this.prisma.virtualMachineModel.findUnique({
+          where: {
+            id: entityId,
+          },
+        });
+        console.log(dbVm);
+        const virtualMachine = await this.cloudstackService.handle({
+          command: CloudstackCommands.VirtualMachine.ListVirtualMachines,
+          additionalParams: {
+            id: dbVm.cloudstackId,
+          },
+        });
+
+        await this.prisma.virtualMachineModel.update({
+          where: {
+            id: entityId,
+          },
+          data: {
+            ipAddress:
+              virtualMachine.listvirtualmachinesresponse.virtualmachine[0]
+                .ipaddress,
+          },
+        });
+      }
     }
   }
 
