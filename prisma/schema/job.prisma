@@ -1,0 +1,19 @@
+enum JobStatusEnum {
+  PENDING
+  DONE
+}
+
+enum JobTypeEnum {
+  StartVM
+  StopVM
+  CreateVM
+}
+
+model JobModel {
+  id String @id @default(uuid()) @db.Uuid
+  cloudstackJobId String
+  status JobStatusEnum
+  type JobTypeEnum
+  entityId String?
+  error String?
+}

@@ -75,7 +75,7 @@ export class JobPollingService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_5_SECONDS)
   async handleCron() {
     this.logger.debug('Polling service triggered. Check pending jobs');
 
