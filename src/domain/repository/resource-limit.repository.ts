@@ -5,6 +5,9 @@ export abstract class IResourceLimitRepository
   implements IRepositoryBase<IResourceLimit>
 {
   abstract createResourceLimit(input: IResourceLimit): Promise<IResourceLimit>;
+  abstract createDefaultResourceLimits(
+    domainId: string,
+  ): Promise<IResourceLimit[]>;
   abstract getResourceLimit(id: string): Promise<IResourceLimit>;
   abstract listByDomain(domainId: string): Promise<IResourceLimit[]>;
   abstract mapToDomain(persistencyObject: any): IResourceLimit;

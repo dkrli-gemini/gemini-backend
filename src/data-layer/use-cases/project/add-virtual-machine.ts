@@ -10,6 +10,7 @@ import { IInstance } from 'src/domain/entities/instance';
 import { JobStatusEnum, JobTypeEnum } from 'src/domain/entities/job';
 import { IProject } from 'src/domain/entities/project';
 import { ITemplate } from 'src/domain/entities/template';
+import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
 import { IInstanceRepository } from 'src/domain/repository/instance.repository';
 import { IJobRepository } from 'src/domain/repository/job.repository';
 import { INetworkRepository } from 'src/domain/repository/network.repository';
@@ -20,6 +21,7 @@ import {
   CloudstackService,
 } from 'src/infra/cloudstack/cloudstack';
 import { PrismaService } from 'src/infra/db/prisma.service';
+import { throwsException } from 'src/utilities/exception';
 
 @Injectable()
 export class AddVirtualMachine implements IAddVirtualMachine {
@@ -43,6 +45,8 @@ export class AddVirtualMachine implements IAddVirtualMachine {
   async execute(
     input: IAddVirtualMachineInput,
   ): Promise<IAddVirtualMachineOutput> {
+    await this.validate(input);
+
     const project = await this.projectRepository.getProject(input.projectId);
     const network = await this.networkRepository.getNetwork(input.networkId);
     const instance = await this.instanceRepository.getInstance(
@@ -96,6 +100,22 @@ export class AddVirtualMachine implements IAddVirtualMachine {
       jobId: jobResponse.deployvirtualmachineresponse.jobid,
     };
     return output;
+  }
+
+  private async validate(input: IAddVirtualMachineInput) {
+    // TODO: validate limits
+
+    const isNameDuplicate =
+      (await this.prisma.virtualMachineModel.findFirst({
+        where: {
+          name: input.name,
+          projectId: input.projectId,
+        },
+      })) != null;
+
+    if (isNameDuplicate) {
+      throwsException(new InvalidParamError('name'));
+    }
   }
 }
 

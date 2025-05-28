@@ -4,9 +4,15 @@ import { DomainRepositoryModule } from 'src/infra/db/postgres/domain/domain-repo
 import { CreateDomainProvider } from './create-domain';
 import { CreateRootDomainProvider } from './create-root-domain';
 import { ProjectRepositoryModule } from 'src/infra/db/postgres/project/project-repository.module';
+import { ResourceLimitRepositoryModule } from 'src/infra/db/postgres/resource-limit/resource-limit-adapter.module';
 
 @Module({
-  imports: [DomainRepositoryModule, CloudstackModule, ProjectRepositoryModule],
+  imports: [
+    DomainRepositoryModule,
+    CloudstackModule,
+    ProjectRepositoryModule,
+    ResourceLimitRepositoryModule,
+  ],
   providers: [CreateDomainProvider, CreateRootDomainProvider],
   exports: [CreateDomainProvider, CreateRootDomainProvider],
 })

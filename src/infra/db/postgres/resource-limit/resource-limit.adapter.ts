@@ -1,4 +1,7 @@
-import { IResourceLimit } from 'src/domain/entities/resource-limit';
+import {
+  IResourceLimit,
+  ResourceTypeEnum,
+} from 'src/domain/entities/resource-limit';
 import { IResourceLimitRepository } from 'src/domain/repository/resource-limit.repository';
 import { PrismaService } from '../../prisma.service';
 import { Injectable, Provider } from '@nestjs/common';
@@ -24,6 +27,25 @@ export class ResourceLimitRepositoryAdapter
     });
 
     return this.mapToDomain(limitCreated);
+  }
+
+  async createDefaultResourceLimits(
+    domainId: string,
+  ): Promise<IResourceLimit[]> {
+    const types = [ResourceTypeEnum.NETWORK, ResourceTypeEnum.VOLUMES];
+    const data: IResourceLimit[] = types.map((type) => ({
+      domainId,
+      type,
+      limit: 0,
+      used: 0,
+    }));
+    const resourceLimits =
+      await this.prisma.resourceLimitModel.createManyAndReturn({
+        data: data,
+      });
+
+    const response = resourceLimits.map((l) => this.mapToDomain(l));
+    return response;
   }
 
   async getResourceLimit(id: string): Promise<IResourceLimit> {

@@ -9,6 +9,7 @@ import { IDomain, IDomainType } from 'src/domain/entities/domain';
 import { ProjectTypeEnum } from 'src/domain/entities/project';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
 import { IProjectRepository } from 'src/domain/repository/project.repository';
+import { IResourceLimitRepository } from 'src/domain/repository/resource-limit.repository';
 import {
   CloudstackCommands,
   CloudstackService,
@@ -27,6 +28,7 @@ export class CreateDomain implements ICreateDomain {
     private readonly domainRepository: IDomainRepository,
     private readonly projectRepository: IProjectRepository,
     private readonly cloudstackService: CloudstackService,
+    private readonly resourceLimitRepository: IResourceLimitRepository,
     private readonly prisma: PrismaService,
 
     private readonly configService: ConfigService,
@@ -104,6 +106,10 @@ export class CreateDomain implements ICreateDomain {
       },
       input.ownerId,
     );
+
+    const resourceLimits =
+      await this.resourceLimitRepository.createDefaultResourceLimits(domain.id);
+    console.log(resourceLimits);
 
     const project = await this.projectRepository.createProject({
       name: input.name,
