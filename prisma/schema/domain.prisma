@@ -22,5 +22,7 @@ model DomainModel {
 
 
   ProjectModel ProjectModel[]
+
+  ResourceLimitModel ResourceLimitModel[]
 }
 
