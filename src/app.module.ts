@@ -25,6 +25,7 @@ import { StopMachineModule } from './presentation/virtual-machine/stop-machine/s
 import { CreateRootDomainModule } from './presentation/domain/create-root-domain/create-root-domain.module';
 import { AddInstanceModule } from './presentation/instance/add-instance/add-instance.module';
 import { AddTemplateModule } from './presentation/template/add-template/add-template.module';
+import { AddResourceLimitModule } from './presentation/resource-limit/add-resource-limit/add-resource-limit.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { AddTemplateModule } from './presentation/template/add-template/add-temp
     CreateRootDomainModule,
     AddInstanceModule,
     AddTemplateModule,
+    AddResourceLimitModule,
   ],
   controllers: [AppController],
 })
