@@ -2,10 +2,11 @@ model VirtualMachineModel {
   id                   String @id() @default(uuid()) @db.Uuid
   cloudstackId String
   name                 String
-  os                   String
   ipAddress            String
-  cloudstackTemplateId String
   state                String
+
+  template TemplateOfferModel? @relation(fields: [templateId], references: [id])
+  templateId String? @db.Uuid
 
   instance InstanceModel? @relation(fields: [instanceId], references: [id])
   instanceId String? @db.Uuid

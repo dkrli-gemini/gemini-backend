@@ -31,7 +31,7 @@ export class AddVirtualMachineController
   ): Promise<IHttpResponse<AddVirtualMachineOutputDto | Error>> {
     const machine = await this.useCase.execute({
       instanceId: input.instanceId,
-      cloudstackTemplateId: input.cloudstackTemplateId,
+      templateId: input.templateId,
       name: input.name,
       networkId: input.networkId,
       projectId: projectId,

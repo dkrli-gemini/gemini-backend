@@ -24,6 +24,7 @@ import { TurnOnMachineModule } from './presentation/virtual-machine/turn-on-mach
 import { StopMachineModule } from './presentation/virtual-machine/stop-machine/stop-machine.module';
 import { CreateRootDomainModule } from './presentation/domain/create-root-domain/create-root-domain.module';
 import { AddInstanceModule } from './presentation/instance/add-instance/add-instance.module';
+import { AddTemplateModule } from './presentation/template/add-template/add-template.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { AddInstanceModule } from './presentation/instance/add-instance/add-inst
     StopMachineModule,
     CreateRootDomainModule,
     AddInstanceModule,
+    AddTemplateModule,
   ],
   controllers: [AppController],
 })

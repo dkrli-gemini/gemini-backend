@@ -3,7 +3,6 @@ import { IDomain } from 'src/domain/entities/domain';
 import { IProject, ProjectTypeEnum } from 'src/domain/entities/project';
 import { IProjectRepository } from 'src/domain/repository/project.repository';
 import { PrismaService } from '../../prisma.service';
-import { create } from 'domain';
 
 @Injectable()
 export class ProjectRepositoryAdapter implements IProjectRepository {

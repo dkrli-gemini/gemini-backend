@@ -1,4 +1,5 @@
 import { IInstance } from 'src/domain/entities/instance';
+import { ITemplate } from 'src/domain/entities/template';
 import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
 
 export class InstanceDto {
@@ -19,23 +20,37 @@ export class InstanceDto {
   }
 }
 
+export class TemplateDto {
+  id: string;
+  name: string;
+  cloudstackId: string;
+  url?: string;
+
+  constructor(template: ITemplate) {
+    this.id = template.id;
+    this.name = template.name;
+    this.cloudstackId = template.cloudstackId;
+    this.url = template.url;
+  }
+}
+
 export class VirtualMachineDto {
   id: string;
   name: string;
-  os: string;
   state: string;
   ipAddress: string;
   cloudstackId: string;
   instance: InstanceDto;
+  template: TemplateDto;
 
   constructor(machine: IVirtualMachine) {
     this.id = machine.id;
-    this.os = machine.os;
     this.name = machine.name;
     this.state = machine.state;
     this.ipAddress = machine.ipAddress;
     this.cloudstackId = machine.cloudstackId;
     this.instance = new InstanceDto(machine.instance);
+    this.template = new TemplateDto(machine.template);
   }
 }
 

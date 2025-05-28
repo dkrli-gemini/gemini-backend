@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -8,6 +9,7 @@ import {
 import { IInstance } from 'src/domain/entities/instance';
 import { JobStatusEnum, JobTypeEnum } from 'src/domain/entities/job';
 import { IProject } from 'src/domain/entities/project';
+import { ITemplate } from 'src/domain/entities/template';
 import { IInstanceRepository } from 'src/domain/repository/instance.repository';
 import { IJobRepository } from 'src/domain/repository/job.repository';
 import { INetworkRepository } from 'src/domain/repository/network.repository';
@@ -17,6 +19,7 @@ import {
   CloudstackCommands,
   CloudstackService,
 } from 'src/infra/cloudstack/cloudstack';
+import { PrismaService } from 'src/infra/db/prisma.service';
 
 @Injectable()
 export class AddVirtualMachine implements IAddVirtualMachine {
@@ -30,6 +33,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
     private readonly virtualMachineRepository: IVirtualMachineRepository,
     private readonly instanceRepository: IInstanceRepository,
     private readonly jobRepository: IJobRepository,
+    private readonly prisma: PrismaService,
   ) {
     this.defaultZoneId = this.configService.get<string>(
       'CLOUDSTACK_DEFAULT_ZONE_ID',
@@ -44,13 +48,16 @@ export class AddVirtualMachine implements IAddVirtualMachine {
     const instance = await this.instanceRepository.getInstance(
       input.instanceId,
     );
+    const foundTemplate = await this.prisma.templateOfferModel.findUnique({
+      where: { id: input.templateId },
+    });
 
     const jobResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.VirtualMachine.DeployVirtualMachine,
       additionalParams: {
         serviceofferingid: instance.cloudstackId,
         startvm: 'false',
-        templateid: input.cloudstackTemplateId,
+        templateid: foundTemplate.cloudstackId,
         zoneid: this.defaultZoneId,
         domainid: project.domain.cloudstackDomainId,
         account: project.domain.name,
@@ -59,28 +66,17 @@ export class AddVirtualMachine implements IAddVirtualMachine {
       },
     });
 
-    console.log(jobResponse);
-
-    const template = (
-      await this.cloudstackService.handle({
-        command: 'listTemplates',
-        additionalParams: {
-          templatefilter: 'all',
-          id: input.cloudstackTemplateId,
-        },
-      })
-    ).listtemplatesresponse.template;
-
     const virtualMachineCreated =
       await this.virtualMachineRepository.createVirtualMachine({
         instance: {
           id: instance.id,
         } as IInstance,
-        cloudstackTemplateId: input.cloudstackTemplateId,
+        template: {
+          id: foundTemplate.id,
+        } as ITemplate,
         cloudstackId: jobResponse.deployvirtualmachineresponse.id,
         ipAddress: '',
         name: input.name,
-        os: template[0].name,
         project: {
           id: input.projectId,
         } as IProject,

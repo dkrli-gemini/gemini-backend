@@ -4,6 +4,7 @@ import { IVirtualMachine } from 'src/domain/entities/virtual-machine';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
 import { PrismaService } from '../../prisma.service';
 import { IInstance } from 'src/domain/entities/instance';
+import { ITemplate } from 'src/domain/entities/template';
 
 @Injectable()
 export class VirtualMachineRepositoryAdapter
@@ -31,10 +32,13 @@ export class VirtualMachineRepositoryAdapter
             id: input.instance.id,
           },
         },
-        cloudstackTemplateId: input.cloudstackTemplateId,
+        template: {
+          connect: {
+            id: input.template.id,
+          },
+        },
         name: input.name,
         ipAddress: input.ipAddress,
-        os: input.os,
         project: {
           connect: {
             id: input.project.id,
@@ -54,7 +58,7 @@ export class VirtualMachineRepositoryAdapter
       where: {
         projectId: projectId,
       },
-      include: { project: true, instance: true },
+      include: { project: true, instance: true, template: true },
     });
 
     const response = machines.map((machine) => {
@@ -76,11 +80,12 @@ export class VirtualMachineRepositoryAdapter
         memory: persistencyObject.instance.memory,
         name: persistencyObject.instance.name,
       } as IInstance,
-      cloudstackTemplateId: persistencyObject.cloustackTemplateId,
       name: persistencyObject.name,
       cloudstackId: persistencyObject.cloudstackId,
       ipAddress: persistencyObject.ipAddress,
-      os: persistencyObject.os,
+      template: {
+        id: persistencyObject.templateId,
+      } as ITemplate,
       project: {
         id: persistencyObject.projectId,
       } as IProject,

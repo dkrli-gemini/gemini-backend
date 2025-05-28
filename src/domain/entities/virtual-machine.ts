@@ -1,6 +1,7 @@
 import { IEntityBase } from '../models/entity-base';
 import { IInstance } from './instance';
 import { IProject } from './project';
+import { ITemplate } from './template';
 
 export enum VirtualMachineState {
   RUNNING = 'RUNNING',
@@ -9,11 +10,10 @@ export enum VirtualMachineState {
 
 export interface IVirtualMachine extends IEntityBase {
   name: string;
-  os: string;
   state: string;
   ipAddress: string;
   cloudstackId: string;
   instance: IInstance;
-  cloudstackTemplateId: string;
+  template: ITemplate;
   project: IProject;
 }

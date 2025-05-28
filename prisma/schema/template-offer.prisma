@@ -1,0 +1,8 @@
+model TemplateOfferModel {
+    id           String        @id @default(uuid()) @db.Uuid
+    name String
+    cloudstackId String
+    url String?
+
+    VirtualMachineModel VirtualMachineModel[]
+}
