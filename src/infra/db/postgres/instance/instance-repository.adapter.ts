@@ -11,7 +11,7 @@ export class InstanceRepositoryAdapter implements IInstanceRepository {
   async createInstance(instance: Partial<IInstance>): Promise<IInstance> {
     const instanceCreated = await this.prisma.instanceModel.create({
       data: {
-        cloudstackId: instance.cloudstackId,
+        id: instance.id,
         cpu: instance.cpu,
         disk: instance.disk,
         memory: instance.memory,
@@ -39,7 +39,6 @@ export class InstanceRepositoryAdapter implements IInstanceRepository {
   mapToDomain(persistencyObject: any): IInstance {
     const instance: IInstance = {
       id: persistencyObject.id,
-      cloudstackId: persistencyObject.cloudstackId,
       cpu: persistencyObject.cpu,
       disk: persistencyObject.disk,
       memory: persistencyObject.memory,

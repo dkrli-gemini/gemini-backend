@@ -60,7 +60,7 @@ export class AddVolume implements IAddVolume {
     ).createvolumeresponse;
 
     await this.jobRepository.createJob({
-      cloudstackJobId: diskJob.jobid,
+      id: diskJob.jobid,
       status: JobStatusEnum.PENDING,
       type: JobTypeEnum.AttachVolume,
       entityId: `${diskJob.id}|${input.machineId}`,

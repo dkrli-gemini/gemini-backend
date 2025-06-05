@@ -1,5 +1,5 @@
 export class AddTemplateInputDto {
   name: string;
-  cloudstackId: string;
+  id: string;
   url?: string;
 }

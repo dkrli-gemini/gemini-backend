@@ -27,6 +27,7 @@ export class VirtualMachineRepositoryAdapter
   ): Promise<IVirtualMachine> {
     const virtualMachineCreated = await this.prisma.virtualMachineModel.create({
       data: {
+        id: input.id,
         instance: {
           connect: {
             id: input.instance.id,
@@ -45,7 +46,6 @@ export class VirtualMachineRepositoryAdapter
           },
         },
         state: input.state,
-        cloudstackId: input.cloudstackId,
       },
       include: { instance: true },
     });
@@ -79,7 +79,6 @@ export class VirtualMachineRepositoryAdapter
         name: persistencyObject.instance.name,
       } as IInstance,
       name: persistencyObject.name,
-      cloudstackId: persistencyObject.cloudstackId,
       ipAddress: persistencyObject.ipAddress,
       template: {
         id: persistencyObject.templateId,

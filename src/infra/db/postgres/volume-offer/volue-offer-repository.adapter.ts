@@ -11,7 +11,7 @@ export class VolumeOfferRepositoryAdapter implements IVolumeOfferRepository {
     const offer = await this.prisma.diskOfferModel.create({
       data: {
         capacity: input.capacity,
-        cloudstackId: input.cloudstackId,
+        id: input.cloudstackId,
         name: input.name,
       },
     });

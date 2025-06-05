@@ -23,7 +23,7 @@ export class AddInstanceController
     _projectId?: string,
   ): Promise<IHttpResponse<AddInstanceOutputDto | Error>> {
     await this.instanceRepository.createInstance({
-      cloudstackId: input.cloudstackId,
+      id: input.cloudstackId,
       cpu: input.cpu,
       name: input.name,
       memory: input.memory,

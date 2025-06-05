@@ -10,7 +10,6 @@ export interface IAddVirtualMachineInput {
 
 export type IAddVirtualMachineOutput = {
   id: string;
-  cloudstackId: string;
   jobId: string;
 };
 

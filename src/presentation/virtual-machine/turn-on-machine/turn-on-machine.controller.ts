@@ -45,13 +45,13 @@ export class TurnOnMachineController
       await this.cloudstackService.handle({
         command: CloudstackCommands.VirtualMachine.StartMachine,
         additionalParams: {
-          id: machine.cloudstackId,
+          id: machine.id,
         },
       })
     ).startvirtualmachineresponse;
     console.log(response.jobid);
     const createdJob = await this.jobRepository.createJob({
-      cloudstackJobId: response.jobid,
+      id: response.jobid,
       status: JobStatusEnum.PENDING,
       type: JobTypeEnum.StartVM,
       entityId: input.machineId,

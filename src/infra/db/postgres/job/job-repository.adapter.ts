@@ -10,10 +10,10 @@ export class JobRepositoryAdapter implements IJobRepository {
 
   constructor(private readonly prisma: PrismaService) {}
   async createJob(job: IJob): Promise<IJob> {
-    this.logger.debug(`Creating new pending job ${job.cloudstackJobId}`);
+    this.logger.debug(`Creating new pending job ${job.id}`);
     const jobCreated = await this.prisma.jobModel.create({
       data: {
-        cloudstackJobId: job.cloudstackJobId,
+        id: job.id,
         status: JobStatusEnum.PENDING,
         type: job.type,
         entityId: job.entityId,
@@ -57,7 +57,6 @@ export class JobRepositoryAdapter implements IJobRepository {
   mapToDomain(persistencyObject: any): IJob {
     const job: IJob = {
       id: persistencyObject.id,
-      cloudstackJobId: persistencyObject.cloudstackJobId,
       status: persistencyObject.status,
       type: persistencyObject.type,
       error: persistencyObject.error ?? '',

@@ -1,7 +1,6 @@
 
 model InstanceModel {
   id String @id() @default(uuid()) @db.Uuid
-  cloudstackId String
   name String
   memory String
   disk String

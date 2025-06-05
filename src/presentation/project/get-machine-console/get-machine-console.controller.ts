@@ -35,7 +35,7 @@ export class GetMachineConsoleController
     const response = await this.cloudstackService.handle({
       command: CloudstackCommands.VirtualMachine.GetConsole,
       additionalParams: {
-        virtualmachineid: machine.cloudstackId,
+        virtualmachineid: machine.id,
       },
     });
 

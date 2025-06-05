@@ -24,7 +24,7 @@ export class AddTemplateController
   ): Promise<IHttpResponse<AddTemplateOutputDto | Error>> {
     const templateCreated = await this.prisma.templateOfferModel.create({
       data: {
-        cloudstackId: input.cloudstackId,
+        id: input.id,
         name: input.name,
         url: input.url,
       },

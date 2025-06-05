@@ -1,6 +1,5 @@
 model VirtualMachineModel {
   id                   String @id() @default(uuid()) @db.Uuid
-  cloudstackId String
   name                 String
   ipAddress            String
   state                String

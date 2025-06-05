@@ -12,7 +12,6 @@ enum JobTypeEnum {
 
 model JobModel {
   id String @id @default(uuid()) @db.Uuid
-  cloudstackJobId String
   status JobStatusEnum
   type JobTypeEnum
   entityId String?

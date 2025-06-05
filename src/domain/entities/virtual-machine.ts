@@ -12,7 +12,6 @@ export interface IVirtualMachine extends IEntityBase {
   name: string;
   state: string;
   ipAddress: string;
-  cloudstackId: string;
   instance: IInstance;
   template: ITemplate;
   project: IProject;

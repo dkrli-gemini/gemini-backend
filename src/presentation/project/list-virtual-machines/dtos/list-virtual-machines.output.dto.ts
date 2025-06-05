@@ -13,7 +13,6 @@ export class InstanceDto {
   constructor(instance: IInstance) {
     this.id = instance.id;
     this.name = instance.name;
-    this.cloudstackId = instance.cloudstackId;
     this.cpu = instance.cpu;
     this.memory = instance.memory;
     this.disk = instance.disk;
@@ -39,7 +38,6 @@ export class VirtualMachineDto {
   name: string;
   state: string;
   ipAddress: string;
-  cloudstackId: string;
   instance: InstanceDto;
   template: TemplateDto;
 
@@ -48,7 +46,6 @@ export class VirtualMachineDto {
     this.name = machine.name;
     this.state = machine.state;
     this.ipAddress = machine.ipAddress;
-    this.cloudstackId = machine.cloudstackId;
     this.instance = new InstanceDto(machine.instance);
     this.template = new TemplateDto(machine.template);
   }

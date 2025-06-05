@@ -40,13 +40,12 @@ export class StopMachineController
       await this.cloudstackService.handle({
         command: CloudstackCommands.VirtualMachine.StopMachine,
         additionalParams: {
-          id: machine.cloudstackId,
+          id: machine.id,
         },
       })
     ).stopvirtualmachineresponse;
-    console.log(response.jobid);
     const createdJob = await this.jobRepository.createJob({
-      cloudstackJobId: response.jobid,
+      id: response.jobid,
       status: JobStatusEnum.PENDING,
       type: JobTypeEnum.StopVM,
       entityId: input.machineId,

@@ -13,7 +13,6 @@ export enum JobTypeEnum {
 }
 
 export interface IJob extends IEntityBase {
-  cloudstackJobId: string;
   status: JobStatusEnum;
   type: JobTypeEnum;
   error?: string;

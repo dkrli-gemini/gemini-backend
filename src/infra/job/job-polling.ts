@@ -36,18 +36,13 @@ export class JobPollingService {
         break;
       }
       case JobTypeEnum.AttachVolume: {
-        const [cloudstackVolumeId, machineId] = entityId.split('|');
-
-        const machine = await this.prisma.virtualMachineModel.findUnique({
-          where: { id: machineId },
-          select: { cloudstackId: true },
-        });
+        const [volumeId, machineId] = entityId.split('|');
 
         await this.cloudstackService.handle({
           command: CloudstackCommands.Volume.AttachVolume,
           additionalParams: {
-            id: cloudstackVolumeId,
-            virtualmachineid: machine.cloudstackId,
+            id: volumeId,
+            virtualmachineid: machineId,
           },
         });
 
@@ -71,11 +66,10 @@ export class JobPollingService {
             id: entityId,
           },
         });
-        console.log(dbVm);
         const virtualMachine = await this.cloudstackService.handle({
           command: CloudstackCommands.VirtualMachine.ListVirtualMachines,
           additionalParams: {
-            id: dbVm.cloudstackId,
+            id: dbVm.id,
           },
         });
 
@@ -111,13 +105,13 @@ export class JobPollingService {
             await this.cloudstackService.handle({
               command: CloudstackCommands.Jobs.QueryJobResult,
               additionalParams: {
-                jobid: pJob.cloudstackJobId,
+                jobid: pJob.id,
               },
             })
           ).queryasyncjobresultresponse;
           const jobStatus = jobResponse.jobstatus;
           this.logger.debug(
-            `Handling async job ${pJob.cloudstackJobId}, with command ${pJob.type} and status ${jobStatus}`,
+            `Handling async job ${pJob.id}, with command ${pJob.type} and status ${jobStatus}`,
           );
           if (jobStatus == 1) {
             // Success
@@ -129,7 +123,7 @@ export class JobPollingService {
           }
         } catch (jobPollingError) {
           this.logger.error(
-            `Error polling CS job ${pJob.cloudstackJobId}, with ${jobPollingError}`,
+            `Error polling CS job ${pJob.id}, with ${jobPollingError}`,
           );
         }
         this.logger.log('Finished CloudStack polling cycle.');

@@ -59,9 +59,9 @@ export class AddVirtualMachine implements IAddVirtualMachine {
     const jobResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.VirtualMachine.DeployVirtualMachine,
       additionalParams: {
-        serviceofferingid: instance.cloudstackId,
+        serviceofferingid: instance.id,
         startvm: 'false',
-        templateid: foundTemplate.cloudstackId,
+        templateid: foundTemplate.id,
         zoneid: this.defaultZoneId,
         domainid: project.domain.id,
         account: project.domain.name,
@@ -78,7 +78,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         template: {
           id: foundTemplate.id,
         } as ITemplate,
-        cloudstackId: jobResponse.deployvirtualmachineresponse.id,
+        id: jobResponse.deployvirtualmachineresponse.id,
         ipAddress: '',
         name: input.name,
         project: {
@@ -88,7 +88,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
       });
 
     await this.jobRepository.createJob({
-      cloudstackJobId: jobResponse.deployvirtualmachineresponse.jobid,
+      id: jobResponse.deployvirtualmachineresponse.jobid,
       status: JobStatusEnum.PENDING,
       type: JobTypeEnum.CreateVM,
       entityId: virtualMachineCreated.id,
@@ -96,7 +96,6 @@ export class AddVirtualMachine implements IAddVirtualMachine {
 
     const output: IAddVirtualMachineOutput = {
       id: virtualMachineCreated.id,
-      cloudstackId: jobResponse.deployvirtualmachineresponse.id,
       jobId: jobResponse.deployvirtualmachineresponse.jobid,
     };
     return output;
