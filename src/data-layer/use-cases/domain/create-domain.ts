@@ -50,8 +50,8 @@ export class CreateDomain implements ICreateDomain {
     const domainParams = {
       name: input.name,
     };
-    if (rootDomain.cloudstackDomainId != 'root') {
-      domainParams['parentdomainid'] = rootDomain.cloudstackDomainId;
+    if (rootDomain.type != IDomainType.ROOT) {
+      domainParams['parentdomainid'] = rootDomain.id;
     }
     const domainResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.Domain.CreateDomain,
@@ -88,21 +88,21 @@ export class CreateDomain implements ICreateDomain {
 
     const domain = await this.domainRepository.createDomain(
       {
+        id: domainResponse.createdomainresponse.domain.id,
         name: input.name,
         root: {
           id: input.rootId,
         } as IDomain,
         type: IDomainType.PARTNER, // Alter this
         vpc: {
+          id: vpcResponse.createvpcresponse.id,
           cidr: this.defaultCidr,
           name: `${input.name}-VPC`,
-          cloudstackId: vpcResponse.createvpcresponse.id,
           dns1: this.defaultDns1,
           dns2: this.defaultDns2,
           state: 'on',
         },
         cloudstackAccountId: accountResponse.createaccountresponse.account.id,
-        cloudstackDomainId: domainResponse.createdomainresponse.domain.id,
       },
       input.ownerId,
     );

@@ -10,7 +10,6 @@ export class DomainRepositoryAdapter implements IDomainRepository {
   async createRootDomain(domain: Partial<IDomain>) {
     const result = await this.prismaService.domainModel.create({
       data: {
-        cloudstackDomainId: 'root',
         cloudstackAccountId: domain.cloudstackAccountId,
         type: IDomainType.ROOT,
         name: domain.name,
@@ -22,9 +21,11 @@ export class DomainRepositoryAdapter implements IDomainRepository {
   }
 
   async createDomain(domain: IDomain): Promise<IDomain> {
+    console.log('ENTRY:', domain);
+
     const result = await this.prismaService.domainModel.create({
       data: {
-        cloudstackDomainId: domain.cloudstackDomainId,
+        id: domain.id,
         cloudstackAccountId: domain.cloudstackAccountId,
         type: domain.type,
         root: domain.root
@@ -36,8 +37,8 @@ export class DomainRepositoryAdapter implements IDomainRepository {
           : undefined,
         vpc: {
           create: {
+            id: domain.vpc.id,
             cidr: domain.vpc.cidr,
-            cloudstackId: domain.vpc.cloudstackId,
             dns1: domain.vpc.dns1,
             dns2: domain.vpc.dns2,
             name: domain.vpc.name,
@@ -73,7 +74,6 @@ export class DomainRepositoryAdapter implements IDomainRepository {
       vpc: persistencyObject.vpc
         ? {
             cidr: persistencyObject.vpc.cidr,
-            cloudstackId: persistencyObject.vpc.cloudstackId,
             dns1: persistencyObject.vpc.dns1,
             dns2: persistencyObject.vpc.dns2,
             name: persistencyObject.vpc.name,
@@ -83,7 +83,6 @@ export class DomainRepositoryAdapter implements IDomainRepository {
       id: persistencyObject.id ?? null,
       root: persistencyObject.rootId ?? null,
       type: persistencyObject.type,
-      cloudstackDomainId: persistencyObject.cloudstackDomainId ?? null,
       cloudstackAccountId: persistencyObject.cloudstackAccountId,
       name: persistencyObject.name,
     };

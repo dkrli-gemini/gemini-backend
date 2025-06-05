@@ -1,7 +1,6 @@
 model NetworkModel {
   id                String @id @default(uuid()) @db.Uuid
   name              String
-  cloudstackId      String
   cloudstackOfferId String
   cloudstackAclId   String
   gateway           String

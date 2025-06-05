@@ -13,7 +13,6 @@ model DomainModel {
   root DomainModel? @relation("RootDomain", fields: [rootId], references: [id])
   children DomainModel[] @relation("RootDomain")
 
-  cloudstackDomainId  String
   cloudstackAccountId String?
 
   // VPC

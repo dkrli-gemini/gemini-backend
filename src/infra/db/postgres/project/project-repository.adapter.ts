@@ -52,6 +52,7 @@ export class ProjectRepositoryAdapter implements IProjectRepository {
       name: persistencyObject.name,
       type: persistencyObject.type,
       domain: {
+        vpc: null,
         id: persistencyObject.domain.id,
         cloudstackDomainId: persistencyObject.domain.cloudstackDomainId,
         name: persistencyObject.domain.name,

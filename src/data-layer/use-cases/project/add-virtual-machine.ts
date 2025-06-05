@@ -63,10 +63,10 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         startvm: 'false',
         templateid: foundTemplate.cloudstackId,
         zoneid: this.defaultZoneId,
-        domainid: project.domain.cloudstackDomainId,
+        domainid: project.domain.id,
         account: project.domain.name,
         name: input.name,
-        networkids: network.cloudstackId,
+        networkids: network.id,
       },
     });
 

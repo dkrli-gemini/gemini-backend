@@ -1,7 +1,6 @@
 model VPCModel {
   id           String        @id @default(uuid()) @db.Uuid
   name         String
-  cloudstackId String
   cidr         String
   dns1         String
   dns2         String

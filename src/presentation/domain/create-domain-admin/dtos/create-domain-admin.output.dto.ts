@@ -9,7 +9,6 @@ export class CreateDomainAdminOutputDto {
   constructor(domain: IDomain) {
     this.id = domain.id;
     this.cloudstackAccountId = domain.cloudstackAccountId;
-    this.cloudstackDomainId = domain.cloudstackDomainId;
     this.name = domain.name;
   }
 }

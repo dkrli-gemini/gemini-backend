@@ -13,7 +13,6 @@ export interface IDomain extends IEntityBase {
   root?: IDomain;
   type?: IDomainType;
   vpc: IVPC;
-  cloudstackDomainId?: string;
   cloudstackAccountId?: string;
   projects?: IProject[];
 }

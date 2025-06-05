@@ -11,7 +11,7 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
   async createNetwork(input: Partial<INetwork>): Promise<INetwork> {
     const networkCreated = await this.prisma.networkModel.create({
       data: {
-        cloudstackId: input.cloudstackId,
+        id: input.id,
         cloudstackAclId: input.cloudstackAclId,
         cloudstackOfferId: input.cloudstackOfferId,
         name: input.name,
@@ -37,7 +37,6 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
   mapToDomain(persistencyObject: any): INetwork {
     const network: INetwork = {
       id: persistencyObject.id,
-      cloudstackId: persistencyObject.cloudstackId,
       cloudstackAclId: persistencyObject.cloudstackAclId,
       cloudstackOfferId: persistencyObject.cloudstackOfferId,
       name: persistencyObject.name,

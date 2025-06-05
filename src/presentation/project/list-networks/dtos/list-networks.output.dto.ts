@@ -10,7 +10,6 @@ export class NetworkDto {
   constructor(network: NetworkModel) {
     this.id = network.id;
     this.name = network.name;
-    this.cloudstackId = network.cloudstackId;
     this.gateway = network.gateway;
     this.netmask = network.netmask;
   }

@@ -50,7 +50,7 @@ export class AddVolume implements IAddVolume {
       await this.cloudstack.handle({
         command: CloudstackCommands.Volume.CreateVolume,
         additionalParams: {
-          domainid: domain.cloudstackDomainId,
+          domainid: domain.id,
           account: domain.name,
           name: input.name,
           diskofferingid: offer.cloudstackId,

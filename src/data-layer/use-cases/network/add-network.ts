@@ -55,19 +55,19 @@ export class AddNetwork implements IAddNetwork {
         aclid: input.cloudstackAclId,
         gateway: input.gateway,
         netmask: input.netmask,
-        domainid: domain.cloudstackDomainId,
+        domainid: domain.id,
         account: domain.name,
-        vpcid: domain.vpc.cloudstackId,
+        vpcid: domain.vpc.id,
       },
     });
 
     const networkCreated = await this.networkRepository.createNetwork({
+      id: cloudstackNetwork.createnetworkresponse.network.id,
       cloudstackAclId: input.cloudstackAclId,
       cloudstackOfferId: input.cloudstackOfferId,
       project: {
         id: project.id,
       } as IProject,
-      cloudstackId: cloudstackNetwork.createnetworkresponse.network.id,
       gateway: input.gateway,
       netmask: input.netmask,
       name: input.name,
