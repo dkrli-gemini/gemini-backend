@@ -1,8 +1,9 @@
 import { IVolumeOffer } from 'src/domain/entities/volume-offer';
 import { IVolumeOfferRepository } from 'src/domain/repository/volume-offer.repository';
 import { PrismaService } from '../../prisma.service';
-import { Provider } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 
+@Injectable()
 export class VolumeOfferRepositoryAdapter implements IVolumeOfferRepository {
   constructor(private readonly prisma: PrismaService) {}
 
@@ -17,6 +18,17 @@ export class VolumeOfferRepositoryAdapter implements IVolumeOfferRepository {
 
     return this.mapToDomain(offer);
   }
+
+  async getOffer(id: string): Promise<IVolumeOffer> {
+    const offer = await this.prisma.diskOfferModel.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return this.mapToDomain(offer);
+  }
+
   mapToDomain(persistencyObject: any): IVolumeOffer {
     const response: IVolumeOffer = {
       name: persistencyObject.name,

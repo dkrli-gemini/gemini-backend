@@ -2,14 +2,16 @@ import { IVolume } from 'src/domain/entities/volume';
 import { IVolumeRepository } from 'src/domain/repository/volume.repository';
 import { PrismaService } from '../../prisma.service';
 import { IVolumeOffer } from 'src/domain/entities/volume-offer';
-import { Provider } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 
+@Injectable()
 export class VolumeRepositoryAdapter implements IVolumeRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createVolume(input: Partial<IVolume>): Promise<IVolume> {
     const volume = await this.prisma.volumeModel.create({
       data: {
+        id: input.id,
         name: input.name,
         machine: {
           connect: {

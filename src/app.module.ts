@@ -26,6 +26,8 @@ import { CreateRootDomainModule } from './presentation/domain/create-root-domain
 import { AddInstanceModule } from './presentation/instance/add-instance/add-instance.module';
 import { AddTemplateModule } from './presentation/template/add-template/add-template.module';
 import { AddResourceLimitModule } from './presentation/resource-limit/add-resource-limit/add-resource-limit.module';
+import { AddDiskOfferModule } from './presentation/disk-offer/add-disk-offer/add-disk-offer.module';
+import { AddVolumeModule } from './presentation/virtual-machine/add-volume/add-volume.module';
 
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { AddResourceLimitModule } from './presentation/resource-limit/add-resour
     AddInstanceModule,
     AddTemplateModule,
     AddResourceLimitModule,
+    AddDiskOfferModule,
+    AddVolumeModule,
   ],
   controllers: [AppController],
 })

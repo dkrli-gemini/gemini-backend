@@ -16,6 +16,10 @@ export namespace CloudstackCommands {
     StartMachine = 'startVirtualMachine',
     StopMachine = 'stopVirtualMachine',
   }
+  export enum Volume {
+    CreateVolume = 'createVolume',
+    AttachVolume = 'attachVolume',
+  }
   export enum Network {
     ListNetworks = 'listNetworks',
     CreateNetwork = 'createNetwork',

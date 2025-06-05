@@ -35,6 +35,24 @@ export class JobPollingService {
         });
         break;
       }
+      case JobTypeEnum.AttachVolume: {
+        const [cloudstackVolumeId, machineId] = entityId.split('|');
+
+        const machine = await this.prisma.virtualMachineModel.findUnique({
+          where: { id: machineId },
+          select: { cloudstackId: true },
+        });
+
+        await this.cloudstackService.handle({
+          command: CloudstackCommands.Volume.AttachVolume,
+          additionalParams: {
+            id: cloudstackVolumeId,
+            virtualmachineid: machine.cloudstackId,
+          },
+        });
+
+        break;
+      }
       case JobTypeEnum.StopVM: {
         await this.prisma.virtualMachineModel.update({
           where: {

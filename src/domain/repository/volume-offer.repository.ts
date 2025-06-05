@@ -7,5 +7,6 @@ export abstract class IVolumeOfferRepository
   abstract createVolumeOffer(
     input: Partial<IVolumeOffer>,
   ): Promise<IVolumeOffer>;
+  abstract getOffer(id: string): Promise<IVolumeOffer>;
   abstract mapToDomain(persistencyObject: any): IVolumeOffer;
 }

@@ -7,6 +7,7 @@ enum JobTypeEnum {
   StartVM
   StopVM
   CreateVM
+  AttachVolume
 }
 
 model JobModel {

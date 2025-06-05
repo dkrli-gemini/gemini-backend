@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from '../../prisma.service';
 import { VolumeRepositoryProvider } from './volume-repository.adapter';
+import { PrismaModule } from '../../prisma.module';
 
 @Module({
-  imports: [PrismaService],
+  imports: [PrismaModule],
   providers: [VolumeRepositoryProvider],
   exports: [VolumeRepositoryProvider],
 })
