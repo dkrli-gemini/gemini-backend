@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { IController } from 'src/domain/contracts/controller';
 import { GetMachineConsoleOutputDto } from './dtos/get-machine-console.output.dto';
 import { Request } from 'express';
-import { IHttpResponse, ok } from 'src/domain/contracts/http';
+import { badRequest, IHttpResponse, ok } from 'src/domain/contracts/http';
 import {
   CloudstackCommands,
   CloudstackService,
@@ -32,6 +32,11 @@ export class GetMachineConsoleController
         id: machineId,
       },
     });
+
+    if (machine.state == 'STOPPED') {
+      return badRequest('Machine must be running');
+    }
+
     const response = await this.cloudstackService.handle({
       command: CloudstackCommands.VirtualMachine.GetConsole,
       additionalParams: {
