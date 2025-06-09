@@ -1,0 +1,20 @@
+model PublicIPModel {
+    id String @id() @default(uuid()) @db.Uuid
+    address String  
+
+    PortForwardRuleModel PortForwardRuleModel[]
+}
+
+model PortForwardRuleModel {
+    id String @id() @default(uuid()) @db.Uuid
+    privatePortStart String
+    privatePortEnd String
+    publicPortStart String
+    publicPortEnd String
+    protocol NetworkProtocolModel
+    sourceCidrs String[]
+    virtualMachineId String
+
+    publicIp PublicIPModel? @relation(fields: [publicIpId], references: [id])
+    publicIpId String?  @db.Uuid
+}

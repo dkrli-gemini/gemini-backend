@@ -1,0 +1,35 @@
+model AclListModel {
+    id String @id() @default(uuid()) @db.Uuid
+    name String
+    description String? 
+
+    AclRule AclRuleModel[]
+}
+
+model AclRuleModel {
+    id String @id @default(uuid()) @db.Uuid
+    acl AclListModel? @relation(fields: [aclId], references: [id])
+    aclId String @db.Uuid
+    cidrList String[]
+    action AclActionModel
+    startPort String
+    endPort String
+    trafficType AclTrafficType
+    protcol NetworkProtocolModel
+    description String? 
+}
+
+enum NetworkProtocolModel {
+    TCP
+    UDP
+}
+
+enum AclTrafficType {
+    INGRESS
+    EGRESS
+}
+
+enum AclActionModel {
+    ALLOW
+    DENY
+}
