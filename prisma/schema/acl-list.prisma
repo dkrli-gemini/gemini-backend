@@ -15,7 +15,7 @@ model AclRuleModel {
     startPort String
     endPort String
     trafficType AclTrafficType
-    protcol NetworkProtocolModel
+    protocol NetworkProtocolModel
     description String? 
 }
 
