@@ -20,6 +20,16 @@ export class DomainRepositoryAdapter implements IDomainRepository {
     return this.mapToDomain(result);
   }
 
+  async getDomainByVpc(vpcId: string): Promise<IDomain> {
+    const domain = await this.prismaService.domainModel.findFirst({
+      where: {
+        vpcId,
+      },
+    });
+
+    return this.mapToDomain(domain);
+  }
+
   async createDomain(domain: IDomain): Promise<IDomain> {
     console.log('ENTRY:', domain);
 

@@ -43,6 +43,7 @@ export namespace CloudstackCommands {
     CreateVPC = 'createVPC',
     CreateNetworkAclList = 'createNetworkACLList',
     CreateNetworkAcl = 'createNetworkACL',
+    AssociateIpAddress = 'associateIpAddress',
   }
 }
 

@@ -6,6 +6,7 @@ export abstract class IDomainRepository implements IRepositoryBase<IDomain> {
     domain: IDomain,
     ownerId: string,
   ): Promise<Partial<IDomain>>;
+  abstract getDomainByVpc(vpcId: string): Promise<IDomain>;
   abstract createRootDomain(
     domain: Partial<IDomain>,
     ownerId: string,
