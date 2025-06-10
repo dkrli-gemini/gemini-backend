@@ -1,13 +1,13 @@
 import { IEntityBase } from '../models/entity-base';
 
 export enum AclActionEnum {
-  ALLOW = 'ALLOW',
-  DENY = 'DENY',
+  ALLOW = 'allow',
+  DENY = 'deny',
 }
 
 export enum AclTraficTypeEnum {
-  INGRESS = 'INGRESS',
-  EGRESS = 'EGRESS',
+  INGRESS = 'ingress',
+  EGRESS = 'egress',
 }
 
 export enum NetworkProtocolEnum {
@@ -17,6 +17,7 @@ export enum NetworkProtocolEnum {
 
 export interface IAclList extends IEntityBase {
   name: string;
+  vpcId: string;
   description?: string;
 }
 

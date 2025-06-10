@@ -6,4 +6,8 @@ model VPCModel {
   dns2         String
   state        String
   DomainModel  DomainModel[]
+
+  AclListModel AclListModel[]
+
+  PublicIPModel PublicIPModel[]
 }

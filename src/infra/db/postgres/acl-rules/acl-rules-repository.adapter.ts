@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IAclRule } from 'src/domain/entities/acl-list';
 import { IAclRulesRepository } from 'src/domain/repository/acl-rules.repository';
 import { PrismaService } from '../../prisma.service';
-import { Provider } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 
+@Injectable()
 export class AclRulesRepositoryAdapter implements IAclRulesRepository {
   constructor(private readonly prisma: PrismaService) {}
 

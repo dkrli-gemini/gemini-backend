@@ -28,6 +28,8 @@ import { AddTemplateModule } from './presentation/template/add-template/add-temp
 import { AddResourceLimitModule } from './presentation/resource-limit/add-resource-limit/add-resource-limit.module';
 import { AddDiskOfferModule } from './presentation/disk-offer/add-disk-offer/add-disk-offer.module';
 import { AddVolumeModule } from './presentation/virtual-machine/add-volume/add-volume.module';
+import { AddAclListModule } from './presentation/domain/add-acl-list/add-acl-list.module';
+import { AddAclRuleModule } from './presentation/domain/add-acl-rule/add-acl-rule.module';
 
 @Module({
   imports: [
@@ -59,6 +61,8 @@ import { AddVolumeModule } from './presentation/virtual-machine/add-volume/add-v
     AddResourceLimitModule,
     AddDiskOfferModule,
     AddVolumeModule,
+    AddAclListModule,
+    AddAclRuleModule,
   ],
   controllers: [AppController],
 })

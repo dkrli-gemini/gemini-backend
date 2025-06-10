@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import * as session from 'express-session';
 import * as KeycloakConnect from 'keycloak-connect';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
+  app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
     .setTitle('Gemini API')

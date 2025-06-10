@@ -3,6 +3,9 @@ model AclListModel {
     name String
     description String? 
 
+    vpc VPCModel? @relation(references: [id], fields: [vpcId])
+    vpcId String? @db.Uuid
+    
     AclRule AclRuleModel[]
 }
 
@@ -25,11 +28,11 @@ enum NetworkProtocolModel {
 }
 
 enum AclTrafficType {
-    INGRESS
-    EGRESS
+    ingress
+    egress
 }
 
 enum AclActionModel {
-    ALLOW
-    DENY
+    allow
+    deny
 }

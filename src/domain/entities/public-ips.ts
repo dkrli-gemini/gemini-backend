@@ -3,6 +3,7 @@ import { NetworkProtocolEnum } from './acl-list';
 
 export interface IPublicIp extends IEntityBase {
   address: string;
+  vpcId: string;
 }
 
 export interface IPortForwardRule extends IEntityBase {

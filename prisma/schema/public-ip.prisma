@@ -1,7 +1,9 @@
 model PublicIPModel {
     id String @id() @default(uuid()) @db.Uuid
     address String  
-
+    vpc VPCModel? @relation(references: [id], fields: [vpcId])
+    vpcId String? @db.Uuid
+    
     PortForwardRuleModel PortForwardRuleModel[]
 }
 

@@ -41,6 +41,8 @@ export namespace CloudstackCommands {
   }
   export enum VPC {
     CreateVPC = 'createVPC',
+    CreateNetworkAclList = 'createNetworkACLList',
+    CreateNetworkAcl = 'createNetworkACL',
   }
 }
 
