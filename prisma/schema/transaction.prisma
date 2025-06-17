@@ -13,6 +13,7 @@ enum ValuableTag {
 
 model ValuableObjectModel {
     id String @id @default(uuid()) @db.Uuid
+    tag ValuableTag?
     chargeType ChargeType? 
     costInCents Int
     alternativeCostInCents Int?
