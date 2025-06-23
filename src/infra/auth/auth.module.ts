@@ -4,10 +4,13 @@ import { RolesGuard } from './roles.guard';
 import { Reflector } from '@nestjs/core';
 import * as Keycloak from 'keycloak-connect';
 import { KeycloakAuthGuard } from './keycloak.guard';
+import { KeycloakController } from './keycloak.controller';
+import { KeycloakService } from './keycloak.service';
 
 @Global()
 @Module({
   providers: [
+    KeycloakService,
     Reflector,
     {
       provide: 'KEYCLOAK_INSTANCE',
@@ -25,5 +28,6 @@ import { KeycloakAuthGuard } from './keycloak.guard';
     },
   ],
   exports: ['KEYCLOAK_INSTANCE'],
+  controllers: [KeycloakController],
 })
 export class AuthModule {}

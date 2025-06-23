@@ -65,6 +65,7 @@ import { AcquirePublicIpModule } from './presentation/domain/acquire-public-ip/a
     AddAclListModule,
     AddAclRuleModule,
     AcquirePublicIpModule,
+    AuthModule,
   ],
   controllers: [AppController],
 })

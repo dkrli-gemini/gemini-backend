@@ -8,3 +8,6 @@ export function AuthorizedTo(...roles: RolesEnum[]) {
     UseGuards(KeycloakAuthGuard, RolesGuard),
   );
 }
+
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
