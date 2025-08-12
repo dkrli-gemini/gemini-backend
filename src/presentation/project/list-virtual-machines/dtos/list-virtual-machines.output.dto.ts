@@ -9,6 +9,7 @@ export class InstanceDto {
   cloudstackId: string;
   disk: string;
   cpu: string;
+  networkName: string;
 
   constructor(instance: IInstance) {
     this.id = instance.id;
@@ -40,6 +41,7 @@ export class VirtualMachineDto {
   ipAddress: string;
   instance: InstanceDto;
   template: TemplateDto;
+  networkName: string;
 
   constructor(machine: IVirtualMachine) {
     this.id = machine.id;
