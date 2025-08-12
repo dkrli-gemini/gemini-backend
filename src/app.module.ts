@@ -32,6 +32,7 @@ import { AddAclListModule } from './presentation/domain/add-acl-list/add-acl-lis
 import { AddAclRuleModule } from './presentation/domain/add-acl-rule/add-acl-rule.module';
 import { AcquirePublicIpModule } from './presentation/domain/acquire-public-ip/acquire-public-ip.module';
 import { ListResourceLimitsModule } from './presentation/resource-limit/list-resource-limits/list-resource-limits.module';
+import { ListAclModule } from './presentation/domain/list-acl/list-acl.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { ListResourceLimitsModule } from './presentation/resource-limit/list-res
     AcquirePublicIpModule,
     AuthModule,
     ListResourceLimitsModule,
+    ListAclModule,
   ],
   controllers: [AppController],
 })
