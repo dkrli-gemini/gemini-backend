@@ -50,6 +50,7 @@ export class TurnOnMachineController
       })
     ).startvirtualmachineresponse;
     console.log(response.jobid);
+    await this.machineRepository.setStatus(machine.id, 'STARTING');
     const createdJob = await this.jobRepository.createJob({
       id: response.jobid,
       status: JobStatusEnum.PENDING,

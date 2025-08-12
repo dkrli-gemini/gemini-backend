@@ -48,6 +48,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
 
     const project = await this.projectRepository.getProject(input.projectId);
     const network = await this.networkRepository.getNetwork(input.networkId);
+    console.log(input);
     const instance = await this.instanceRepository.getInstance(
       input.instanceId,
     );
@@ -76,6 +77,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         } as IInstance,
         template: {
           id: foundTemplate.id,
+          name: foundTemplate.name,
         } as ITemplate,
         id: jobResponse.deployvirtualmachineresponse.id,
         ipAddress: '',
@@ -112,7 +114,9 @@ export class AddVirtualMachine implements IAddVirtualMachine {
       })) != null;
 
     if (isNameDuplicate) {
-      throwsException(new InvalidParamError('name'));
+      throwsException(
+        new InvalidParamError('A machine with this name already exists'),
+      );
     }
   }
 }

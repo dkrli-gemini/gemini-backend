@@ -22,6 +22,17 @@ export class VirtualMachineRepositoryAdapter
     return this.mapToDomain(machine);
   }
 
+  async setStatus(id: string, status: string): Promise<void> {
+    await this.prisma.virtualMachineModel.update({
+      where: {
+        id,
+      },
+      data: {
+        state: status,
+      },
+    });
+  }
+
   async createVirtualMachine(
     input: Partial<IVirtualMachine>,
   ): Promise<IVirtualMachine> {
@@ -47,7 +58,7 @@ export class VirtualMachineRepositoryAdapter
         },
         state: input.state,
       },
-      include: { instance: true },
+      include: { instance: true, template: true },
     });
 
     return this.mapToDomain(virtualMachineCreated);
@@ -68,6 +79,7 @@ export class VirtualMachineRepositoryAdapter
   }
 
   mapToDomain(persistencyObject: any): IVirtualMachine {
+    console.log(persistencyObject);
     const machine: IVirtualMachine = {
       id: persistencyObject.id,
       instance: {
@@ -82,6 +94,7 @@ export class VirtualMachineRepositoryAdapter
       ipAddress: persistencyObject.ipAddress,
       template: {
         id: persistencyObject.templateId,
+        name: persistencyObject.template.name,
       } as ITemplate,
       project: {
         id: persistencyObject.projectId,

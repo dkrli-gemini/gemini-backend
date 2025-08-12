@@ -25,6 +25,7 @@ export class AddNetworkController
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<AddNetworkOutputDto | Error>> {
+    console.log(input.cloudstackOfferId);
     const response = await this.useCase.execute({
       cloudstackAclId: input.cloudstackAclId,
       name: input.name,

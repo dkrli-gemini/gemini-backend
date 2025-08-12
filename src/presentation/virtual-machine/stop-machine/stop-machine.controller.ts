@@ -44,6 +44,7 @@ export class StopMachineController
         },
       })
     ).stopvirtualmachineresponse;
+    await this.machineRepository.setStatus(machine.id, 'STOPPING');
     const createdJob = await this.jobRepository.createJob({
       id: response.jobid,
       status: JobStatusEnum.PENDING,

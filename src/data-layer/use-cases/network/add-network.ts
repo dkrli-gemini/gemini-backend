@@ -61,6 +61,8 @@ export class AddNetwork implements IAddNetwork {
       },
     });
 
+    console.log(cloudstackNetwork);
+
     const networkCreated = await this.networkRepository.createNetwork({
       id: cloudstackNetwork.createnetworkresponse.network.id,
       cloudstackAclId: input.cloudstackAclId,
