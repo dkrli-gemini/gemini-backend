@@ -55,7 +55,6 @@ export class AddAclRuleController
       protocol: input.protocol,
       startPort: input.startPort,
       trafficType: input.trafficType,
-      description: input.description,
     });
 
     const response = new AddAclRuleOutputDto(aclRuleCreated.id, aclListId);

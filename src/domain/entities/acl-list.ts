@@ -29,5 +29,4 @@ export interface IAclRule extends IEntityBase {
   endPort: string;
   trafficType: AclTraficTypeEnum;
   protocol: NetworkProtocolEnum;
-  description?: string;
 }

@@ -23,13 +23,20 @@ export class AddAclListController
     private readonly cloudstack: CloudstackService,
   ) {}
 
-  @Post('/add-acl-list/:vpcId')
+  @Post('/add-acl-list/:domainId')
   @AuthorizedTo(RolesEnum.ADMIN, RolesEnum.BASIC)
   async handle(
     @Body() input: AddAclListInputDto,
     _req: Request,
-    @Param('vpcId') vpcId?: string,
+    @Param('domainId') domainId?: string,
   ): Promise<IHttpResponse<AddAclListOutputDto | Error>> {
+    const vpcId = (
+      await this.prisma.domainModel.findUnique({
+        where: {
+          id: domainId,
+        },
+      })
+    ).vpcId;
     const cloudstackAclList = (
       await this.cloudstack.handle({
         command: CloudstackCommands.VPC.CreateNetworkAclList,

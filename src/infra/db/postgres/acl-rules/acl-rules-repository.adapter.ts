@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { IAclRule } from 'src/domain/entities/acl-list';
+import { IAclList, IAclRule } from 'src/domain/entities/acl-list';
 import { IAclRulesRepository } from 'src/domain/repository/acl-rules.repository';
 import { PrismaService } from '../../prisma.service';
 import { Injectable, Provider } from '@nestjs/common';
@@ -7,6 +7,24 @@ import { Injectable, Provider } from '@nestjs/common';
 @Injectable()
 export class AclRulesRepositoryAdapter implements IAclRulesRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  async createAclList(input: IAclList): Promise<IAclList> {
+    const list = await this.prisma.aclListModel.create({
+      data: {
+        id: input.id,
+        name: input.name,
+        description: input.description,
+        vpcId: input.vpcId,
+      },
+    });
+
+    return {
+      name: list.name,
+      id: list.id,
+      vpcId: list.vpcId,
+      description: list.description,
+    };
+  }
 
   async createAclRule(input: IAclRule): Promise<IAclRule> {
     const acl = await this.prisma.aclRuleModel.create({
@@ -19,7 +37,6 @@ export class AclRulesRepositoryAdapter implements IAclRulesRepository {
         trafficType: input.trafficType,
         aclId: input.aclId,
         cidrList: input.cidrList,
-        description: input.description,
       },
     });
 
@@ -47,7 +64,6 @@ export class AclRulesRepositoryAdapter implements IAclRulesRepository {
       endPort: persistencyObject.endPort,
       trafficType: persistencyObject.trafficType,
       protocol: persistencyObject.protocol,
-      description: persistencyObject.description,
     };
 
     return acl;
