@@ -31,6 +31,7 @@ import { AddVolumeModule } from './presentation/virtual-machine/add-volume/add-v
 import { AddAclListModule } from './presentation/domain/add-acl-list/add-acl-list.module';
 import { AddAclRuleModule } from './presentation/domain/add-acl-rule/add-acl-rule.module';
 import { AcquirePublicIpModule } from './presentation/domain/acquire-public-ip/acquire-public-ip.module';
+import { ListResourceLimitsModule } from './presentation/resource-limit/list-resource-limits/list-resource-limits.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { AcquirePublicIpModule } from './presentation/domain/acquire-public-ip/a
     AddAclRuleModule,
     AcquirePublicIpModule,
     AuthModule,
+    ListResourceLimitsModule,
   ],
   controllers: [AppController],
 })
