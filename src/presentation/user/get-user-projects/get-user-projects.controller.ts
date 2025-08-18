@@ -35,6 +35,8 @@ export class GetUserProjectsController
       },
     });
 
+    console.log(response);
+
     const responseArray: IGetUserProjectsDtoOutput[] = [];
 
     for (const member of response) {
