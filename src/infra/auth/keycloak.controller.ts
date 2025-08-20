@@ -12,4 +12,10 @@ export class KeycloakController {
   async createUser(@Body() createUserDto: CreateUserDto) {
     return this.keycloakService.createUser(createUserDto);
   }
+
+  @Post('decode-token')
+  @HttpCode(HttpStatus.OK)
+  async decodeToken(@Body('token') token: string) {
+    return this.keycloakService.decodeToken(token);
+  }
 }

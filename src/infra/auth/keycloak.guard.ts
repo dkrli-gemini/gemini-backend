@@ -33,13 +33,16 @@ export class KeycloakAuthGuard implements CanActivate {
       console.log(token);
       const result =
         await this.keycloak.grantManager.validateAccessToken(token);
+      console.log('Validation Result:', result);
 
       if (typeof result === 'string') {
         const decoded = this.decodeToken(result);
+        console.log('Decoded Token:', decoded);
         console.log(decoded);
         request.user = this.createUserPayload(decoded);
         return true;
       } else if (result === false) {
+        console.error('Token validation failed: The token is invalid');
         throw new Error('Invalid token');
       } else if (result && typeof result === 'object') {
         request.user = this.createUserPayload((result as any).content);

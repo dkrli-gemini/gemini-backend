@@ -1,10 +1,10 @@
 {
   "realm": "gemini",
-  "auth-server-url": "http://localhost:8080/",
+  "auth-server-url": "http://10.19.59.10:8080/",
   "resource": "gemini",
   "verify-token-audience": true,
   "credentials": {
-    "secret": "mp3A02M2eJMDxaDNXmUSv4ADiE0GVdxc"
+    "secret": "Vda6Ng1I8mI3FKUFEUw9cBHa6DyizTSp"
   },
   "confidential-port": 0,
   "ssl-required": "external"

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as querystring from 'querystring';
+import { jwtDecode } from 'jwt-decode';
 
 import {
   IsString,
@@ -118,6 +119,17 @@ export class KeycloakService {
       throw new Error(
         `Could not create user in Keycloak: ${error.response?.data?.errorMessage || error.message}`,
       );
+    }
+  }
+
+  async decodeToken(token: string): Promise<any> {
+    try {
+      const decodedToken = jwtDecode(token);
+      console.log(decodedToken);
+      return decodedToken;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      throw new Error('Could not decode token');
     }
   }
 }
