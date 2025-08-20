@@ -32,7 +32,14 @@ export class ResourceLimitRepositoryAdapter
   async createDefaultResourceLimits(
     domainId: string,
   ): Promise<IResourceLimit[]> {
-    const types = [ResourceTypeEnum.NETWORK, ResourceTypeEnum.VOLUMES];
+    const types = [
+      ResourceTypeEnum.NETWORK,
+      ResourceTypeEnum.VOLUMES,
+      ResourceTypeEnum.CPU,
+      ResourceTypeEnum.INSTANCES,
+      ResourceTypeEnum.MEMORY,
+      ResourceTypeEnum.PUBLICIP,
+    ];
     const data: IResourceLimit[] = types.map((type) => ({
       domainId,
       type,

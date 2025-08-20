@@ -3,6 +3,7 @@ import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import * as KeycloakConnect from 'keycloak-connect';
 import { IS_PUBLIC_KEY } from './auth.decorator';
+import { ParamsTokenFactory } from '@nestjs/core/pipes';
 
 @Injectable()
 export class KeycloakAuthGuard implements CanActivate {
@@ -29,11 +30,13 @@ export class KeycloakAuthGuard implements CanActivate {
     }
 
     try {
+      console.log(token);
       const result =
         await this.keycloak.grantManager.validateAccessToken(token);
 
       if (typeof result === 'string') {
         const decoded = this.decodeToken(result);
+        console.log(decoded);
         request.user = this.createUserPayload(decoded);
         return true;
       } else if (result === false) {
