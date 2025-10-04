@@ -18,6 +18,7 @@ export class ListAclController implements IController<null, ListAclOutputDto> {
     @Req() req: Request,
     @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<ListAclOutputDto | Error>> {
+    console.log(projectId);
     const domainId = (
       await this.prisma.projectModel.findUnique({
         where: { id: projectId },
