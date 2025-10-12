@@ -42,7 +42,6 @@ export class ProjectRepositoryAdapter implements IProjectRepository {
         domain: true,
       },
     });
-    console.log(project);
     return this.mapToDomain(project);
   }
 

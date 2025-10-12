@@ -1,18 +1,17 @@
-enum ResourceType {
-    INSTANCES
-    CPU
-    MEMORY
-    VOLUMES
-    PUBLICIP
-    NETWORK
+model ResourceLimitModel {
+  id       String       @id @default(uuid()) @db.Uuid
+  type     ResourceType
+  limit    Int
+  used     Int
+  domainId String       @db.Uuid
+  domain   DomainModel  @relation(fields: [domainId], references: [id])
 }
 
-model ResourceLimitModel {
-    id String @id @default(uuid()) @db.Uuid
-    type ResourceType
-    limit Int
-    used Int
-
-    domain DomainModel? @relation(fields: [domainId], references: [id])
-    domainId String @db.Uuid
+enum ResourceType {
+  INSTANCES
+  CPU
+  MEMORY
+  VOLUMES
+  PUBLICIP
+  NETWORK
 }

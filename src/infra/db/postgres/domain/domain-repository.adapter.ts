@@ -31,8 +31,6 @@ export class DomainRepositoryAdapter implements IDomainRepository {
   }
 
   async createDomain(domain: IDomain): Promise<IDomain> {
-    console.log('ENTRY:', domain);
-
     const result = await this.prismaService.domainModel.create({
       data: {
         id: domain.id,

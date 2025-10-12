@@ -1,38 +1,36 @@
 model AclListModel {
-    id String @id() @default(uuid()) @db.Uuid
-    name String
-    description String? 
-
-    vpc VPCModel? @relation(references: [id], fields: [vpcId])
-    vpcId String? @db.Uuid
-    
-    AclRule AclRuleModel[]
+  id          String         @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  vpcId       String?        @db.Uuid
+  vpc         VPCModel?      @relation(fields: [vpcId], references: [id])
+  AclRule     AclRuleModel[]
 }
 
 model AclRuleModel {
-    id String @id @default(uuid()) @db.Uuid
-    acl AclListModel? @relation(fields: [aclId], references: [id])
-    aclId String @db.Uuid
-    cidrList String[]
-    action AclActionModel
-    startPort String
-    endPort String
-    trafficType AclTrafficType
-    protocol NetworkProtocolModel
-    description String? 
+  id          String               @id @default(uuid()) @db.Uuid
+  aclId       String               @db.Uuid
+  cidrList    String[]
+  action      AclActionModel
+  startPort   String
+  endPort     String
+  trafficType AclTrafficType
+  description String?
+  protocol    NetworkProtocolModel
+  acl         AclListModel         @relation(fields: [aclId], references: [id])
 }
 
 enum NetworkProtocolModel {
-    TCP
-    UDP
+  TCP
+  UDP
 }
 
 enum AclTrafficType {
-    ingress
-    egress
+  ingress
+  egress
 }
 
 enum AclActionModel {
-    allow
-    deny
+  allow
+  deny
 }

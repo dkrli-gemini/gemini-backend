@@ -1,11 +1,8 @@
 model VolumeModel {
-    id String @id() @default(uuid()) @db.Uuid
-
-    name String
-
-    offer DiskOfferModel? @relation(fields: [offerId], references: [id])
-    offerId String? @db.Uuid
-
-    machine VirtualMachineModel? @relation(fields: [machineId], references: [id])
-    machineId String? @db.Uuid
+  id        String               @id @default(uuid()) @db.Uuid
+  name      String
+  offerId   String?              @db.Uuid
+  machineId String?              @db.Uuid
+  machine   VirtualMachineModel? @relation(fields: [machineId], references: [id])
+  offer     DiskOfferModel?      @relation(fields: [offerId], references: [id])
 }

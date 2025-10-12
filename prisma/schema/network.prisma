@@ -1,12 +1,10 @@
 model NetworkModel {
-  id                String @id @default(uuid()) @db.Uuid
+  id                String        @id @default(uuid()) @db.Uuid
   name              String
   cloudstackOfferId String
   cloudstackAclId   String
   gateway           String
   netmask           String
-
-  // Domain Model
-  project   ProjectModel? @relation(fields: [projectId], references: [id])
-  projectId String?      @db.Uuid
+  projectId         String?       @db.Uuid
+  project           ProjectModel? @relation(fields: [projectId], references: [id])
 }

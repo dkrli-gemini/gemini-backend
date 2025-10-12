@@ -30,19 +30,24 @@ export class AddAclRuleController
   ): Promise<IHttpResponse<AddAclRuleOutputDto | Error>> {
     const cloudstackCidrInput = input.cidrList.join(',');
 
+    const params = {
+      protocol: input.protocol,
+      aclid: aclListId,
+      action: input.action,
+      cidrlist: cloudstackCidrInput,
+      reason: input.description,
+      traffictype: input.trafficType,
+    };
+
+    // if (input.protocol != NetworkProtocolEnum.ALL) {
+    //   params['startPort'] = input.startPort;
+    //   params['endPort'] = input.endPort;
+    // }
+
     const cloudstackRule = (
       await this.cloudstack.handle({
         command: CloudstackCommands.VPC.CreateNetworkAcl,
-        additionalParams: {
-          protocol: input.protocol,
-          aclid: aclListId,
-          action: input.action,
-          cidrlist: cloudstackCidrInput,
-          endport: input.endPort,
-          startport: input.startPort,
-          reason: input.description,
-          traffictype: input.trafficType,
-        },
+        additionalParams: params,
       })
     ).createnetworkaclresponse;
 

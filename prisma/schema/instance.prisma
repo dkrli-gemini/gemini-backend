@@ -1,10 +1,8 @@
-
 model InstanceModel {
-  id String @id() @default(uuid()) @db.Uuid
-  name String
-  memory String
-  disk String
-  cpu String
-
+  id                  String                @id @default(uuid()) @db.Uuid
+  name                String
+  memory              String
+  disk                String
+  cpu                 String
   VirtualMachineModel VirtualMachineModel[]
 }

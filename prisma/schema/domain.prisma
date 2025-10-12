@@ -1,27 +1,19 @@
+model DomainModel {
+  id                  String               @id @default(uuid()) @db.Uuid
+  name                String
+  type                DomainTypeModel      @default(ROOT)
+  rootId              String?              @db.Uuid
+  cloudstackAccountId String?
+  vpcId               String?              @db.Uuid
+  root                DomainModel?         @relation("RootDomain", fields: [rootId], references: [id])
+  children            DomainModel[]        @relation("RootDomain")
+  vpc                 VPCModel?            @relation(fields: [vpcId], references: [id])
+  ProjectModel        ProjectModel[]
+  ResourceLimitModel  ResourceLimitModel[]
+}
+
 enum DomainTypeModel {
   ROOT
   PARTNER
   CLIENT
 }
-
-model DomainModel {
-  id   String @id @default(uuid()) @db.Uuid
-  name String
-  type DomainTypeModel @default(ROOT)
-
-  rootId String? @db.Uuid
-  root DomainModel? @relation("RootDomain", fields: [rootId], references: [id])
-  children DomainModel[] @relation("RootDomain")
-
-  cloudstackAccountId String?
-
-  // VPC
-  vpc   VPCModel? @relation(fields: [vpcId], references: [id])
-  vpcId String?   @db.Uuid
-
-
-  ProjectModel ProjectModel[]
-
-  ResourceLimitModel ResourceLimitModel[]
-}
-

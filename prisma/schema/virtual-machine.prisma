@@ -1,19 +1,13 @@
 model VirtualMachineModel {
-  id                   String @id() @default(uuid()) @db.Uuid
-  name                 String
-  ipAddress            String
-  state                String
-
-  template TemplateOfferModel? @relation(fields: [templateId], references: [id])
-  templateId String? @db.Uuid
-
-  instance InstanceModel? @relation(fields: [instanceId], references: [id])
-  instanceId String? @db.Uuid
-
-  // Project
-  project   ProjectModel? @relation(fields: [projectId], references: [id])
-  projectId String?       @db.Uuid
-
+  id          String              @id @default(uuid()) @db.Uuid
+  name        String
+  ipAddress   String
+  state       String
+  instanceId  String?             @db.Uuid
+  projectId   String?             @db.Uuid
+  templateId  String?             @db.Uuid
+  instance    InstanceModel?      @relation(fields: [instanceId], references: [id])
+  project     ProjectModel?       @relation(fields: [projectId], references: [id])
+  template    TemplateOfferModel? @relation(fields: [templateId], references: [id])
   VolumeModel VolumeModel[]
 }
-

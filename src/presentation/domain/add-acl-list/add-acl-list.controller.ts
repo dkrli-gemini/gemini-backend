@@ -67,8 +67,6 @@ export class AddAclListController
       },
     });
 
-    console.log(aclListCreated);
-
     const response = new AddAclListOutputDto(aclListCreated.id);
     return created(response);
   }

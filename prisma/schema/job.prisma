@@ -1,3 +1,11 @@
+model JobModel {
+  id       String        @id @default(uuid()) @db.Uuid
+  status   JobStatusEnum
+  type     JobTypeEnum
+  entityId String?
+  error    String?
+}
+
 enum JobStatusEnum {
   PENDING
   DONE
@@ -8,12 +16,4 @@ enum JobTypeEnum {
   StopVM
   CreateVM
   AttachVolume
-}
-
-model JobModel {
-  id String @id @default(uuid()) @db.Uuid
-  status JobStatusEnum
-  type JobTypeEnum
-  entityId String?
-  error String?
 }

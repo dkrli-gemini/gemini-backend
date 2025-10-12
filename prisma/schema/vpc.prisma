@@ -1,13 +1,11 @@
 model VPCModel {
-  id           String        @id @default(uuid()) @db.Uuid
-  name         String
-  cidr         String
-  dns1         String
-  dns2         String
-  state        String
-  DomainModel  DomainModel[]
-
-  AclListModel AclListModel[]
-
+  id            String          @id @default(uuid()) @db.Uuid
+  name          String
+  cidr          String
+  dns1          String
+  dns2          String
+  state         String
+  AclListModel  AclListModel[]
+  DomainModel   DomainModel[]
   PublicIPModel PublicIPModel[]
 }

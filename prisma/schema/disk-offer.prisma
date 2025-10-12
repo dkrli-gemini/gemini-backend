@@ -1,7 +1,6 @@
 model DiskOfferModel {
-    id String @id() @default(uuid()) @db.Uuid
-    name String
-    capacity Int
-    
-    VolumeModel VolumeModel[]
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String
+  capacity    Int
+  VolumeModel VolumeModel[]
 }

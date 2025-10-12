@@ -1,32 +1,29 @@
-enum ChargeType {
-    MONTHLY
-    HOURLY
-    ONE_TIME
-}
-
-enum ValuableTag {
-    VirtualMachineOffer
-    VirtualMachineVolume
-    PublicIP
-}
-
-
 model ValuableObjectModel {
-    id String @id @default(uuid()) @db.Uuid
-    tag ValuableTag?
-    chargeType ChargeType? 
-    costInCents Int
-    alternativeCostInCents Int?
-    entityId String?
-
-    TransactionModel TransactionModel[]
+  id                     String             @id @default(uuid()) @db.Uuid
+  chargeType             ChargeType?
+  costInCents            Int
+  alternativeCostInCents Int?
+  entityId               String?
+  tag                    ValuableTag?
+  TransactionModel       TransactionModel[]
 }
 
 model TransactionModel {
-    id String @id @default(uuid()) @db.Uuid
-    name String
-    description String? 
+  id          String               @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  objectId    String?              @db.Uuid
+  object      ValuableObjectModel? @relation(fields: [objectId], references: [id])
+}
 
-    object ValuableObjectModel? @relation(references: [id], fields: [objectId])
-    objectId String? @db.Uuid
+enum ChargeType {
+  MONTHLY
+  HOURLY
+  ONE_TIME
+}
+
+enum ValuableTag {
+  VirtualMachineOffer
+  VirtualMachineVolume
+  PublicIP
 }
