@@ -52,6 +52,10 @@ export class VolumeRepositoryAdapter implements IVolumeRepository {
       id: persistencyObject.id,
     };
 
+    if (persistencyObject.offer) {
+      volume['offer']['capacity'] = persistencyObject.offer.capacity;
+    }
+
     return volume;
   }
 }

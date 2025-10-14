@@ -79,7 +79,6 @@ export class VirtualMachineRepositoryAdapter
   }
 
   mapToDomain(persistencyObject: any): IVirtualMachine {
-    console.log(persistencyObject);
     const machine: IVirtualMachine = {
       id: persistencyObject.id,
       instance: {

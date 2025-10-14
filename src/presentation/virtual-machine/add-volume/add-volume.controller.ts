@@ -3,31 +3,39 @@ import { IController } from 'src/domain/contracts/controller';
 import { AddVolumeInputDto } from './dtos/add-volume.input.dto';
 import { AddVolumeOutputDto } from './dtos/add-volume.output.dto';
 import { Request } from 'express';
-import { IHttpResponse } from 'src/domain/contracts/http';
+import { created, IHttpResponse } from 'src/domain/contracts/http';
 import { IAddVolume } from 'src/domain/contracts/use-cases/instance/add-volume';
 import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
 import { RolesEnum } from 'src/infra/auth/roles.guard';
+import { PrismaService } from 'src/infra/db/prisma.service';
 
 @Controller('machines')
 export class AddVolumeController
   implements IController<AddVolumeInputDto, AddVolumeOutputDto>
 {
-  constructor(private readonly addVolume: IAddVolume) {}
+  constructor(
+    private readonly addVolume: IAddVolume,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @AuthorizedTo(RolesEnum.BASIC, RolesEnum.ADMIN)
-  @Post('/add-volume/:projectId')
+  @Post('/add-volume/:machineId')
   async handle(
     @Body() input: AddVolumeInputDto,
     req: Request,
-    @Param('projectId') projectId?: string,
+    @Param('machineId') machineId?: string,
   ): Promise<IHttpResponse<AddVolumeOutputDto | Error>> {
-    const volume = await this.addVolume.execute({
-      projectId,
-      name: 'Volume2',
-      machineId: '39a3e9e4-5cbb-4352-96d9-17abf4074b2e',
-      offerId: '3c492f4a-5fe1-40db-a393-3156bd6dbed7',
+    const machine = await this.prisma.virtualMachineModel.findUnique({
+      where: { id: machineId },
     });
 
-    return null;
+    const volume = await this.addVolume.execute({
+      projectId: machine.projectId,
+      name: input.name,
+      machineId: machineId,
+      offerId: input.offerId,
+    });
+
+    return created(new AddVolumeOutputDto(volume.volumeId));
   }
 }

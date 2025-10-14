@@ -30,6 +30,8 @@ export class VolumeOfferRepositoryAdapter implements IVolumeOfferRepository {
   }
 
   mapToDomain(persistencyObject: any): IVolumeOffer {
+    console.log(persistencyObject);
+
     const response: IVolumeOffer = {
       name: persistencyObject.name,
       id: persistencyObject.id,

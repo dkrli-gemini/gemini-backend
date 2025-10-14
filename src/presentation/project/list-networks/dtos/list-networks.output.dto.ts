@@ -6,6 +6,7 @@ export class NetworkDto {
   cloudstackId: string;
   gateway: string;
   netmask: string;
+  aclName: string;
 
   constructor(network: NetworkModel) {
     this.id = network.id;

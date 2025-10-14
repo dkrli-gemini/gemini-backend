@@ -1,1 +1,4 @@
-export class AddVolumeInputDto {}
+export class AddVolumeInputDto {
+  name: string;
+  offerId: string;
+}

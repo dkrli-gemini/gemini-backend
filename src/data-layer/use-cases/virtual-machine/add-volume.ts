@@ -53,12 +53,13 @@ export class AddVolume implements IAddVolume {
           domainid: domain.id,
           account: domain.name,
           name: input.name,
-          diskofferingid: offer.cloudstackId,
+          diskofferingid: offer.id,
           zoneid: this.ZONE_ID,
         },
       })
     ).createvolumeresponse;
 
+    console.log(diskJob);
     await this.jobRepository.createJob({
       id: diskJob.jobid,
       status: JobStatusEnum.PENDING,

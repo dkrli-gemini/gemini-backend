@@ -104,7 +104,6 @@ export class KeycloakService {
         },
         data: createUserDto,
       });
-      console.log(`Successfully created user "${createUserDto.username}".`);
       // Return minimal success confirmation or user location from headers
       return {
         statusCode: response.status,
@@ -125,7 +124,6 @@ export class KeycloakService {
   async decodeToken(token: string): Promise<any> {
     try {
       const decodedToken = jwtDecode(token);
-      console.log(decodedToken);
       return decodedToken;
     } catch (error) {
       console.error('Error decoding token:', error);
