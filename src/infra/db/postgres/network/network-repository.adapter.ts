@@ -9,6 +9,12 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createNetwork(input: Partial<INetwork>): Promise<INetwork> {
+    const aclName = (
+      await this.prisma.aclListModel.findUnique({
+        where: { id: input.cloudstackAclId },
+      })
+    ).name;
+
     const networkCreated = await this.prisma.networkModel.create({
       data: {
         id: input.id,
@@ -18,6 +24,7 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
         gateway: input.gateway,
         netmask: input.netmask,
         projectId: input.project.id,
+        aclName: aclName,
       },
     });
 

@@ -16,4 +16,7 @@ enum JobTypeEnum {
   StopVM
   CreateVM
   AttachVolume
+  AttachIP
 }
+
+

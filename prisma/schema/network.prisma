@@ -3,6 +3,7 @@ model NetworkModel {
   name              String
   cloudstackOfferId String
   cloudstackAclId   String
+  aclName           String?
   gateway           String
   netmask           String
   projectId         String?       @db.Uuid

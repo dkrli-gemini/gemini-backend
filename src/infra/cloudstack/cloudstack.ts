@@ -44,6 +44,7 @@ export namespace CloudstackCommands {
     CreateNetworkAclList = 'createNetworkACLList',
     CreateNetworkAcl = 'createNetworkACL',
     AssociateIpAddress = 'associateIpAddress',
+    ListPublicIpAddresses = 'listPublicIpAddresses',
   }
 }
 

@@ -13,6 +13,7 @@ export class NetworkDto {
     this.name = network.name;
     this.gateway = network.gateway;
     this.netmask = network.netmask;
+    this.aclName = network.aclName;
   }
 }
 

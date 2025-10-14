@@ -10,6 +10,7 @@ export enum JobTypeEnum {
   StopVM = 'StopVM',
   CreateVM = 'CreateVM',
   AttachVolume = 'AttachVolume',
+  AttachIP = 'AttachIP',
 }
 
 export interface IJob extends IEntityBase {

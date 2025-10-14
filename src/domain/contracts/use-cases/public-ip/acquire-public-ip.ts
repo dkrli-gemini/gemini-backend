@@ -2,7 +2,7 @@ import { IPublicIp } from 'src/domain/entities/public-ips';
 import { IUseCase } from '../../use-case';
 
 export class IAcquirePublicIpInput {
-  vpcId: string;
+  projectId: string;
 }
 
 export type IAcquirePublicIpOutput = IPublicIp;

@@ -13,6 +13,7 @@ export enum AclTraficTypeEnum {
 export enum NetworkProtocolEnum {
   TCP = 'TCP',
   UDP = 'UDP',
+  ALL = 'ALL',
 }
 
 export interface IAclList extends IEntityBase {

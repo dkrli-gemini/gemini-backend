@@ -34,6 +34,7 @@ import { AcquirePublicIpModule } from './presentation/domain/acquire-public-ip/a
 import { ListResourceLimitsModule } from './presentation/resource-limit/list-resource-limits/list-resource-limits.module';
 import { ListAclModule } from './presentation/domain/list-acl/list-acl.module';
 import { ListVolumesModule } from './presentation/virtual-machine/list-volumes/list-volumes.module';
+import { ListPublicIpsModule } from './presentation/domain/list-public-ips/list-public-ips.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { ListVolumesModule } from './presentation/virtual-machine/list-volumes/l
     ListResourceLimitsModule,
     ListAclModule,
     ListVolumesModule,
+    ListPublicIpsModule,
   ],
   controllers: [AppController],
 })

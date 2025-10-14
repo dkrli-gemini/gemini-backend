@@ -14,14 +14,14 @@ export class AcquirePublicIpController
   constructor(private readonly useCase: IAcquirePublicIp) {}
 
   @AuthorizedTo(RolesEnum.ADMIN, RolesEnum.BASIC)
-  @Get('acquire-public-ip/:vpcId')
+  @Get('acquire-public-ip/:projectId')
   async handle(
     @Body() input: null,
     req: Request,
-    @Param('vpcId') vpcId?: string,
+    @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<AcquirePublicIpOutputDto | Error>> {
     const publicIp = await this.useCase.execute({
-      vpcId,
+      projectId,
     });
 
     return ok(new AcquirePublicIpOutputDto(publicIp.id));

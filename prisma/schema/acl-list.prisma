@@ -23,6 +23,7 @@ model AclRuleModel {
 enum NetworkProtocolModel {
   TCP
   UDP
+  ALL
 }
 
 enum AclTrafficType {
