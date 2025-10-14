@@ -4,6 +4,7 @@ import { PublicIpRepositoryModule } from 'src/infra/db/postgres/public-ip/public
 import { PrismaModule } from 'src/infra/db/prisma.module';
 import { AcquirePublicIpProvider } from './acquire-public-ip';
 import { JobRepositoryModule } from 'src/infra/db/postgres/job/job-repository.module';
+import { CreateForwardRuleProvider } from './create-forward-rule';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { JobRepositoryModule } from 'src/infra/db/postgres/job/job-repository.mo
     PublicIpRepositoryModule,
     JobRepositoryModule,
   ],
-  providers: [AcquirePublicIpProvider],
-  exports: [AcquirePublicIpProvider],
+  providers: [AcquirePublicIpProvider, CreateForwardRuleProvider],
+  exports: [AcquirePublicIpProvider, CreateForwardRuleProvider],
 })
 export class PublicIpDataModule {}

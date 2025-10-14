@@ -6,6 +6,8 @@ model VirtualMachineModel {
   instanceId  String?             @db.Uuid
   projectId   String?             @db.Uuid
   templateId  String?             @db.Uuid
+  networkId   String? @db.Uuid
+  network NetworkModel? @relation(fields: [networkId], references: [id])
   instance    InstanceModel?      @relation(fields: [instanceId], references: [id])
   project     ProjectModel?       @relation(fields: [projectId], references: [id])
   template    TemplateOfferModel? @relation(fields: [templateId], references: [id])

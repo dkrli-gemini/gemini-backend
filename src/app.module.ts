@@ -35,6 +35,8 @@ import { ListResourceLimitsModule } from './presentation/resource-limit/list-res
 import { ListAclModule } from './presentation/domain/list-acl/list-acl.module';
 import { ListVolumesModule } from './presentation/virtual-machine/list-volumes/list-volumes.module';
 import { ListPublicIpsModule } from './presentation/domain/list-public-ips/list-public-ips.module';
+import { CreateForwardRuleModule } from './presentation/domain/create-forward-rule/create-forward-rule.module';
+import { ListForwardRulesModule } from './presentation/domain/list-forward-rules/list-forward-rules.module';
 
 @Module({
   imports: [
@@ -74,6 +76,8 @@ import { ListPublicIpsModule } from './presentation/domain/list-public-ips/list-
     ListAclModule,
     ListVolumesModule,
     ListPublicIpsModule,
+    CreateForwardRuleModule,
+    ListForwardRulesModule,
   ],
   controllers: [AppController],
 })

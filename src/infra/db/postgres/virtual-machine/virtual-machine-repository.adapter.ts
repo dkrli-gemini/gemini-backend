@@ -5,6 +5,7 @@ import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine
 import { PrismaService } from '../../prisma.service';
 import { IInstance } from 'src/domain/entities/instance';
 import { ITemplate } from 'src/domain/entities/template';
+import { INetwork } from 'src/domain/entities/network';
 
 @Injectable()
 export class VirtualMachineRepositoryAdapter
@@ -36,9 +37,15 @@ export class VirtualMachineRepositoryAdapter
   async createVirtualMachine(
     input: Partial<IVirtualMachine>,
   ): Promise<IVirtualMachine> {
+    console.log(input.network.id);
     const virtualMachineCreated = await this.prisma.virtualMachineModel.create({
       data: {
         id: input.id,
+        network: {
+          connect: {
+            id: input.network.id,
+          },
+        },
         instance: {
           connect: {
             id: input.instance.id,
@@ -80,6 +87,9 @@ export class VirtualMachineRepositoryAdapter
 
   mapToDomain(persistencyObject: any): IVirtualMachine {
     const machine: IVirtualMachine = {
+      network: {
+        id: persistencyObject.networkId,
+      } as INetwork,
       id: persistencyObject.id,
       instance: {
         id: persistencyObject.instanceId,

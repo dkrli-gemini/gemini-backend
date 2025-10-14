@@ -8,4 +8,6 @@ model NetworkModel {
   netmask           String
   projectId         String?       @db.Uuid
   project           ProjectModel? @relation(fields: [projectId], references: [id])
+
+  VirtualMachineModel VirtualMachineModel[]
 }

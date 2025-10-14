@@ -7,6 +7,8 @@ model ProjectModel {
   NetworkModel        NetworkModel[]
   domain              DomainModel           @relation(fields: [domainId], references: [id])
   VirtualMachineModel VirtualMachineModel[]
+
+  PortForwardRuleModel PortForwardRuleModel[]
 }
 
 enum ProjectTypeModel {

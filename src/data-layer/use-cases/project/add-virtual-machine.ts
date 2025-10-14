@@ -7,6 +7,7 @@ import {
 } from 'src/domain/contracts/use-cases/project/add-virtual-machine';
 import { IInstance } from 'src/domain/entities/instance';
 import { JobStatusEnum, JobTypeEnum } from 'src/domain/entities/job';
+import { INetwork } from 'src/domain/entities/network';
 import { IProject } from 'src/domain/entities/project';
 import { ITemplate } from 'src/domain/entities/template';
 import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
@@ -72,6 +73,9 @@ export class AddVirtualMachine implements IAddVirtualMachine {
 
     const virtualMachineCreated =
       await this.virtualMachineRepository.createVirtualMachine({
+        network: {
+          id: network.id,
+        } as INetwork,
         instance: {
           id: instance.id,
         } as IInstance,
@@ -85,6 +89,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         project: {
           id: input.projectId,
         } as IProject,
+
         state: 'STOPPED',
       });
 

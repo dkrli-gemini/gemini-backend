@@ -17,4 +17,6 @@ model PortForwardRuleModel {
   virtualMachineId String
   publicIpId       String?              @db.Uuid
   publicIp         PublicIPModel?       @relation(fields: [publicIpId], references: [id])
+  projectId String? @db.Uuid
+  project ProjectModel? @relation(fields: [projectId], references: [id])
 }

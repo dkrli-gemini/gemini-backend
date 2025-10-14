@@ -45,6 +45,7 @@ export namespace CloudstackCommands {
     CreateNetworkAcl = 'createNetworkACL',
     AssociateIpAddress = 'associateIpAddress',
     ListPublicIpAddresses = 'listPublicIpAddresses',
+    CreatePortForwardRule = 'createPortForwardingRule',
   }
 }
 
