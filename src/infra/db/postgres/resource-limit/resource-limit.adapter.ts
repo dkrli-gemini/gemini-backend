@@ -76,6 +76,18 @@ export class ResourceLimitRepositoryAdapter
     return response;
   }
 
+  async updateResourceLimit(
+    limitId: string,
+    limit: number,
+  ): Promise<IResourceLimit> {
+    const updated = await this.prisma.resourceLimitModel.update({
+      where: { id: limitId },
+      data: { limit },
+    });
+
+    return this.mapToDomain(updated);
+  }
+
   mapToDomain(persistencyObject: any): IResourceLimit {
     const limit: IResourceLimit = {
       id: persistencyObject.id,

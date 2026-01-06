@@ -13,6 +13,8 @@ import {
   CloudstackCommands,
   CloudstackService,
 } from 'src/infra/cloudstack/cloudstack';
+import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
+import { throwsException } from 'src/utilities/exception';
 
 @Controller('vpcs')
 export class AddAclListController
@@ -30,21 +32,47 @@ export class AddAclListController
     _req: Request,
     @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<AddAclListOutputDto | Error>> {
-    const domainId = (
-      await this.prisma.projectModel.findUnique({
-        where: {
-          id: projectId,
-        },
-      })
-    ).domainId;
-    console.log(domainId);
-    const vpcId = (
-      await this.prisma.domainModel.findUnique({
-        where: {
-          id: domainId,
-        },
-      })
-    ).vpcId;
+    if (!projectId) {
+      throwsException(new InvalidParamError('Projeto não informado.'));
+    }
+
+    const project = await this.prisma.projectModel.findUnique({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (!project) {
+      throwsException(new InvalidParamError('Projeto não encontrado.'));
+    }
+
+    if (!project.domainId) {
+      throwsException(
+        new InvalidParamError('Projeto não possui um domínio associado.'),
+      );
+    }
+
+    const domain = await this.prisma.domainModel.findUnique({
+      where: {
+        id: project.domainId,
+      },
+    });
+
+    if (!domain) {
+      throwsException(
+        new InvalidParamError('Domínio associado ao projeto não encontrado.'),
+      );
+    }
+
+    if (!domain.vpcId) {
+      throwsException(
+        new InvalidParamError(
+          'Domínio associado não possui uma VPC configurada.',
+        ),
+      );
+    }
+
+    const vpcId = domain.vpcId;
     console.log(vpcId);
 
     const cloudstackAclList = (

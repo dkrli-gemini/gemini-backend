@@ -6,6 +6,7 @@ import { VolumeRepositoryModule } from 'src/infra/db/postgres/volume/volume-repo
 import { AddVolumeProvider } from './add-volume';
 import { PrismaModule } from 'src/infra/db/prisma.module';
 import { JobRepositoryModule } from 'src/infra/db/postgres/job/job-repository.module';
+import { BillingModule } from 'src/data-layer/services/billing/billing.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { JobRepositoryModule } from 'src/infra/db/postgres/job/job-repository.mo
     CloudstackModule,
     PrismaModule,
     JobRepositoryModule,
+    BillingModule,
   ],
   providers: [AddVolumeProvider],
   exports: [AddVolumeProvider],

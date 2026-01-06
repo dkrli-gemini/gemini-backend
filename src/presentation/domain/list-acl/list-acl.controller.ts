@@ -6,6 +6,8 @@ import { IHttpResponse, ok } from 'src/domain/contracts/http';
 import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
 import { RolesEnum } from 'src/infra/auth/roles.guard';
 import { PrismaService } from 'src/infra/db/prisma.service';
+import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
+import { throwsException } from 'src/utilities/exception';
 
 @Controller('vpcs')
 export class ListAclController implements IController<null, ListAclOutputDto> {
@@ -18,17 +20,43 @@ export class ListAclController implements IController<null, ListAclOutputDto> {
     @Req() req: Request,
     @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<ListAclOutputDto | Error>> {
-    console.log(projectId);
-    const domainId = (
-      await this.prisma.projectModel.findUnique({
-        where: { id: projectId },
-      })
-    ).domainId;
-    const vpcId = (
-      await this.prisma.domainModel.findUnique({
-        where: { id: domainId },
-      })
-    ).vpcId;
+    if (!projectId) {
+      throwsException(new InvalidParamError('Projeto não informado.'));
+    }
+
+    const project = await this.prisma.projectModel.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throwsException(new InvalidParamError('Projeto não encontrado.'));
+    }
+
+    if (!project.domainId) {
+      throwsException(
+        new InvalidParamError('Projeto não possui um domínio associado.'),
+      );
+    }
+
+    const domain = await this.prisma.domainModel.findUnique({
+      where: { id: project.domainId },
+    });
+
+    if (!domain) {
+      throwsException(
+        new InvalidParamError('Domínio associado ao projeto não encontrado.'),
+      );
+    }
+
+    if (!domain.vpcId) {
+      throwsException(
+        new InvalidParamError(
+          'Domínio associado não possui uma VPC configurada.',
+        ),
+      );
+    }
+
+    const vpcId = domain.vpcId;
 
     const lists = await this.prisma.aclListModel.findMany({
       where: {

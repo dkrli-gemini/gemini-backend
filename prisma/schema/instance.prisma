@@ -4,5 +4,13 @@ model InstanceModel {
   memory              String
   disk                String
   cpu                 String
+  sku                 String?
+  family              String?
+  profile             String?
+  diskTier            String?
+  cpuNumber           Int
+  cpuSpeedMhz         Int
+  memoryInMb          Int
+  rootDiskSizeInGb    Int
   VirtualMachineModel VirtualMachineModel[]
 }

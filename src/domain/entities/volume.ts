@@ -5,4 +5,5 @@ export interface IVolume extends IEntityBase {
   name: string;
   offer: IVolumeOffer;
   machineId: string;
+  sizeInGb?: number;
 }

@@ -2,7 +2,7 @@ import { IUseCase } from '../../use-case';
 
 export interface IAddVirtualMachineInput {
   name: string;
-  instanceId: string;
+  offerId: string;
   templateId: string;
   projectId: string;
   networkId: string;

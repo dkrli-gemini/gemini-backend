@@ -4,7 +4,7 @@ export class AddVirtualMachineInputDto {
   @ApiProperty({ type: String, required: true })
   name: string;
   @ApiProperty({ type: String, required: true })
-  instanceId: string;
+  offerId: string;
   @ApiProperty({ type: String, required: true })
   templateId: string;
   @ApiProperty({ type: String, required: true })

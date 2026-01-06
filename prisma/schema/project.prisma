@@ -7,8 +7,11 @@ model ProjectModel {
   NetworkModel        NetworkModel[]
   domain              DomainModel           @relation(fields: [domainId], references: [id])
   VirtualMachineModel VirtualMachineModel[]
+  BillingEntryModel   BillingEntryModel[]
+  ResourceUsageEventModel ResourceUsageEventModel[]
 
   PortForwardRuleModel PortForwardRuleModel[]
+  PublicIPModel       PublicIPModel[]
 }
 
 enum ProjectTypeModel {

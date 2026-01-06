@@ -3,6 +3,7 @@ model VolumeModel {
   name      String
   offerId   String?              @db.Uuid
   machineId String?              @db.Uuid
+  sizeInGb  Int?
   machine   VirtualMachineModel? @relation(fields: [machineId], references: [id])
   offer     DiskOfferModel?      @relation(fields: [offerId], references: [id])
 }

@@ -11,12 +11,14 @@ export class PublicIpRepositoryAdapter implements IPublicIPRepository {
     id: string,
     address: string,
     vpcId: string,
+    projectId: string,
   ): Promise<IPublicIp> {
     const publicIpCreated = await this.prisma.publicIPModel.create({
       data: {
         id,
         vpcId,
         address,
+        projectId,
       },
     });
 

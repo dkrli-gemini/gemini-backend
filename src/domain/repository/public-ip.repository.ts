@@ -8,6 +8,7 @@ export abstract class IPublicIPRepository
     id: string,
     address: string,
     vpcId: string,
+    projectId: string,
   ): Promise<IPublicIp>;
   abstract addPortForwardingRule(
     publicIpId: string,

@@ -3,6 +3,7 @@ import { IEntityBase } from '../models/entity-base';
 export enum JobStatusEnum {
   PENDING = 'PENDING',
   DONE = 'DONE',
+  FAILED = 'FAILED',
 }
 
 export enum JobTypeEnum {

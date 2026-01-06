@@ -28,6 +28,14 @@ export class AddInstanceController
       name: input.name,
       memory: input.memory,
       disk: input.disk,
+      cpuNumber: input.cpuNumber,
+      cpuSpeedMhz: input.cpuSpeedMhz,
+      memoryInMb: input.memoryInMb,
+      rootDiskSizeInGb: input.rootDiskSizeInGb,
+      sku: input.sku,
+      family: input.family,
+      profile: input.profile,
+      diskTier: input.diskTier,
     });
 
     return ok(new AddInstanceOutputDto());

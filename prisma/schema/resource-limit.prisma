@@ -5,6 +5,8 @@ model ResourceLimitModel {
   used     Int
   domainId String       @db.Uuid
   domain   DomainModel  @relation(fields: [domainId], references: [id])
+
+  @@unique([domainId, type])
 }
 
 enum ResourceType {

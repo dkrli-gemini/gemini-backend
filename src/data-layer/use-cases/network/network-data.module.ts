@@ -4,6 +4,7 @@ import { DomainRepositoryModule } from 'src/infra/db/postgres/domain/domain-repo
 import { NetworkRepositoryModule } from 'src/infra/db/postgres/network/network-repository.module';
 import { AddNetworkProvider } from './add-network';
 import { PrismaModule } from 'src/infra/db/prisma.module';
+import { BillingModule } from 'src/data-layer/services/billing/billing.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { PrismaModule } from 'src/infra/db/prisma.module';
     CloudstackModule,
     DomainRepositoryModule,
     PrismaModule,
+    BillingModule,
   ],
   providers: [AddNetworkProvider],
   exports: [AddNetworkProvider],

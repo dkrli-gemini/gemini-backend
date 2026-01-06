@@ -1,5 +1,9 @@
 import { Injectable, Provider } from '@nestjs/common';
-import { IDomain, IDomainType } from 'src/domain/entities/domain';
+import {
+  IDomain,
+  IDomainType,
+  OrganizationBillingType,
+} from 'src/domain/entities/domain';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
 import { PrismaService } from '../../prisma.service';
 
@@ -13,6 +17,7 @@ export class DomainRepositoryAdapter implements IDomainRepository {
         cloudstackAccountId: domain.cloudstackAccountId,
         type: IDomainType.ROOT,
         name: domain.name,
+        billingType: domain.billingType ?? OrganizationBillingType.POOL,
       },
       include: {},
     });
@@ -36,6 +41,7 @@ export class DomainRepositoryAdapter implements IDomainRepository {
         id: domain.id,
         cloudstackAccountId: domain.cloudstackAccountId,
         type: domain.type,
+        billingType: domain.billingType ?? OrganizationBillingType.POOL,
         root: domain.root
           ? {
               connect: {
@@ -77,7 +83,6 @@ export class DomainRepositoryAdapter implements IDomainRepository {
   }
 
   mapToDomain(persistencyObject: any): IDomain {
-    console.log(persistencyObject);
     const domain: IDomain = {
       vpc: persistencyObject.vpc
         ? {
@@ -93,6 +98,7 @@ export class DomainRepositoryAdapter implements IDomainRepository {
       type: persistencyObject.type,
       cloudstackAccountId: persistencyObject.cloudstackAccountId,
       name: persistencyObject.name,
+      billingType: persistencyObject.billingType as OrganizationBillingType,
     };
 
     return domain;

@@ -1,0 +1,32 @@
+model ResourceUsageEventModel {
+  id           String       @id @default(uuid()) @db.Uuid
+  domainId     String       @db.Uuid
+  projectId    String?      @db.Uuid
+  resourceId   String
+  resourceType ResourceType
+  amount       Int
+  metadata     Json?
+  createdAt    DateTime     @default(now())
+  domain       DomainModel  @relation(fields: [domainId], references: [id])
+  project      ProjectModel? @relation(fields: [projectId], references: [id])
+  virtualMachineId String?   @db.Uuid
+  virtualMachine   VirtualMachineModel? @relation(fields: [virtualMachineId], references: [id])
+}
+
+model BillingEntryModel {
+  id               String       @id @default(uuid()) @db.Uuid
+  domainId         String       @db.Uuid
+  projectId        String?      @db.Uuid
+  resourceId       String
+  resourceType     ResourceType
+  description      String
+  quantity         Int
+  unitPriceInCents Int
+  totalInCents     Int
+  createdAt        DateTime     @default(now())
+  metadata         Json?
+  domain           DomainModel  @relation(fields: [domainId], references: [id])
+  project          ProjectModel? @relation(fields: [projectId], references: [id])
+  virtualMachineId String?    @db.Uuid
+  virtualMachine   VirtualMachineModel? @relation(fields: [virtualMachineId], references: [id])
+}

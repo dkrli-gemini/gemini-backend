@@ -24,12 +24,16 @@ export class JobRepositoryAdapter implements IJobRepository {
     return this.mapToDomain(jobCreated);
   }
 
-  async getJobStatus(jobId: string): Promise<JobStatusEnum> {
+  async getJob(jobId: string): Promise<IJob | null> {
     const job = await this.prisma.jobModel.findUnique({
       where: { id: jobId },
     });
 
-    return job.status as JobStatusEnum;
+    if (!job) {
+      return null;
+    }
+
+    return this.mapToDomain(job);
   }
 
   async findPendingJobs(): Promise<IJob[]> {
@@ -43,13 +47,18 @@ export class JobRepositoryAdapter implements IJobRepository {
     return jobsMapped;
   }
 
-  async updateJobStatus(jobId: string, status: JobStatusEnum): Promise<void> {
+  async updateJobStatus(
+    jobId: string,
+    status: JobStatusEnum,
+    error?: string,
+  ): Promise<void> {
     await this.prisma.jobModel.update({
       where: {
         id: jobId,
       },
       data: {
         status: status,
+        error: error,
       },
     });
   }

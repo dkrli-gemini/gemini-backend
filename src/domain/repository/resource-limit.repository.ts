@@ -10,5 +10,9 @@ export abstract class IResourceLimitRepository
   ): Promise<IResourceLimit[]>;
   abstract getResourceLimit(id: string): Promise<IResourceLimit>;
   abstract listByDomain(domainId: string): Promise<IResourceLimit[]>;
+  abstract updateResourceLimit(
+    limitId: string,
+    limit: number,
+  ): Promise<IResourceLimit>;
   abstract mapToDomain(persistencyObject: any): IResourceLimit;
 }

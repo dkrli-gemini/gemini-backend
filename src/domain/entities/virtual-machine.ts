@@ -13,6 +13,10 @@ export interface IVirtualMachine extends IEntityBase {
   name: string;
   state: string;
   ipAddress: string;
+  cpuNumber?: number;
+  cpuSpeedMhz?: number;
+  memoryInMb?: number;
+  rootDiskSizeInGb?: number;
   instance: IInstance;
   template: ITemplate;
   project: IProject;

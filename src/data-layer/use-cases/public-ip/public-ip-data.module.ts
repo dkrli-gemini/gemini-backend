@@ -5,6 +5,7 @@ import { PrismaModule } from 'src/infra/db/prisma.module';
 import { AcquirePublicIpProvider } from './acquire-public-ip';
 import { JobRepositoryModule } from 'src/infra/db/postgres/job/job-repository.module';
 import { CreateForwardRuleProvider } from './create-forward-rule';
+import { BillingModule } from 'src/data-layer/services/billing/billing.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { CreateForwardRuleProvider } from './create-forward-rule';
     CloudstackModule,
     PublicIpRepositoryModule,
     JobRepositoryModule,
+    BillingModule,
   ],
   providers: [AcquirePublicIpProvider, CreateForwardRuleProvider],
   exports: [AcquirePublicIpProvider, CreateForwardRuleProvider],

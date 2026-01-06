@@ -6,6 +6,7 @@ import { VirtualMachineRepositoryModule } from 'src/infra/db/postgres/virtual-ma
 import { AddVirtualMachineProvider } from './add-virtual-machine';
 import { InstanceRepositoryModule } from 'src/infra/db/postgres/instance/instance-repository.module';
 import { JobRepositoryModule } from 'src/infra/db/postgres/job/job-repository.module';
+import { BillingModule } from 'src/data-layer/services/billing/billing.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { JobRepositoryModule } from 'src/infra/db/postgres/job/job-repository.mo
     NetworkRepositoryModule,
     InstanceRepositoryModule,
     JobRepositoryModule,
+    BillingModule,
   ],
   providers: [AddVirtualMachineProvider],
   exports: [AddVirtualMachineProvider],

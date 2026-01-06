@@ -1,13 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IJobRepository } from 'src/domain/repository/job.repository';
 import {
   CloudstackCommands,
   CloudstackService,
 } from '../cloudstack/cloudstack';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { IJob, JobStatusEnum } from 'src/domain/entities/job';
-import { JobTypeEnum } from '@prisma/client';
-import { PrismaService } from '../db/prisma.service';
+import { IJob, JobStatusEnum, JobTypeEnum } from 'src/domain/entities/job';
+import { JOB_HANDLER_MAP } from './job.constants';
+import { CloudstackJobResult, JobHandler } from './handlers/job-handler';
 
 @Injectable()
 export class JobPollingService {
@@ -16,101 +16,83 @@ export class JobPollingService {
   constructor(
     private readonly jobRepository: IJobRepository,
     private readonly cloudstackService: CloudstackService,
-    private readonly prisma: PrismaService,
+    @Inject(JOB_HANDLER_MAP)
+    private readonly handlerMap: Map<JobTypeEnum, JobHandler>,
   ) {}
 
-  async handleJobUpdate(type: JobTypeEnum, entityId: string) {
-    this.logger.log(
-      `Handling job update with type ${type} on entity ${entityId}`,
-    );
-    switch (type) {
-      case JobTypeEnum.StartVM: {
-        await this.prisma.virtualMachineModel.update({
-          where: {
-            id: entityId,
-          },
-          data: {
-            state: 'RUNNING',
-          },
-        });
-        break;
-      }
-      case JobTypeEnum.AttachVolume: {
-        const [volumeId, machineId] = entityId.split('|');
+  private getHandler(type: JobTypeEnum): JobHandler | undefined {
+    const handler = this.handlerMap.get(type);
 
-        await this.cloudstackService.handle({
-          command: CloudstackCommands.Volume.AttachVolume,
-          additionalParams: {
-            id: volumeId,
-            virtualmachineid: machineId,
-          },
-        });
+    if (!handler) {
+      this.logger.warn(`No job handler registered for type ${type}`);
+    }
 
-        break;
-      }
-      case JobTypeEnum.StopVM: {
-        await this.prisma.virtualMachineModel.update({
-          where: {
-            id: entityId,
-          },
-          data: {
-            state: 'STOPPED',
-          },
-        });
-        break;
-      }
-      case JobTypeEnum.AttachIP: {
-        const publicIp = await this.cloudstackService.handle({
-          command: CloudstackCommands.VPC.ListPublicIpAddresses,
-          additionalParams: {
-            id: entityId,
-          },
-        });
+    return handler;
+  }
 
-        console.log(publicIp.listpublicipaddressesresponse);
-        console.log(
-          publicIp.listpublicipaddressesresponse.publicipaddress[0].ipaddress,
+  private normalizeStatus(status?: number | string): number {
+    if (status === undefined || status === null) {
+      return 0;
+    }
+
+    return typeof status === 'string' ? Number(status) || 0 : status;
+  }
+
+  private extractJobError(result: CloudstackJobResult): string | undefined {
+    const errorCandidates = [
+      result?.jobresult?.errortext,
+      result?.jobresult?.errordetail,
+      result?.jobresult?.description,
+    ].filter(Boolean) as string[];
+
+    return errorCandidates[0];
+  }
+
+  private async handleSuccess(job: IJob, result: CloudstackJobResult) {
+    const handler = this.getHandler(job.type);
+    if (!handler) {
+      await this.jobRepository.updateJobStatus(job.id, JobStatusEnum.DONE);
+      return;
+    }
+
+    try {
+      await handler.handleSuccess(job, result);
+      await this.jobRepository.updateJobStatus(job.id, JobStatusEnum.DONE);
+    } catch (error) {
+      this.logger.error(
+        `Error while handling success for job ${job.id} (${job.type})`,
+        error instanceof Error ? error.stack : String(error),
+      );
+      await this.jobRepository.updateJobStatus(
+        job.id,
+        JobStatusEnum.FAILED,
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  }
+
+  private async handleFailure(
+    job: IJob,
+    result: CloudstackJobResult,
+    errorMessage?: string,
+  ) {
+    const handler = this.getHandler(job.type);
+    if (handler?.handleFailure) {
+      try {
+        await handler.handleFailure(job, result, errorMessage);
+      } catch (error) {
+        this.logger.error(
+          `Error while handling failure for job ${job.id} (${job.type})`,
+          error instanceof Error ? error.stack : String(error),
         );
-
-        await this.prisma.publicIPModel.update({
-          where: {
-            id: entityId,
-          },
-          data: {
-            address:
-              publicIp.listpublicipaddressesresponse.publicipaddress[0]
-                .ipaddress,
-          },
-        });
-
-        break;
-      }
-      case JobTypeEnum.CreateVM: {
-        this.logger.debug('Updating VM IP');
-        const dbVm = await this.prisma.virtualMachineModel.findUnique({
-          where: {
-            id: entityId,
-          },
-        });
-        const virtualMachine = await this.cloudstackService.handle({
-          command: CloudstackCommands.VirtualMachine.ListVirtualMachines,
-          additionalParams: {
-            id: dbVm.id,
-          },
-        });
-
-        await this.prisma.virtualMachineModel.update({
-          where: {
-            id: entityId,
-          },
-          data: {
-            ipAddress:
-              virtualMachine.listvirtualmachinesresponse.virtualmachine[0]
-                .ipaddress,
-          },
-        });
       }
     }
+
+    await this.jobRepository.updateJobStatus(
+      job.id,
+      JobStatusEnum.FAILED,
+      errorMessage,
+    );
   }
 
   @Cron(CronExpression.EVERY_5_SECONDS)
@@ -134,18 +116,25 @@ export class JobPollingService {
                 jobid: pJob.id,
               },
             })
-          ).queryasyncjobresultresponse;
-          const jobStatus = jobResponse.jobstatus;
+          ).queryasyncjobresultresponse as CloudstackJobResult;
+          const jobStatus = this.normalizeStatus(jobResponse?.jobstatus);
           this.logger.debug(
             `Handling async job ${pJob.id}, with command ${pJob.type} and status ${jobStatus}`,
           );
-          if (jobStatus == 1) {
-            // Success
-            await this.jobRepository.updateJobStatus(
-              pJob.id,
-              JobStatusEnum.DONE,
+
+          if (jobStatus === 1) {
+            await this.handleSuccess(pJob, jobResponse);
+          } else if (jobStatus === 2) {
+            const errorMessage =
+              this.extractJobError(jobResponse) ?? 'Unknown CloudStack error';
+            this.logger.error(
+              `CloudStack job ${pJob.id} failed: ${errorMessage}`,
             );
-            await this.handleJobUpdate(pJob.type, pJob.entityId);
+            await this.handleFailure(pJob, jobResponse, errorMessage);
+          } else {
+            this.logger.debug(
+              `Job ${pJob.id} still pending in CloudStack (status ${jobStatus})`,
+            );
           }
         } catch (jobPollingError) {
           this.logger.error(

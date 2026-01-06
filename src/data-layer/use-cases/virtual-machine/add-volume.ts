@@ -7,6 +7,7 @@ import {
 } from 'src/domain/contracts/use-cases/instance/add-volume';
 import { JobStatusEnum, JobTypeEnum } from 'src/domain/entities/job';
 import { IVolumeOffer } from 'src/domain/entities/volume-offer';
+import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
 import { IJobRepository } from 'src/domain/repository/job.repository';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
 import { IVolumeOfferRepository } from 'src/domain/repository/volume-offer.repository';
@@ -16,6 +17,8 @@ import {
   CloudstackService,
 } from 'src/infra/cloudstack/cloudstack';
 import { PrismaService } from 'src/infra/db/prisma.service';
+import { BillingService } from 'src/data-layer/services/billing/billing.service';
+import { ResourceTypeEnum } from 'src/domain/entities/resource-limit';
 
 @Injectable()
 export class AddVolume implements IAddVolume {
@@ -29,11 +32,13 @@ export class AddVolume implements IAddVolume {
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
     private readonly jobRepository: IJobRepository,
+    private readonly billingService: BillingService,
   ) {
     this.ZONE_ID = this.configService.get<string>('CLOUDSTACK_DEFAULT_ZONE_ID');
   }
 
   async execute(input: IAddVolumeInput): Promise<IAddVolumeOutput> {
+    this.validateInput(input);
     const offer = await this.diskOfferRepository.getOffer(input.offerId);
     const project = await this.prisma.projectModel.findUnique({
       where: {
@@ -54,6 +59,7 @@ export class AddVolume implements IAddVolume {
           account: domain.name,
           name: input.name,
           diskofferingid: offer.id,
+          size: input.sizeInGb.toString(),
           zoneid: this.ZONE_ID,
         },
       })
@@ -71,15 +77,40 @@ export class AddVolume implements IAddVolume {
       id: diskJob.id,
       machineId: input.machineId,
       name: input.name,
+      sizeInGb: input.sizeInGb,
       offer: {
         id: input.offerId,
       } as IVolumeOffer,
+    });
+
+    await this.billingService.registerUsage({
+      domainId: domain.id,
+      projectId: input.projectId,
+      consumptions: [
+        {
+          resourceId: volumeCreated.id,
+          resourceType: ResourceTypeEnum.VOLUMES,
+          quantity: input.sizeInGb,
+          description: `Volume ${input.name}`,
+          metadata: {
+            sizeInGb: input.sizeInGb,
+            offerId: input.offerId,
+          },
+          virtualMachineId: input.machineId,
+        },
+      ],
     });
 
     return {
       created: true,
       volumeId: volumeCreated.id,
     };
+  }
+
+  private validateInput(input: IAddVolumeInput) {
+    if (!Number.isFinite(input.sizeInGb) || input.sizeInGb <= 0) {
+      throw new InvalidParamError('sizeInGb must be greater than zero');
+    }
   }
 }
 

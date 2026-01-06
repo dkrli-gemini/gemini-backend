@@ -9,6 +9,7 @@ model JobModel {
 enum JobStatusEnum {
   PENDING
   DONE
+  FAILED
 }
 
 enum JobTypeEnum {
@@ -18,5 +19,4 @@ enum JobTypeEnum {
   AttachVolume
   AttachIP
 }
-
 

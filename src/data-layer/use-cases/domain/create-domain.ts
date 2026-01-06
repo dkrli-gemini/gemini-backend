@@ -5,7 +5,11 @@ import {
   ICreateDomain,
   ICreateDomainInput,
 } from 'src/domain/contracts/use-cases/domain/create-domain';
-import { IDomain, IDomainType } from 'src/domain/entities/domain';
+import {
+  IDomain,
+  IDomainType,
+  OrganizationBillingType,
+} from 'src/domain/entities/domain';
 import { ProjectTypeEnum } from 'src/domain/entities/project';
 import { IDomainRepository } from 'src/domain/repository/domain.repoitory';
 import { IProjectRepository } from 'src/domain/repository/project.repository';
@@ -45,19 +49,6 @@ export class CreateDomain implements ICreateDomain {
   }
 
   async execute(input: ICreateDomainInput): Promise<IDomain> {
-    const rootDomain = await this.domainRepository.getDomain(input.rootId);
-
-    const domainParams = {
-      name: input.name,
-    };
-    if (rootDomain.type != IDomainType.ROOT) {
-      domainParams['parentdomainid'] = rootDomain.id;
-    }
-    const domainResponse = await this.cloudstackService.handle({
-      command: CloudstackCommands.Domain.CreateDomain,
-      additionalParams: domainParams,
-    });
-
     const accountResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.Account.CreateAccount,
       additionalParams: {
@@ -67,7 +58,6 @@ export class CreateDomain implements ICreateDomain {
         password: input.accountPassword,
         username: input.name,
         account: input.name,
-        domainid: domainResponse.createdomainresponse.domain.id,
         accounttype: '2', // For domain and account admin
       },
     });
@@ -79,8 +69,8 @@ export class CreateDomain implements ICreateDomain {
         cidr: this.defaultCidr,
         vpcofferingid: this.defaultVpcOfferingId,
         zoneid: this.defaultZoneId,
-        domainid: domainResponse.createdomainresponse.domain.id,
         account: accountResponse.createaccountresponse.account.name,
+        domainid: accountResponse.createaccountresponse.account.domainid,
         dns1: this.defaultDns1,
         dns2: this.defaultDns2,
       },
@@ -88,7 +78,7 @@ export class CreateDomain implements ICreateDomain {
 
     const domain = await this.domainRepository.createDomain(
       {
-        id: domainResponse.createdomainresponse.domain.id,
+        id: input.rootId,
         name: input.name,
         root: {
           id: input.rootId,
@@ -103,6 +93,7 @@ export class CreateDomain implements ICreateDomain {
           state: 'on',
         },
         cloudstackAccountId: accountResponse.createaccountresponse.account.id,
+        billingType: input.billingType ?? OrganizationBillingType.POOL,
       },
       input.ownerId,
     );

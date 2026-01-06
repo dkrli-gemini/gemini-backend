@@ -7,4 +7,5 @@ export class CreateDomainAdminInputDto {
   accountEmail: string;
   accountPassword: string;
   rootId: string;
+  billingType?: string;
 }

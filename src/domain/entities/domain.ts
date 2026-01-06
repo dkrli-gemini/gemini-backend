@@ -8,6 +8,11 @@ export enum IDomainType {
   CLIENT = 'CLIENT',
 }
 
+export enum OrganizationBillingType {
+  POOL = 'POOL',
+  PAYG = 'PAYG',
+}
+
 export interface IDomain extends IEntityBase {
   name: string;
   root?: IDomain;
@@ -15,4 +20,5 @@ export interface IDomain extends IEntityBase {
   vpc: IVPC;
   cloudstackAccountId?: string;
   projects?: IProject[];
+  billingType?: OrganizationBillingType;
 }

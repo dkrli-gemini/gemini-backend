@@ -18,7 +18,12 @@ export class VirtualMachineRepositoryAdapter
       where: {
         id: id,
       },
-      include: { project: true, instance: true, template: true },
+      include: {
+        project: true,
+        instance: true,
+        template: true,
+        network: true,
+      },
     });
     return this.mapToDomain(machine);
   }
@@ -58,6 +63,10 @@ export class VirtualMachineRepositoryAdapter
         },
         name: input.name,
         ipAddress: input.ipAddress,
+        cpuNumber: input.cpuNumber,
+        cpuSpeedMhz: input.cpuSpeedMhz,
+        memoryInMb: input.memoryInMb,
+        rootDiskSizeInGb: input.rootDiskSizeInGb,
         project: {
           connect: {
             id: input.project.id,
@@ -65,7 +74,7 @@ export class VirtualMachineRepositoryAdapter
         },
         state: input.state,
       },
-      include: { instance: true, template: true },
+      include: { instance: true, template: true, network: true },
     });
 
     return this.mapToDomain(virtualMachineCreated);
@@ -76,7 +85,12 @@ export class VirtualMachineRepositoryAdapter
       where: {
         projectId: projectId,
       },
-      include: { project: true, instance: true, template: true },
+      include: {
+        project: true,
+        instance: true,
+        template: true,
+        network: true,
+      },
     });
 
     const response = machines.map((machine) => {
@@ -89,6 +103,7 @@ export class VirtualMachineRepositoryAdapter
     const machine: IVirtualMachine = {
       network: {
         id: persistencyObject.networkId,
+        name: persistencyObject.network?.name,
       } as INetwork,
       id: persistencyObject.id,
       instance: {
@@ -98,9 +113,17 @@ export class VirtualMachineRepositoryAdapter
         disk: persistencyObject.instance.disk,
         memory: persistencyObject.instance.memory,
         name: persistencyObject.instance.name,
+        cpuNumber: persistencyObject.instance.cpuNumber,
+        cpuSpeedMhz: persistencyObject.instance.cpuSpeedMhz,
+        memoryInMb: persistencyObject.instance.memoryInMb,
+        rootDiskSizeInGb: persistencyObject.instance.rootDiskSizeInGb,
       } as IInstance,
       name: persistencyObject.name,
       ipAddress: persistencyObject.ipAddress,
+      cpuNumber: persistencyObject.cpuNumber,
+      cpuSpeedMhz: persistencyObject.cpuSpeedMhz,
+      memoryInMb: persistencyObject.memoryInMb,
+      rootDiskSizeInGb: persistencyObject.rootDiskSizeInGb,
       template: {
         id: persistencyObject.templateId,
         name: persistencyObject.template.name,

@@ -30,7 +30,7 @@ export class AddVirtualMachineController
     @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<AddVirtualMachineOutputDto | Error>> {
     const machine = await this.useCase.execute({
-      instanceId: input.instanceId,
+      offerId: input.offerId,
       templateId: input.templateId,
       name: input.name,
       networkId: input.networkId,

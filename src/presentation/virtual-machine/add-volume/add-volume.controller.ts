@@ -34,6 +34,7 @@ export class AddVolumeController
       name: input.name,
       machineId: machineId,
       offerId: input.offerId,
+      sizeInGb: input.sizeInGb,
     });
 
     return created(new AddVolumeOutputDto(volume.volumeId));

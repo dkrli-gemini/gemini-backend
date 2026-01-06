@@ -5,15 +5,23 @@ model DomainModel {
   rootId              String?              @db.Uuid
   cloudstackAccountId String?
   vpcId               String?              @db.Uuid
+  billingType         BillingTypeModel     @default(POOL)
   root                DomainModel?         @relation("RootDomain", fields: [rootId], references: [id])
   children            DomainModel[]        @relation("RootDomain")
   vpc                 VPCModel?            @relation(fields: [vpcId], references: [id])
   ProjectModel        ProjectModel[]
   ResourceLimitModel  ResourceLimitModel[]
+  BillingEntryModel   BillingEntryModel[]
+  ResourceUsageEventModel ResourceUsageEventModel[]
 }
 
 enum DomainTypeModel {
   ROOT
   PARTNER
   CLIENT
+}
+
+enum BillingTypeModel {
+  POOL
+  PAYG
 }

@@ -16,6 +16,8 @@ import { IJobRepository } from 'src/domain/repository/job.repository';
 import { INetworkRepository } from 'src/domain/repository/network.repository';
 import { IProjectRepository } from 'src/domain/repository/project.repository';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
+import { BillingService } from 'src/data-layer/services/billing/billing.service';
+import { ResourceTypeEnum } from 'src/domain/entities/resource-limit';
 import {
   CloudstackCommands,
   CloudstackService,
@@ -26,6 +28,8 @@ import { throwsException } from 'src/utilities/exception';
 @Injectable()
 export class AddVirtualMachine implements IAddVirtualMachine {
   private defaultZoneId: string;
+  private customNvmeOfferingId: string;
+  private customHddOfferingId: string;
 
   constructor(
     private readonly projectRepository: IProjectRepository,
@@ -36,9 +40,16 @@ export class AddVirtualMachine implements IAddVirtualMachine {
     private readonly instanceRepository: IInstanceRepository,
     private readonly jobRepository: IJobRepository,
     private readonly prisma: PrismaService,
+    private readonly billingService: BillingService,
   ) {
     this.defaultZoneId = this.configService.get<string>(
       'CLOUDSTACK_DEFAULT_ZONE_ID',
+    );
+    this.customNvmeOfferingId = this.configService.get<string>(
+      'CLOUDSTACK_CUSTOM_COMPUTE_OFFER_NVME_ID',
+    );
+    this.customHddOfferingId = this.configService.get<string>(
+      'CLOUDSTACK_CUSTOM_COMPUTE_OFFER_HDD_ID',
     );
   }
 
@@ -49,25 +60,35 @@ export class AddVirtualMachine implements IAddVirtualMachine {
 
     const project = await this.projectRepository.getProject(input.projectId);
     const network = await this.networkRepository.getNetwork(input.networkId);
-    console.log(input);
-    const instance = await this.instanceRepository.getInstance(
-      input.instanceId,
-    );
+    const offer = await this.instanceRepository.getInstance(input.offerId);
+    this.ensureOfferHasSpecs(offer);
     const foundTemplate = await this.prisma.templateOfferModel.findUnique({
       where: { id: input.templateId },
+    });
+    const domain = await this.prisma.domainModel.findUnique({
+      where: {
+        id: project.domain.id,
+      },
+      include: {
+        vpc: true,
+      },
     });
 
     const jobResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.VirtualMachine.DeployVirtualMachine,
       additionalParams: {
-        serviceofferingid: instance.id,
+        serviceofferingid: this.resolveServiceOfferingId(offer),
         startvm: 'false',
         templateid: foundTemplate.id,
         zoneid: this.defaultZoneId,
-        domainid: project.domain.id,
+        domainid: domain.rootId,
         account: project.domain.name,
         name: input.name,
         networkids: network.id,
+        'details[0].cpuNumber': offer.cpuNumber.toString(),
+        'details[0].cpuSpeed': offer.cpuSpeedMhz.toString(),
+        'details[0].memory': offer.memoryInMb.toString(),
+        rootdisksize: offer.rootDiskSizeInGb.toString(),
       },
     });
 
@@ -77,7 +98,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
           id: network.id,
         } as INetwork,
         instance: {
-          id: instance.id,
+          id: offer.id,
         } as IInstance,
         template: {
           id: foundTemplate.id,
@@ -86,6 +107,10 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         id: jobResponse.deployvirtualmachineresponse.id,
         ipAddress: '',
         name: input.name,
+        cpuNumber: offer.cpuNumber,
+        cpuSpeedMhz: offer.cpuSpeedMhz,
+        memoryInMb: offer.memoryInMb,
+        rootDiskSizeInGb: offer.rootDiskSizeInGb,
         project: {
           id: input.projectId,
         } as IProject,
@@ -98,6 +123,63 @@ export class AddVirtualMachine implements IAddVirtualMachine {
       status: JobStatusEnum.PENDING,
       type: JobTypeEnum.CreateVM,
       entityId: virtualMachineCreated.id,
+    });
+
+    await this.billingService.registerUsage({
+      domainId: project.domain.id,
+      projectId: project.id,
+      consumptions: [
+        {
+          resourceId: virtualMachineCreated.id,
+          resourceType: ResourceTypeEnum.CPU,
+          quantity: offer.cpuNumber,
+          description: `CPU para ${input.name}`,
+          metadata: {
+            cpuNumber: offer.cpuNumber,
+            cpuSpeedMhz: offer.cpuSpeedMhz,
+          },
+          virtualMachineId: virtualMachineCreated.id,
+          billable: false,
+        },
+        {
+          resourceId: virtualMachineCreated.id,
+          resourceType: ResourceTypeEnum.MEMORY,
+          quantity: offer.memoryInMb,
+          description: `Memória para ${input.name}`,
+          metadata: {
+            memoryInMb: offer.memoryInMb,
+          },
+          virtualMachineId: virtualMachineCreated.id,
+          billable: false,
+        },
+        {
+          resourceId: virtualMachineCreated.id,
+          resourceType: ResourceTypeEnum.VOLUMES,
+          quantity: offer.rootDiskSizeInGb,
+          description: `Disco raiz ${input.name}`,
+          metadata: {
+            rootDiskSizeInGb: offer.rootDiskSizeInGb,
+            isRoot: true,
+          },
+          virtualMachineId: virtualMachineCreated.id,
+          billable: false,
+        },
+        {
+          resourceId: virtualMachineCreated.id,
+          resourceType: ResourceTypeEnum.INSTANCES,
+          quantity: 1,
+          description: `Máquina virtual ${input.name}`,
+          metadata: {
+            offerId: offer.id,
+            offerName: offer.name,
+            cpuNumber: offer.cpuNumber,
+            cpuSpeedMhz: offer.cpuSpeedMhz,
+            memoryInMb: offer.memoryInMb,
+            rootDiskSizeInGb: offer.rootDiskSizeInGb,
+          },
+          virtualMachineId: virtualMachineCreated.id,
+        },
+      ],
     });
 
     const output: IAddVirtualMachineOutput = {
@@ -123,6 +205,37 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         new InvalidParamError('A machine with this name already exists'),
       );
     }
+  }
+
+  private ensureOfferHasSpecs(offer: IInstance) {
+    const numericFields = [
+      { value: offer.cpuNumber, label: 'CPU cores' },
+      { value: offer.cpuSpeedMhz, label: 'CPU speed' },
+      { value: offer.memoryInMb, label: 'memory' },
+      { value: offer.rootDiskSizeInGb, label: 'root disk size' },
+    ];
+
+    for (const field of numericFields) {
+      if (!Number.isFinite(field.value) || field.value <= 0) {
+        throwsException(
+          new InvalidParamError(
+            `Offer specification "${field.label}" must be greater than zero`,
+          ),
+        );
+      }
+    }
+  }
+
+  private resolveServiceOfferingId(offer: IInstance): string {
+    const tier = offer.diskTier?.toUpperCase();
+    if (tier === 'HDD' && this.customHddOfferingId) {
+      return this.customHddOfferingId;
+    }
+    if (tier === 'NVME' && this.customNvmeOfferingId) {
+      return this.customNvmeOfferingId;
+    }
+
+    return this.customNvmeOfferingId ?? this.customHddOfferingId ?? offer.id;
   }
 }
 

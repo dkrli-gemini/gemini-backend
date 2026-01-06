@@ -13,6 +13,7 @@ export class VolumeRepositoryAdapter implements IVolumeRepository {
       data: {
         id: input.id,
         name: input.name,
+        sizeInGb: input.sizeInGb,
         machine: {
           connect: {
             id: input.machineId,
@@ -50,6 +51,7 @@ export class VolumeRepositoryAdapter implements IVolumeRepository {
         id: persistencyObject.offerId,
       } as IVolumeOffer,
       id: persistencyObject.id,
+      sizeInGb: persistencyObject.sizeInGb,
     };
 
     if (persistencyObject.offer) {

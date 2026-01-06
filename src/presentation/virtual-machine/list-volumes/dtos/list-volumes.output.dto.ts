@@ -22,8 +22,8 @@ export class ListVolumesOutputDto {
   volumes: VolumeDto[];
 
   constructor(volumes: IVolume[]) {
-    this.volumes = volumes.map(
-      (v) => new VolumeDto(v.name, v.offer.capacity, v.id),
+    this.volumes = volumes.map((v) =>
+      new VolumeDto(v.name, v.sizeInGb ?? v.offer.capacity, v.id),
     );
   }
 }

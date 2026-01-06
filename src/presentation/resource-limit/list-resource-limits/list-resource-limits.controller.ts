@@ -7,6 +7,9 @@ import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
 import { RolesEnum } from 'src/infra/auth/roles.guard';
 import { IResourceLimitRepository } from 'src/domain/repository/resource-limit.repository';
 import { PrismaService } from 'src/infra/db/prisma.service';
+import { BillingService } from 'src/data-layer/services/billing/billing.service';
+import { throwsException } from 'src/utilities/exception';
+import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
 
 @Controller('resource-limits')
 export class ListResourceLimitsController
@@ -15,7 +18,22 @@ export class ListResourceLimitsController
   constructor(
     private readonly resourceLimitRepository: IResourceLimitRepository,
     private readonly prisma: PrismaService,
+    private readonly billingService: BillingService,
   ) {}
+
+  @AuthorizedTo(RolesEnum.ADMIN)
+  @Get('/domain/:domainId')
+  async handleDomain(
+    _input: null,
+    @Req() _req: Request,
+    @Param('domainId') domainId: string,
+  ): Promise<IHttpResponse<ListResourceLimitsOutputDto | Error>> {
+    await this.billingService.reconcileUsage(domainId);
+    const resources = await this.resourceLimitRepository.listByDomain(
+      domainId,
+    );
+    return ok(new ListResourceLimitsOutputDto(resources));
+  }
 
   @AuthorizedTo(RolesEnum.ADMIN, RolesEnum.BASIC)
   @Get('/:projectId')
@@ -24,11 +42,18 @@ export class ListResourceLimitsController
     @Req() req: Request,
     @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<ListResourceLimitsOutputDto | Error>> {
-    const domain = await this.prisma.projectModel.findUnique({
+    const project = await this.prisma.projectModel.findUnique({
       where: { id: projectId },
     });
+
+    if (!project) {
+      throwsException(new InvalidParamError('Projeto não encontrado.'));
+    }
+
+    await this.billingService.reconcileUsage(project.domainId, projectId);
+
     const resources = await this.resourceLimitRepository.listByDomain(
-      domain.domainId,
+      project.domainId,
     );
 
     return ok(new ListResourceLimitsOutputDto(resources));

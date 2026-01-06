@@ -5,6 +5,7 @@ export interface IAddVolumeInput {
   offerId: string;
   machineId: string;
   projectId: string;
+  sizeInGb: number;
 }
 
 export interface IAddVolumeOutput {

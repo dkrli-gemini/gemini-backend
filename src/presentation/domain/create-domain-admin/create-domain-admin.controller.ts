@@ -7,7 +7,10 @@ import { ParsedQs } from 'qs';
 import { IController } from 'src/domain/contracts/controller';
 import { created, IHttpResponse } from 'src/domain/contracts/http';
 import { ICreateDomain } from 'src/domain/contracts/use-cases/domain/create-domain';
-import { IDomain } from 'src/domain/entities/domain';
+import {
+  IDomain,
+  OrganizationBillingType,
+} from 'src/domain/entities/domain';
 import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
 import { RolesEnum } from 'src/infra/auth/roles.guard';
 import { CreateDomainAdminInputDto } from './dtos/create-domain-admin.input.dto';
@@ -34,6 +37,7 @@ export class CreateDomainAdminController
       accountEmail: input.accountEmail,
       accountPassword: input.accountPassword,
       rootId: input.rootId,
+      billingType: input.billingType as OrganizationBillingType,
     });
 
     const response = this.mapToOutput(domain);

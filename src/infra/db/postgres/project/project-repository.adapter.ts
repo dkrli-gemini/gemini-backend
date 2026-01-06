@@ -1,5 +1,5 @@
 import { Injectable, Provider } from '@nestjs/common';
-import { IDomain } from 'src/domain/entities/domain';
+import { IDomain, OrganizationBillingType } from 'src/domain/entities/domain';
 import { IProject, ProjectTypeEnum } from 'src/domain/entities/project';
 import { IProjectRepository } from 'src/domain/repository/project.repository';
 import { PrismaService } from '../../prisma.service';
@@ -55,6 +55,8 @@ export class ProjectRepositoryAdapter implements IProjectRepository {
         id: persistencyObject.domain.id,
         cloudstackDomainId: persistencyObject.domain.cloudstackDomainId,
         name: persistencyObject.domain.name,
+        billingType:
+          persistencyObject.domain.billingType as OrganizationBillingType,
       } as IDomain,
     };
 

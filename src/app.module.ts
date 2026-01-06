@@ -25,7 +25,10 @@ import { StopMachineModule } from './presentation/virtual-machine/stop-machine/s
 import { CreateRootDomainModule } from './presentation/domain/create-root-domain/create-root-domain.module';
 import { AddInstanceModule } from './presentation/instance/add-instance/add-instance.module';
 import { AddTemplateModule } from './presentation/template/add-template/add-template.module';
+import { ListTemplatesModule } from './presentation/template/list-templates/list-templates.module';
+import { ListInstancesModule } from './presentation/instance/list-instances/list-instances.module';
 import { AddResourceLimitModule } from './presentation/resource-limit/add-resource-limit/add-resource-limit.module';
+import { UpdateResourceLimitModule } from './presentation/resource-limit/update-resource-limit/update-resource-limit.module';
 import { AddDiskOfferModule } from './presentation/disk-offer/add-disk-offer/add-disk-offer.module';
 import { AddVolumeModule } from './presentation/virtual-machine/add-volume/add-volume.module';
 import { AddAclListModule } from './presentation/domain/add-acl-list/add-acl-list.module';
@@ -37,6 +40,8 @@ import { ListVolumesModule } from './presentation/virtual-machine/list-volumes/l
 import { ListPublicIpsModule } from './presentation/domain/list-public-ips/list-public-ips.module';
 import { CreateForwardRuleModule } from './presentation/domain/create-forward-rule/create-forward-rule.module';
 import { ListForwardRulesModule } from './presentation/domain/list-forward-rules/list-forward-rules.module';
+import { ListChildrenDomainsModule } from './presentation/domain/list-children-domains/list-children-domains.module';
+import { ListBillingEntriesModule } from './presentation/billing/list-billing-entries/list-billing-entries.module';
 
 @Module({
   imports: [
@@ -65,7 +70,10 @@ import { ListForwardRulesModule } from './presentation/domain/list-forward-rules
     CreateRootDomainModule,
     AddInstanceModule,
     AddTemplateModule,
+    ListTemplatesModule,
+    ListInstancesModule,
     AddResourceLimitModule,
+    UpdateResourceLimitModule,
     AddDiskOfferModule,
     AddVolumeModule,
     AddAclListModule,
@@ -78,6 +86,8 @@ import { ListForwardRulesModule } from './presentation/domain/list-forward-rules
     ListPublicIpsModule,
     CreateForwardRuleModule,
     ListForwardRulesModule,
+    ListChildrenDomainsModule,
+    ListBillingEntriesModule,
   ],
   controllers: [AppController],
 })
