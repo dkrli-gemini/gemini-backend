@@ -35,6 +35,7 @@ export class AddVirtualMachineController
       name: input.name,
       networkId: input.networkId,
       projectId: projectId,
+      zoneId: input.zoneId,
     });
 
     const response = this.mapToOutput(machine);

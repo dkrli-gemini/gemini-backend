@@ -80,7 +80,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         serviceofferingid: this.resolveServiceOfferingId(offer),
         startvm: 'false',
         templateid: foundTemplate.id,
-        zoneid: this.defaultZoneId,
+        zoneid: input.zoneId ?? this.defaultZoneId,
         domainid: domain.rootId,
         account: project.domain.name,
         name: input.name,

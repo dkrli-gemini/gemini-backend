@@ -6,6 +6,7 @@ export interface IAddVirtualMachineInput {
   templateId: string;
   projectId: string;
   networkId: string;
+  zoneId?: string;
 }
 
 export type IAddVirtualMachineOutput = {

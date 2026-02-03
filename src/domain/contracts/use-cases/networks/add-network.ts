@@ -8,6 +8,7 @@ export interface IAddNetworkInput {
   cloudstackAclId: string;
   gateway: string;
   netmask: string;
+  zoneId?: string;
 }
 
 export type IAddNetworkOutput = INetwork;

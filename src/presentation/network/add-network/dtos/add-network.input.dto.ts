@@ -11,4 +11,6 @@ export class AddNetworkInputDto {
   cloudstackAclId: string;
   @ApiProperty({ type: String, required: true })
   cloudstackOfferId: string;
+  @ApiProperty({ type: String, required: false })
+  zoneId?: string;
 }

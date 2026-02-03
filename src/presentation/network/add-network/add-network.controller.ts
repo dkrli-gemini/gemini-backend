@@ -33,6 +33,7 @@ export class AddNetworkController
       cloudstackOfferId: input.cloudstackOfferId,
       gateway: input.gateway,
       netmask: input.netmask,
+      zoneId: input.zoneId,
     });
 
     const mapped = this.mapToOutput(response);

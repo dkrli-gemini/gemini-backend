@@ -84,7 +84,7 @@ export class AddNetwork implements IAddNetwork {
       additionalParams: {
         name: input.name,
         networkofferingid: input.cloudstackOfferId,
-        zoneid: this.defaultZoneId,
+        zoneid: input.zoneId ?? this.defaultZoneId,
         aclid: input.cloudstackAclId,
         gateway: input.gateway,
         netmask: input.netmask,

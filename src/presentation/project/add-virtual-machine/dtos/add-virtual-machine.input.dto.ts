@@ -9,4 +9,6 @@ export class AddVirtualMachineInputDto {
   templateId: string;
   @ApiProperty({ type: String, required: true })
   networkId: string;
+  @ApiProperty({ type: String, required: false })
+  zoneId?: string;
 }
