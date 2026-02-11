@@ -60,6 +60,9 @@ export class AddVirtualMachine implements IAddVirtualMachine {
 
     const project = await this.projectRepository.getProject(input.projectId);
     const network = await this.networkRepository.getNetwork(input.networkId);
+    if (!network) {
+      throwsException(new InvalidParamError('Rede não encontrada.'));
+    }
     const offer = await this.instanceRepository.getInstance(input.offerId);
     this.ensureOfferHasSpecs(offer);
     const foundTemplate = await this.prisma.templateOfferModel.findUnique({

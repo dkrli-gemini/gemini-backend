@@ -23,6 +23,7 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
         name: input.name,
         gateway: input.gateway,
         netmask: input.netmask,
+        isL2: input.isL2 ?? false,
         projectId: input.project.id,
         aclName: aclName,
       },
@@ -31,12 +32,16 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
     return this.mapToDomain(networkCreated);
   }
 
-  async getNetwork(networkId: string): Promise<INetwork> {
+  async getNetwork(networkId: string): Promise<INetwork | null> {
     const network = await this.prisma.networkModel.findUnique({
       where: {
         id: networkId,
       },
     });
+
+    if (!network) {
+      return null;
+    }
 
     return this.mapToDomain(network);
   }
@@ -49,6 +54,7 @@ export class NetworkRepositoryAdapter implements INetworkRepository {
       name: persistencyObject.name,
       gateway: persistencyObject.gateway,
       netmask: persistencyObject.netmask,
+      isL2: persistencyObject.isL2,
       project: {
         id: persistencyObject.projectId,
       } as IProject,

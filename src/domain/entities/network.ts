@@ -7,5 +7,6 @@ export interface INetwork extends IEntityBase {
   cloudstackAclId: string;
   gateway: string;
   netmask: string;
+  isL2?: boolean;
   project: IProject;
 }

@@ -42,6 +42,8 @@ import { CreateForwardRuleModule } from './presentation/domain/create-forward-ru
 import { ListForwardRulesModule } from './presentation/domain/list-forward-rules/list-forward-rules.module';
 import { ListChildrenDomainsModule } from './presentation/domain/list-children-domains/list-children-domains.module';
 import { ListBillingEntriesModule } from './presentation/billing/list-billing-entries/list-billing-entries.module';
+import { CreateL2NetworkModule } from './presentation/admin/create-l2-network/create-l2-network.module';
+import { ListUserNetworksModule } from './presentation/admin/list-user-networks/list-user-networks.module';
 
 @Module({
   imports: [
@@ -88,6 +90,8 @@ import { ListBillingEntriesModule } from './presentation/billing/list-billing-en
     ListForwardRulesModule,
     ListChildrenDomainsModule,
     ListBillingEntriesModule,
+    CreateL2NetworkModule,
+    ListUserNetworksModule,
   ],
   controllers: [AppController],
 })

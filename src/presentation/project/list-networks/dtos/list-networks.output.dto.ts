@@ -7,13 +7,16 @@ export class NetworkDto {
   gateway: string;
   netmask: string;
   aclName: string;
+  isL2: boolean;
 
   constructor(network: NetworkModel) {
     this.id = network.id;
     this.name = network.name;
+    this.cloudstackId = network.id;
     this.gateway = network.gateway;
     this.netmask = network.netmask;
     this.aclName = network.aclName;
+    this.isL2 = network.isL2;
   }
 }
 
