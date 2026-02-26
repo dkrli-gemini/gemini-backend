@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
 import { IController } from 'src/domain/contracts/controller';
 import { IHttpResponse, ok } from 'src/domain/contracts/http';
 import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
@@ -12,11 +12,35 @@ import {
   MachineBillingSummaryInput,
   MachineSpecs,
 } from './dtos/list-billing-entries.output.dto';
+import {
+  BillingPolicyOutputDto,
+  BillingPricingOutputDto,
+  GetBillingPolicyInputDto,
+  UpdateBillingPolicyInputDto,
+  UpsertBillingPricingInputDto,
+} from './dtos/billing-pricing.dto';
 import { Request, Response } from 'express';
 import { BillingService } from 'src/data-layer/services/billing/billing.service';
-import { ResourceType } from '@prisma/client';
-import PDFDocument = require('pdfkit');
+import { DomainTypeModel, ResourceType } from '@prisma/client';
+import { OrganizationBillingType } from 'src/domain/entities/domain';
+import PDFDocument from 'pdfkit';
 type PDFDocumentInstance = PDFKit.PDFDocument;
+type DomainPricingMap = Map<ResourceType, number>;
+type DomainPolicyContext = {
+  domainId: string;
+  billingType: OrganizationBillingType;
+  effectiveBillingType: OrganizationBillingType;
+  parentDomainId?: string;
+  parentDomainType?: DomainTypeModel;
+  parentEffectiveBillingType?: OrganizationBillingType;
+  canEditBillingType: boolean;
+};
+type DomainPricingContext = {
+  customPricingMap: DomainPricingMap;
+  basePricingMap: DomainPricingMap;
+  effectivePricingMap: DomainPricingMap;
+  policy: DomainPolicyContext;
+};
 
 @Controller('billing')
 export class ListBillingEntriesController
@@ -75,8 +99,12 @@ export class ListBillingEntriesController
     await this.billingService.reconcileUsage(resolvedDomainId, projectId);
 
     const entries = await this.fetchBillingEntries(resolvedDomainId, projectId);
-
-    const grouped = await this.groupEntriesByMachine(entries);
+    const pricingContext =
+      await this.resolveDomainPricingContext(resolvedDomainId);
+    const grouped = await this.groupEntriesByMachine(
+      entries,
+      pricingContext.effectivePricingMap,
+    );
 
     return ok(
       new ListBillingEntriesOutputDto({
@@ -113,7 +141,12 @@ export class ListBillingEntriesController
     await this.billingService.reconcileUsage(resolvedDomainId, projectId);
 
     const entries = await this.fetchBillingEntries(resolvedDomainId, projectId);
-    const grouped = await this.groupEntriesByMachine(entries);
+    const pricingContext =
+      await this.resolveDomainPricingContext(resolvedDomainId);
+    const grouped = await this.groupEntriesByMachine(
+      entries,
+      pricingContext.effectivePricingMap,
+    );
     const dto = new ListBillingEntriesOutputDto({
       machines: grouped.machines,
       otherEntries: grouped.otherEntries,
@@ -156,6 +189,136 @@ export class ListBillingEntriesController
 
     doc.end();
     await pdfPromise;
+  }
+
+  @AuthorizedTo(RolesEnum.BASIC, RolesEnum.ADMIN)
+  @Get('pricing')
+  async getPricing(
+    @Query() query: GetBillingPolicyInputDto,
+  ): Promise<IHttpResponse<BillingPricingOutputDto | Error>> {
+    const domainId = query.domainId;
+    if (!domainId) {
+      throwsException(new InvalidParamError('domainId é obrigatório.'));
+    }
+
+    const context = await this.resolveDomainPricingContext(domainId);
+
+    return ok(
+      new BillingPricingOutputDto({
+        domainId,
+        customPrices: this.mapPricingToOutput(context.customPricingMap),
+        basePrices: this.mapPricingToOutput(context.basePricingMap),
+        effectivePrices: this.mapPricingToOutput(context.effectivePricingMap),
+        policy: new BillingPolicyOutputDto(context.policy),
+      }),
+    );
+  }
+
+  @AuthorizedTo(RolesEnum.BASIC, RolesEnum.ADMIN)
+  @Post('pricing')
+  async upsertPricing(
+    @Body() input: UpsertBillingPricingInputDto,
+  ): Promise<IHttpResponse<BillingPricingOutputDto | Error>> {
+    await this.resolveDomainPricingContext(input.domainId);
+
+    const dedupedByType = new Map<ResourceType, number>();
+    for (const price of input.prices ?? []) {
+      dedupedByType.set(price.resourceType, Math.round(price.unitPriceInCents));
+    }
+
+    const typeList = Array.from(dedupedByType.keys());
+
+    await this.prisma.$transaction(async (tx) => {
+      if (typeList.length === 0) {
+        await tx.domainResourcePriceModel.deleteMany({
+          where: { domainId: input.domainId },
+        });
+        return;
+      }
+
+      await tx.domainResourcePriceModel.deleteMany({
+        where: {
+          domainId: input.domainId,
+          type: { notIn: typeList },
+        },
+      });
+
+      for (const [type, unitPriceInCents] of dedupedByType.entries()) {
+        await tx.domainResourcePriceModel.upsert({
+          where: {
+            domainId_type: {
+              domainId: input.domainId,
+              type,
+            },
+          },
+          update: { unitPriceInCents },
+          create: {
+            domainId: input.domainId,
+            type,
+            unitPriceInCents,
+          },
+        });
+      }
+    });
+
+    const persistedContext = await this.resolveDomainPricingContext(
+      input.domainId,
+    );
+
+    return ok(
+      new BillingPricingOutputDto({
+        domainId: input.domainId,
+        customPrices: this.mapPricingToOutput(
+          persistedContext.customPricingMap,
+        ),
+        basePrices: this.mapPricingToOutput(persistedContext.basePricingMap),
+        effectivePrices: this.mapPricingToOutput(
+          persistedContext.effectivePricingMap,
+        ),
+        policy: new BillingPolicyOutputDto(persistedContext.policy),
+      }),
+    );
+  }
+
+  @AuthorizedTo(RolesEnum.BASIC, RolesEnum.ADMIN)
+  @Get('policy')
+  async getPolicy(
+    @Query() query: GetBillingPolicyInputDto,
+  ): Promise<IHttpResponse<BillingPolicyOutputDto | Error>> {
+    const domainId = query.domainId;
+    if (!domainId) {
+      throwsException(new InvalidParamError('domainId é obrigatório.'));
+    }
+
+    const context = await this.resolveDomainPricingContext(domainId);
+    return ok(new BillingPolicyOutputDto(context.policy));
+  }
+
+  @AuthorizedTo(RolesEnum.BASIC, RolesEnum.ADMIN)
+  @Post('policy')
+  async updatePolicy(
+    @Body() input: UpdateBillingPolicyInputDto,
+  ): Promise<IHttpResponse<BillingPolicyOutputDto | Error>> {
+    const context = await this.resolveDomainPricingContext(input.domainId);
+
+    if (
+      !context.policy.canEditBillingType &&
+      input.billingType === OrganizationBillingType.PAYG
+    ) {
+      throwsException(
+        new InvalidParamError(
+          'Este domínio não pode ser PAYG porque o distribuidor acima é limitado (POOL).',
+        ),
+      );
+    }
+
+    await this.prisma.domainModel.update({
+      where: { id: input.domainId },
+      data: { billingType: input.billingType },
+    });
+
+    const updated = await this.resolveDomainPricingContext(input.domainId);
+    return ok(new BillingPolicyOutputDto(updated.policy));
   }
 
   private async findDomainIdFromProject(
@@ -209,7 +372,10 @@ export class ListBillingEntriesController
     });
   }
 
-  private async groupEntriesByMachine(entries: any[]): Promise<{
+  private async groupEntriesByMachine(
+    entries: any[],
+    pricingMap: DomainPricingMap,
+  ): Promise<{
     machines: MachineBillingSummaryInput[];
     otherEntries: BillingEntryDto[];
   }> {
@@ -250,6 +416,7 @@ export class ListBillingEntriesController
 
     for (const entry of entries) {
       const dto = new BillingEntryDto(entry);
+      this.applyDomainPricing(dto, pricingMap);
       const vmId = this.resolveVirtualMachineId(entry);
 
       if (!vmId) {
@@ -271,6 +438,7 @@ export class ListBillingEntriesController
           machineId: vmId,
           machineName,
           totalInCents: 0,
+          originalTotalInCents: 0,
           entries: [] as BillingEntryDto[],
           createdAt: dto.createdAt,
           specs: this.buildMachineSpecs(entry),
@@ -286,6 +454,8 @@ export class ListBillingEntriesController
 
       if (entry.resourceType === ResourceType.INSTANCES) {
         machine.totalInCents += dto.totalInCents ?? 0;
+        machine.originalTotalInCents +=
+          dto.originalTotalInCents ?? dto.totalInCents ?? 0;
         if (!machine.createdAt || dto.createdAt < machine.createdAt) {
           machine.createdAt = dto.createdAt;
         }
@@ -313,6 +483,8 @@ export class ListBillingEntriesController
       if (entry.resourceType === ResourceType.VOLUMES) {
         machine.entries.push(dto);
         machine.totalInCents += dto.totalInCents ?? 0;
+        machine.originalTotalInCents +=
+          dto.originalTotalInCents ?? dto.totalInCents ?? 0;
         continue;
       }
 
@@ -649,5 +821,180 @@ export class ListBillingEntriesController
       .replace(/[^a-zA-Z0-9-_]/g, '-')
       .replace(/-+/g, '-')
       .toLowerCase();
+  }
+
+  private async resolveDomainPricingContext(
+    domainId: string,
+  ): Promise<DomainPricingContext> {
+    const chain = await this.getDomainChain(domainId);
+    const current = chain[chain.length - 1];
+    const parent = chain.length > 1 ? chain[chain.length - 2] : undefined;
+
+    const allCustomPrices = await this.prisma.domainResourcePriceModel.findMany(
+      {
+        where: {
+          domainId: {
+            in: chain.map((domain) => domain.id),
+          },
+        },
+      },
+    );
+
+    const customByDomain = new Map<string, DomainPricingMap>();
+    for (const row of allCustomPrices) {
+      const map =
+        customByDomain.get(row.domainId) ?? new Map<ResourceType, number>();
+      map.set(row.type, row.unitPriceInCents);
+      customByDomain.set(row.domainId, map);
+    }
+
+    const basePricingMap = this.createZeroPricingMap();
+    const effectivePricingMap = this.createZeroPricingMap();
+
+    let currentEffectiveBillingType = chain[0]
+      .billingType as OrganizationBillingType;
+    let parentEffectiveBillingType: OrganizationBillingType | undefined;
+
+    chain.forEach((domain, index) => {
+      if (index > 0) {
+        const parentDomain = chain[index - 1];
+        parentEffectiveBillingType = currentEffectiveBillingType;
+        currentEffectiveBillingType =
+          parentEffectiveBillingType === OrganizationBillingType.POOL &&
+          parentDomain.type !== DomainTypeModel.ROOT
+            ? OrganizationBillingType.POOL
+            : (domain.billingType as OrganizationBillingType);
+      }
+
+      if (domain.id === current.id) {
+        for (const [type, value] of effectivePricingMap.entries()) {
+          basePricingMap.set(type, value);
+        }
+      }
+
+      const domainCustomMap = customByDomain.get(domain.id);
+      if (domainCustomMap) {
+        for (const [type, value] of domainCustomMap.entries()) {
+          effectivePricingMap.set(type, value);
+        }
+      }
+    });
+
+    const customPricingMap =
+      customByDomain.get(current.id) ?? new Map<ResourceType, number>();
+    const policy: DomainPolicyContext = {
+      domainId: current.id,
+      billingType: current.billingType as OrganizationBillingType,
+      effectiveBillingType: currentEffectiveBillingType,
+      parentDomainId: parent?.id,
+      parentDomainType: parent?.type as DomainTypeModel | undefined,
+      parentEffectiveBillingType,
+      canEditBillingType:
+        parent?.type === DomainTypeModel.ROOT ||
+        parentEffectiveBillingType !== OrganizationBillingType.POOL,
+    };
+
+    return {
+      customPricingMap,
+      basePricingMap,
+      effectivePricingMap,
+      policy,
+    };
+  }
+
+  private async getDomainChain(domainId: string): Promise<
+    Array<{
+      id: string;
+      rootId: string | null;
+      billingType: string;
+      type: DomainTypeModel;
+    }>
+  > {
+    const chainFromCurrent: Array<{
+      id: string;
+      rootId: string | null;
+      billingType: string;
+      type: DomainTypeModel;
+    }> = [];
+
+    let cursorId: string | null = domainId;
+    let guard = 0;
+
+    while (cursorId) {
+      const domain = await this.prisma.domainModel.findUnique({
+        where: { id: cursorId },
+        select: {
+          id: true,
+          rootId: true,
+          billingType: true,
+          type: true,
+        },
+      });
+
+      if (!domain) {
+        throwsException(new InvalidParamError('Domínio não encontrado.'));
+      }
+
+      chainFromCurrent.push(domain);
+      cursorId = domain.rootId;
+      guard += 1;
+
+      if (guard > 20) {
+        throwsException(
+          new InvalidParamError(
+            'Hierarquia de domínios inválida. Verifique a configuração de rootId.',
+          ),
+        );
+      }
+    }
+
+    return chainFromCurrent.reverse();
+  }
+
+  private createZeroPricingMap(): DomainPricingMap {
+    const map = new Map<ResourceType, number>();
+    Object.values(ResourceType).forEach((type) => map.set(type, 0));
+    return map;
+  }
+
+  private mapPricingToOutput(map: DomainPricingMap) {
+    return Object.values(ResourceType).map((resourceType) => ({
+      resourceType,
+      unitPriceInCents: map.get(resourceType) ?? 0,
+    }));
+  }
+
+  private applyDomainPricing(
+    entry: BillingEntryDto,
+    pricingMap: DomainPricingMap,
+  ): void {
+    const customUnitPrice = pricingMap.get(entry.resourceType);
+    if (customUnitPrice === undefined) {
+      return;
+    }
+
+    const resolvedQuantity = this.resolveEntryQuantity(entry);
+    entry.originalUnitPriceInCents = entry.unitPriceInCents;
+    entry.originalTotalInCents = entry.totalInCents;
+    entry.quantity = resolvedQuantity;
+    entry.unitPriceInCents = customUnitPrice;
+    entry.totalInCents = customUnitPrice * resolvedQuantity;
+  }
+
+  private resolveEntryQuantity(entry: BillingEntryDto): number {
+    if (Number.isFinite(entry.quantity) && (entry.quantity ?? 0) > 0) {
+      return Number(entry.quantity);
+    }
+
+    const originalUnit = entry.unitPriceInCents ?? 0;
+    const originalTotal = entry.totalInCents ?? 0;
+    if (originalUnit > 0 && originalTotal > 0) {
+      const inferred = originalTotal / originalUnit;
+      if (Number.isFinite(inferred) && inferred > 0) {
+        return inferred;
+      }
+    }
+
+    return 1;
   }
 }

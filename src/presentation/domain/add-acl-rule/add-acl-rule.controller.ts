@@ -1,4 +1,5 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post, Req } from '@nestjs/common';
+import { ProjectRoleModel } from '@prisma/client';
 import { IController } from 'src/domain/contracts/controller';
 import { AddAclRuleInputDto } from './dtos/add-acl-rule.input.dto';
 import { AddAclRuleOutputDto } from './dtos/add-acl-rule.output.dto';
@@ -9,8 +10,9 @@ import {
   CloudstackService,
 } from 'src/infra/cloudstack/cloudstack';
 import { IAclRulesRepository } from 'src/domain/repository/acl-rules.repository';
-import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
-import { RolesEnum } from 'src/infra/auth/roles.guard';
+import { PrismaService } from 'src/infra/db/prisma.service';
+import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
+import { throwsException } from 'src/utilities/exception';
 
 @Controller('vpcs')
 export class AddAclRuleController
@@ -19,15 +21,60 @@ export class AddAclRuleController
   constructor(
     private readonly aclRulesRepository: IAclRulesRepository,
     private readonly cloudstack: CloudstackService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  @AuthorizedTo(RolesEnum.BASIC, RolesEnum.ADMIN)
   @Post('add-acl-rule/:aclListId')
   async handle(
     @Body() input: AddAclRuleInputDto,
-    req: Request,
+    @Req() req: Request,
     @Param('aclListId') aclListId?: string,
   ): Promise<IHttpResponse<AddAclRuleOutputDto | Error>> {
+    const acl = await this.prisma.aclListModel.findUnique({
+      where: { id: aclListId },
+      select: { id: true, vpcId: true },
+    });
+
+    if (!acl) {
+      throwsException(new InvalidParamError('Lista ACL não encontrada.'));
+    }
+
+    const domain = await this.prisma.domainModel.findFirst({
+      where: { vpcId: acl.vpcId },
+      select: { id: true },
+    });
+
+    if (!domain?.id) {
+      throwsException(
+        new InvalidParamError('Domínio da lista ACL não encontrado.'),
+      );
+    }
+
+    const requester = req.user as any;
+    const membershipCount = await this.prisma.domainMemberModel.count({
+      where: {
+        userId: requester?.id,
+        role: {
+          in: [
+            ProjectRoleModel.OWNER,
+            ProjectRoleModel.ADMIN,
+            ProjectRoleModel.MEMBER,
+          ],
+        },
+        project: {
+          domainId: domain.id,
+        },
+      },
+    });
+
+    if (membershipCount === 0) {
+      throwsException(
+        new InvalidParamError(
+          'Usuário sem permissão para criar regra ACL neste domínio.',
+        ),
+      );
+    }
+
     const cloudstackCidrInput = input.cidrList.join(',');
 
     const params = {

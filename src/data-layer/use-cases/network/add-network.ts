@@ -21,6 +21,7 @@ import { ResourceTypeEnum } from 'src/domain/entities/resource-limit';
 @Injectable()
 export class AddNetwork implements IAddNetwork {
   private defaultZoneId: string;
+  private defaultNetworkOfferingId: string;
 
   constructor(
     private readonly networkRepository: INetworkRepository,
@@ -32,6 +33,9 @@ export class AddNetwork implements IAddNetwork {
   ) {
     this.defaultZoneId = this.configService.get<string>(
       'CLOUDSTACK_DEFAULT_ZONE_ID',
+    );
+    this.defaultNetworkOfferingId = this.configService.get<string>(
+      'CLOUDSTACK_DEFAULT_NETWORK_OFFERING',
     );
   }
 
@@ -72,10 +76,16 @@ export class AddNetwork implements IAddNetwork {
         new InvalidParamError('Domínio associado não possui uma VPC configurada.'),
       );
     }
+    const cloudstackDomainId = await this.resolveCloudstackDomainId(domain);
 
-    if (!domain.rootId) {
+    const networkOfferingId =
+      input.cloudstackOfferId ?? this.defaultNetworkOfferingId;
+
+    if (!networkOfferingId) {
       throwsException(
-        new InvalidParamError('Domínio associado não possui um domínio raiz definido.'),
+        new InvalidParamError(
+          'Network offering não informado. Configure CLOUDSTACK_DEFAULT_NETWORK_OFFERING no backend.',
+        ),
       );
     }
 
@@ -83,23 +93,36 @@ export class AddNetwork implements IAddNetwork {
       command: CloudstackCommands.Network.CreateNetwork,
       additionalParams: {
         name: input.name,
-        networkofferingid: input.cloudstackOfferId,
+        networkofferingid: networkOfferingId,
         zoneid: input.zoneId ?? this.defaultZoneId,
         aclid: input.cloudstackAclId,
         gateway: input.gateway,
         netmask: input.netmask,
         account: domain.name,
-        domainid: domain.rootId,
+        domainid: cloudstackDomainId,
         vpcid: domain.vpc.id,
       },
     });
 
-    console.log(cloudstackNetwork);
+    const createNetworkResponse = cloudstackNetwork?.createnetworkresponse;
+    const cloudstackErrorText =
+      createNetworkResponse?.errortext ??
+      cloudstackNetwork?.error?.response?.headers?.['x-description'] ??
+      cloudstackNetwork?.error?.response?.data?.createnetworkresponse?.errortext ??
+      cloudstackNetwork?.error?.message;
+
+    if (!createNetworkResponse?.network?.id) {
+      throwsException(
+        new InvalidParamError(
+          `Falha ao criar rede no CloudStack: ${cloudstackErrorText ?? 'erro desconhecido'}.`,
+        ),
+      );
+    }
 
     const networkCreated = await this.networkRepository.createNetwork({
-      id: cloudstackNetwork.createnetworkresponse.network.id,
+      id: createNetworkResponse.network.id,
       cloudstackAclId: input.cloudstackAclId,
-      cloudstackOfferId: input.cloudstackOfferId,
+      cloudstackOfferId: networkOfferingId,
       project: {
         id: project.id,
       } as IProject,
@@ -125,6 +148,33 @@ export class AddNetwork implements IAddNetwork {
     });
 
     return networkCreated;
+  }
+
+  private async resolveCloudstackDomainId(domain: {
+    id: string;
+    name: string;
+    cloudstackAccountId?: string | null;
+  }): Promise<string> {
+    const listAccountsResponse = await this.cloudstackService.handle({
+      command: CloudstackCommands.Account.ListAccounts,
+      additionalParams: domain.cloudstackAccountId
+        ? { id: domain.cloudstackAccountId }
+        : { name: domain.name },
+    });
+
+    const accounts = listAccountsResponse?.listaccountsresponse?.account;
+    const account = Array.isArray(accounts) ? accounts[0] : accounts;
+    const cloudstackDomainId = account?.domainid;
+
+    if (!cloudstackDomainId) {
+      throwsException(
+        new InvalidParamError(
+          'Não foi possível resolver o domainid no CloudStack para criar a rede.',
+        ),
+      );
+    }
+
+    return String(cloudstackDomainId);
   }
 }
 

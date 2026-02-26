@@ -10,6 +10,9 @@
   },
   "scripts": {
     "build": "nest build",
+    "seed:templates": "ts-node scripts/seed-templates.ts",
+    "seed:disk-offers": "ts-node scripts/seed-disk-offers.ts",
+    "seed:catalog": "npm run seed:templates && npm run seed:disk-offers && ts-node scripts/seed-instance-offers.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

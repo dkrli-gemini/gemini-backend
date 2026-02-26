@@ -47,6 +47,7 @@ export class GetUserProjectsController
         select: {
           id: true,
           name: true,
+          isDistributor: true,
         },
       });
 
@@ -55,6 +56,7 @@ export class GetUserProjectsController
       responseArray.push({
         domainId: domain.id,
         domainName: domain.name,
+        isDistributor: domain.isDistributor,
         id: member.id,
         project: member.project,
         role: member.role,

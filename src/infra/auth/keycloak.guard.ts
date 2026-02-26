@@ -68,12 +68,19 @@ export class KeycloakAuthGuard implements CanActivate {
   }
 
   private createUserPayload(decoded: any): any {
+    const resourceAccess = decoded.resource_access ?? {};
+    const clientRoles = Object.values(resourceAccess)
+      .flatMap((client: any) =>
+        Array.isArray(client?.roles) ? client.roles : [],
+      )
+      .filter((role: unknown): role is string => typeof role === 'string');
+
     return {
       id: decoded.sub,
       username: decoded.preferred_username || decoded.name,
       email: decoded.email,
       roles: decoded.realm_access?.roles || [],
-      clientRoles: decoded.resource_access?.['gemini-api-client']?.roles || [],
+      clientRoles,
     };
   }
 }

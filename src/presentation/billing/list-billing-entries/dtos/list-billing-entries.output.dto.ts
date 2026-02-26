@@ -10,6 +10,8 @@ export class BillingEntryDto {
   quantity: number;
   unitPriceInCents: number;
   totalInCents: number;
+  originalUnitPriceInCents?: number;
+  originalTotalInCents?: number;
   createdAt: Date;
   virtualMachineId?: string;
   metadata?: Record<string, unknown>;
@@ -24,6 +26,8 @@ export class BillingEntryDto {
     this.quantity = entry.quantity;
     this.unitPriceInCents = entry.unitPriceInCents ?? 0;
     this.totalInCents = entry.totalInCents ?? 0;
+    this.originalUnitPriceInCents = entry.originalUnitPriceInCents ?? undefined;
+    this.originalTotalInCents = entry.originalTotalInCents ?? undefined;
     this.createdAt = entry.createdAt;
     this.virtualMachineId = entry.virtualMachineId ?? undefined;
     this.metadata = entry.metadata ?? undefined;
@@ -41,6 +45,7 @@ export interface MachineBillingSummaryInput {
   machineId: string;
   machineName: string;
   totalInCents: number;
+  originalTotalInCents?: number;
   createdAt: Date;
   entries: BillingEntryDto[];
   specs?: MachineSpecs;
@@ -51,6 +56,7 @@ export class MachineBillingEntryDto {
   machineId: string;
   machineName: string;
   totalInCents: number;
+  originalTotalInCents?: number;
   resources: BillingEntryDto[];
   createdAt: Date;
   specs?: MachineSpecs;
@@ -60,6 +66,7 @@ export class MachineBillingEntryDto {
     this.machineId = machine.machineId;
     this.machineName = machine.machineName;
     this.totalInCents = machine.totalInCents;
+    this.originalTotalInCents = machine.originalTotalInCents ?? undefined;
     this.resources = machine.entries;
     this.createdAt = machine.createdAt;
     this.specs = machine.specs;
@@ -71,6 +78,7 @@ export class ListBillingEntriesOutputDto {
   machines: MachineBillingEntryDto[];
   otherEntries: BillingEntryDto[];
   totalInCents: number;
+  originalTotalInCents: number;
 
   constructor(input: {
     machines: MachineBillingSummaryInput[];
@@ -84,10 +92,21 @@ export class ListBillingEntriesOutputDto {
       (acc, machine) => acc + (machine.totalInCents ?? 0),
       0,
     );
+    const originalMachineTotals = this.machines.reduce(
+      (acc, machine) =>
+        acc + (machine.originalTotalInCents ?? machine.totalInCents ?? 0),
+      0,
+    );
     const otherTotals = this.otherEntries.reduce(
       (acc, entry) => acc + (entry.totalInCents ?? 0),
       0,
     );
+    const originalOtherTotals = this.otherEntries.reduce(
+      (acc, entry) =>
+        acc + (entry.originalTotalInCents ?? entry.totalInCents ?? 0),
+      0,
+    );
     this.totalInCents = machineTotals + otherTotals;
+    this.originalTotalInCents = originalMachineTotals + originalOtherTotals;
   }
 }

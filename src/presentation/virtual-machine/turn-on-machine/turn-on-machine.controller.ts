@@ -19,6 +19,9 @@ import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
 import { RolesEnum } from 'src/infra/auth/roles.guard';
 import { JobStatusEnum, JobTypeEnum } from 'src/domain/entities/job';
 import { IVirtualMachineRepository } from 'src/domain/repository/virtual-machine.repository';
+import { PrismaService } from 'src/infra/db/prisma.service';
+import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
+import { throwsException } from 'src/utilities/exception';
 
 @Controller('machines')
 export class TurnOnMachineController
@@ -28,6 +31,7 @@ export class TurnOnMachineController
     private readonly cloudstackService: CloudstackService,
     private readonly jobRepository: IJobRepository,
     private readonly machineRepository: IVirtualMachineRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   @AuthorizedTo(RolesEnum.ADMIN, RolesEnum.BASIC)
@@ -41,15 +45,46 @@ export class TurnOnMachineController
     if (machine.state == 'RUNNING') {
       return badRequest('Machine is already on');
     }
-    const response = (
-      await this.cloudstackService.handle({
-        command: CloudstackCommands.VirtualMachine.StartMachine,
-        additionalParams: {
-          id: machine.id,
+    const machineContext = await this.prisma.virtualMachineModel.findUnique({
+      where: { id: machine.id },
+      select: {
+        id: true,
+        project: {
+          select: {
+            domain: {
+              select: {
+                name: true,
+                cloudstackAccountId: true,
+              },
+            },
+          },
         },
-      })
-    ).startvirtualmachineresponse;
-    console.log(response.jobid);
+      },
+    });
+
+    const domain = machineContext?.project?.domain;
+    const cloudstackDomainId = await this.resolveCloudstackDomainId(
+      domain?.name,
+      domain?.cloudstackAccountId,
+    );
+
+    const csResponse = await this.cloudstackService.handle({
+      command: CloudstackCommands.VirtualMachine.StartMachine,
+      additionalParams: {
+        id: machine.id,
+        ...(domain?.name ? { account: domain.name } : {}),
+        ...(cloudstackDomainId ? { domainid: cloudstackDomainId } : {}),
+      },
+    });
+    const response = csResponse?.startvirtualmachineresponse;
+    if (!response?.jobid) {
+      const errorMessage =
+        response?.errortext ??
+        csResponse?.error?.response?.headers?.['x-description'] ??
+        'Falha ao iniciar máquina no CloudStack.';
+      throwsException(new InvalidParamError(errorMessage));
+    }
+
     await this.machineRepository.setStatus(machine.id, 'STARTING');
     const createdJob = await this.jobRepository.createJob({
       id: response.jobid,
@@ -58,5 +93,25 @@ export class TurnOnMachineController
       entityId: input.machineId,
     });
     return ok(new TurnOnMachineOutputDto(createdJob.id));
+  }
+
+  private async resolveCloudstackDomainId(
+    accountName?: string | null,
+    cloudstackAccountId?: string | null,
+  ): Promise<string | null> {
+    if (!accountName && !cloudstackAccountId) {
+      return null;
+    }
+
+    const listAccountsResponse = await this.cloudstackService.handle({
+      command: CloudstackCommands.Account.ListAccounts,
+      additionalParams: cloudstackAccountId
+        ? { id: cloudstackAccountId }
+        : { name: accountName as string },
+    });
+
+    const accounts = listAccountsResponse?.listaccountsresponse?.account;
+    const account = Array.isArray(accounts) ? accounts[0] : accounts;
+    return account?.domainid ? String(account.domainid) : null;
   }
 }

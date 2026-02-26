@@ -1,6 +1,6 @@
 import { Injectable, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ProjectRoleModel } from '@prisma/client';
+import { ProjectRoleModel, ProjectTypeModel } from '@prisma/client';
 import {
   ICreateDomain,
   ICreateDomainInput,
@@ -78,12 +78,13 @@ export class CreateDomain implements ICreateDomain {
 
     const domain = await this.domainRepository.createDomain(
       {
-        id: input.rootId,
         name: input.name,
         root: {
           id: input.rootId,
         } as IDomain,
-        type: IDomainType.PARTNER, // Alter this
+        type: input.type ?? IDomainType.PARTNER,
+        isDistributor:
+          input.isDistributor ?? (input.type ?? IDomainType.PARTNER) !== IDomainType.CLIENT,
         vpc: {
           id: vpcResponse.createvpcresponse.id,
           cidr: this.defaultCidr,
@@ -95,29 +96,73 @@ export class CreateDomain implements ICreateDomain {
         cloudstackAccountId: accountResponse.createaccountresponse.account.id,
         billingType: input.billingType ?? OrganizationBillingType.POOL,
       },
-      input.ownerId,
     );
 
     const resourceLimits =
       await this.resourceLimitRepository.createDefaultResourceLimits(domain.id);
     console.log(resourceLimits);
 
-    const project = await this.projectRepository.createProject({
-      name: input.name,
+    const project = await this.ensureDefaultProject(domain.id, input.name);
+    await this.ensureOwnerMembership(project.id, input.ownerId);
+    return domain as IDomain;
+  }
+
+  private async ensureDefaultProject(
+    domainId: string,
+    fallbackName: string,
+  ): Promise<{ id: string }> {
+    const existingProject = await this.prisma.projectModel.findFirst({
+      where: {
+        domainId,
+        type: ProjectTypeModel.ROOT,
+      },
+      select: { id: true },
+    });
+
+    if (existingProject) {
+      return existingProject;
+    }
+
+    const createdProject = await this.projectRepository.createProject({
+      name: `${fallbackName}-default`,
       type: ProjectTypeEnum.ROOT,
       domain: {
-        id: domain.id,
+        id: domainId,
       } as IDomain,
     });
 
-    await this.prisma.domainMemberModel.create({
-      data: {
-        role: ProjectRoleModel.OWNER,
-        projectModelId: project.id,
-        userId: input.ownerId,
+    return { id: createdProject.id };
+  }
+
+  private async ensureOwnerMembership(
+    projectId: string,
+    ownerId: string,
+  ): Promise<void> {
+    const existingMembership = await this.prisma.domainMemberModel.findFirst({
+      where: {
+        projectModelId: projectId,
+        userId: ownerId,
       },
+      select: { id: true, role: true },
     });
-    return domain as IDomain;
+
+    if (!existingMembership) {
+      await this.prisma.domainMemberModel.create({
+        data: {
+          role: ProjectRoleModel.OWNER,
+          projectModelId: projectId,
+          userId: ownerId,
+        },
+      });
+      return;
+    }
+
+    if (existingMembership.role !== ProjectRoleModel.OWNER) {
+      await this.prisma.domainMemberModel.update({
+        where: { id: existingMembership.id },
+        data: { role: ProjectRoleModel.OWNER },
+      });
+    }
   }
 }
 

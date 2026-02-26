@@ -8,4 +8,6 @@ export class CreateDomainAdminInputDto {
   accountPassword: string;
   rootId: string;
   billingType?: string;
+  type?: 'ROOT' | 'PARTNER' | 'CLIENT';
+  isDistributor?: boolean;
 }

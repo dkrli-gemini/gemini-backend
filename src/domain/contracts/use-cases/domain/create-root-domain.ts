@@ -2,7 +2,11 @@ import { IDomain } from 'src/domain/entities/domain';
 import { IUseCase } from '../../use-case';
 
 export class ICreateRootDomainInput {
-  ownerId: string;
+  ownerId?: string;
+  ownerName?: string;
+  ownerEmail?: string;
+  ownerUsername?: string;
+  accountName?: string;
   accountEmail: string;
   accountPassword: string;
 }

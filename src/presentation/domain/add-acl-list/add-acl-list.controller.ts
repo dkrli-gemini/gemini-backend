@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post, Req } from '@nestjs/common';
+import { ProjectRoleModel } from '@prisma/client';
 import { IController } from 'src/domain/contracts/controller';
 import { AddAclListInputDto } from './dtos/add-acl-list.input.dto';
 import { AddAclListOutputDto } from './dtos/add-acl-list.output.dto';
 import { Request } from 'express';
 import { created, IHttpResponse } from 'src/domain/contracts/http';
-import { PrismaModule } from 'src/infra/db/prisma.module';
-import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
-import { RolesEnum } from 'src/infra/auth/roles.guard';
 import { PrismaService } from 'src/infra/db/prisma.service';
 import {
   CloudstackCommands,
@@ -26,10 +24,9 @@ export class AddAclListController
   ) {}
 
   @Post('/add-acl-list/:projectId')
-  @AuthorizedTo(RolesEnum.ADMIN, RolesEnum.BASIC)
   async handle(
     @Body() input: AddAclListInputDto,
-    _req: Request,
+    @Req() req: Request,
     @Param('projectId') projectId?: string,
   ): Promise<IHttpResponse<AddAclListOutputDto | Error>> {
     if (!projectId) {
@@ -49,6 +46,29 @@ export class AddAclListController
     if (!project.domainId) {
       throwsException(
         new InvalidParamError('Projeto não possui um domínio associado.'),
+      );
+    }
+
+    const requester = req.user as any;
+    const membershipCount = await this.prisma.domainMemberModel.count({
+      where: {
+        userId: requester?.id,
+        role: {
+          in: [
+            ProjectRoleModel.OWNER,
+            ProjectRoleModel.ADMIN,
+            ProjectRoleModel.MEMBER,
+          ],
+        },
+        projectModelId: projectId,
+      },
+    });
+
+    if (membershipCount === 0) {
+      throwsException(
+        new InvalidParamError(
+          'Usuário sem permissão para criar ACL neste projeto.',
+        ),
       );
     }
 

@@ -9,8 +9,8 @@ export class AddNetworkInputDto {
   netmask: string;
   @ApiProperty({ type: String, required: true })
   cloudstackAclId: string;
-  @ApiProperty({ type: String, required: true })
-  cloudstackOfferId: string;
+  @ApiProperty({ type: String, required: false })
+  cloudstackOfferId?: string;
   @ApiProperty({ type: String, required: false })
   zoneId?: string;
 }

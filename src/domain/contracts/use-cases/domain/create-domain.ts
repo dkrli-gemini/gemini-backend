@@ -1,4 +1,8 @@
-import { IDomain, OrganizationBillingType } from 'src/domain/entities/domain';
+import {
+  IDomain,
+  IDomainType,
+  OrganizationBillingType,
+} from 'src/domain/entities/domain';
 import { IUseCase } from '../../use-case';
 
 export interface ICreateDomainInput {
@@ -8,6 +12,8 @@ export interface ICreateDomainInput {
   accountPassword: string;
   rootId: string;
   billingType?: OrganizationBillingType;
+  type?: IDomainType;
+  isDistributor?: boolean;
 }
 
 export type ICreateDomainOutput = IDomain;

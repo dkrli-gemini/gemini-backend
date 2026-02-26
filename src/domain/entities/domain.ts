@@ -17,6 +17,7 @@ export interface IDomain extends IEntityBase {
   name: string;
   root?: IDomain;
   type?: IDomainType;
+  isDistributor?: boolean;
   vpc: IVPC;
   cloudstackAccountId?: string;
   projects?: IProject[];

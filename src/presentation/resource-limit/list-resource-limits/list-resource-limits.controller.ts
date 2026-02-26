@@ -10,6 +10,7 @@ import { PrismaService } from 'src/infra/db/prisma.service';
 import { BillingService } from 'src/data-layer/services/billing/billing.service';
 import { throwsException } from 'src/utilities/exception';
 import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
+import { ProjectRoleModel } from '@prisma/client';
 
 @Controller('resource-limits')
 export class ListResourceLimitsController
@@ -21,13 +22,14 @@ export class ListResourceLimitsController
     private readonly billingService: BillingService,
   ) {}
 
-  @AuthorizedTo(RolesEnum.ADMIN)
+  @AuthorizedTo(RolesEnum.ADMIN, RolesEnum.BASIC)
   @Get('/domain/:domainId')
   async handleDomain(
     _input: null,
-    @Req() _req: Request,
+    @Req() req: Request,
     @Param('domainId') domainId: string,
   ): Promise<IHttpResponse<ListResourceLimitsOutputDto | Error>> {
+    await this.assertCanAccessDomain(req, domainId);
     await this.billingService.reconcileUsage(domainId);
     const resources = await this.resourceLimitRepository.listByDomain(
       domainId,
@@ -50,6 +52,8 @@ export class ListResourceLimitsController
       throwsException(new InvalidParamError('Projeto não encontrado.'));
     }
 
+    await this.assertCanAccessDomain(req, project.domainId);
+
     await this.billingService.reconcileUsage(project.domainId, projectId);
 
     const resources = await this.resourceLimitRepository.listByDomain(
@@ -57,5 +61,30 @@ export class ListResourceLimitsController
     );
 
     return ok(new ListResourceLimitsOutputDto(resources));
+  }
+
+  private async assertCanAccessDomain(req: Request, domainId: string): Promise<void> {
+    const requester = req.user as any;
+    const roles: string[] = Array.isArray(requester?.roles) ? requester.roles : [];
+    const isAdmin = roles.includes(RolesEnum.ADMIN);
+    if (isAdmin) {
+      return;
+    }
+
+    const membershipCount = await this.prisma.domainMemberModel.count({
+      where: {
+        userId: requester?.id,
+        role: {
+          in: [ProjectRoleModel.OWNER, ProjectRoleModel.ADMIN, ProjectRoleModel.MEMBER],
+        },
+        project: {
+          domainId,
+        },
+      },
+    });
+
+    if (membershipCount === 0) {
+      throwsException(new InvalidParamError('Usuário sem acesso a este domínio.'));
+    }
   }
 }

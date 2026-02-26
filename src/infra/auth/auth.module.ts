@@ -27,7 +27,7 @@ import { KeycloakService } from './keycloak.service';
       useClass: RolesGuard,
     },
   ],
-  exports: ['KEYCLOAK_INSTANCE'],
+  exports: ['KEYCLOAK_INSTANCE', KeycloakService],
   controllers: [KeycloakController],
 })
 export class AuthModule {}

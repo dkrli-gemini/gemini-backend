@@ -76,6 +76,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         vpc: true,
       },
     });
+    const cloudstackDomainId = await this.resolveCloudstackDomainId(domain);
 
     const jobResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.VirtualMachine.DeployVirtualMachine,
@@ -84,7 +85,7 @@ export class AddVirtualMachine implements IAddVirtualMachine {
         startvm: 'false',
         templateid: foundTemplate.id,
         zoneid: input.zoneId ?? this.defaultZoneId,
-        domainid: domain.rootId,
+        domainid: cloudstackDomainId,
         account: project.domain.name,
         name: input.name,
         networkids: network.id,
@@ -239,6 +240,33 @@ export class AddVirtualMachine implements IAddVirtualMachine {
     }
 
     return this.customNvmeOfferingId ?? this.customHddOfferingId ?? offer.id;
+  }
+
+  private async resolveCloudstackDomainId(domain: {
+    id: string;
+    name: string;
+    cloudstackAccountId?: string | null;
+  }): Promise<string> {
+    const listAccountsResponse = await this.cloudstackService.handle({
+      command: CloudstackCommands.Account.ListAccounts,
+      additionalParams: domain.cloudstackAccountId
+        ? { id: domain.cloudstackAccountId }
+        : { name: domain.name },
+    });
+
+    const accounts = listAccountsResponse?.listaccountsresponse?.account;
+    const account = Array.isArray(accounts) ? accounts[0] : accounts;
+    const cloudstackDomainId = account?.domainid;
+
+    if (!cloudstackDomainId) {
+      throwsException(
+        new InvalidParamError(
+          'Não foi possível resolver o domainid no CloudStack para deploy da VM.',
+        ),
+      );
+    }
+
+    return String(cloudstackDomainId);
   }
 }
 

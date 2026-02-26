@@ -2,6 +2,7 @@ model DomainModel {
   id                  String               @id @default(uuid()) @db.Uuid
   name                String
   type                DomainTypeModel      @default(ROOT)
+  isDistributor       Boolean              @default(false)
   rootId              String?              @db.Uuid
   cloudstackAccountId String?
   vpcId               String?              @db.Uuid
@@ -12,6 +13,7 @@ model DomainModel {
   ProjectModel        ProjectModel[]
   ResourceLimitModel  ResourceLimitModel[]
   BillingEntryModel   BillingEntryModel[]
+  DomainResourcePriceModel DomainResourcePriceModel[]
   ResourceUsageEventModel ResourceUsageEventModel[]
 }
 

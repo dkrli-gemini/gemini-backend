@@ -8,6 +8,8 @@ import { IAddVolume } from 'src/domain/contracts/use-cases/instance/add-volume';
 import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
 import { RolesEnum } from 'src/infra/auth/roles.guard';
 import { PrismaService } from 'src/infra/db/prisma.service';
+import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
+import { throwsException } from 'src/utilities/exception';
 
 @Controller('machines')
 export class AddVolumeController
@@ -25,9 +27,17 @@ export class AddVolumeController
     req: Request,
     @Param('machineId') machineId?: string,
   ): Promise<IHttpResponse<AddVolumeOutputDto | Error>> {
+    if (!machineId) {
+      throwsException(new InvalidParamError('machineId é obrigatório.'));
+    }
+
     const machine = await this.prisma.virtualMachineModel.findUnique({
       where: { id: machineId },
     });
+
+    if (!machine) {
+      throwsException(new InvalidParamError('Máquina não encontrada.'));
+    }
 
     const volume = await this.addVolume.execute({
       projectId: machine.projectId,

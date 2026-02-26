@@ -6,7 +6,6 @@ import { IHttpResponse, ok } from 'src/domain/contracts/http';
 import { AuthorizedTo } from 'src/infra/auth/auth.decorator';
 import { RolesEnum } from 'src/infra/auth/roles.guard';
 import { PrismaService } from 'src/infra/db/prisma.service';
-import { NetworkModel } from '@prisma/client';
 
 @Controller('projects')
 export class ListNetworksController
@@ -25,13 +24,30 @@ export class ListNetworksController
       where: {
         projectId: projectId,
       },
+      select: {
+        id: true,
+        name: true,
+        gateway: true,
+        netmask: true,
+        aclName: true,
+        isL2: true,
+      },
     });
 
     const response = this.mapToOutput(networks);
     return ok(response);
   }
 
-  private mapToOutput(networks: NetworkModel[]) {
+  private mapToOutput(
+    networks: Array<{
+      id: string;
+      name: string;
+      gateway: string;
+      netmask: string;
+      aclName: string | null;
+      isL2: boolean;
+    }>,
+  ) {
     return new ListNetworksOutputDto(networks);
   }
 }

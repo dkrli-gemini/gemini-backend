@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, ResourceType } from '@prisma/client';
+import { DomainTypeModel, Prisma, ResourceType } from '@prisma/client';
 import { OrganizationBillingType } from 'src/domain/entities/domain';
 import { ResourceTypeEnum } from 'src/domain/entities/resource-limit';
 import { InvalidParamError } from 'src/domain/errors/invalid-param.error';
@@ -52,7 +52,7 @@ export class BillingService {
         return;
       }
       const previous = usageTotals.get(type) ?? 0;
-      usageTotals.set(type, previous + (amount as number));
+      usageTotals.set(type, previous + amount);
     };
 
     for (const project of projects) {
@@ -267,6 +267,28 @@ export class BillingService {
       }
     }
 
+    const propagatedEvents = await this.prisma.resourceUsageEventModel.findMany({
+      where: { domainId: resolvedDomainId },
+      select: {
+        resourceType: true,
+        amount: true,
+        metadata: true,
+      },
+    });
+
+    for (const event of propagatedEvents) {
+      const metadata = (event.metadata ?? {}) as Record<string, unknown>;
+      if (metadata.propagatedFromChild !== true) {
+        continue;
+      }
+
+      const previous = usageTotals.get(event.resourceType as ResourceTypeEnum) ?? 0;
+      usageTotals.set(
+        event.resourceType as ResourceTypeEnum,
+        previous + Number(event.amount ?? 0),
+      );
+    }
+
     await this.syncUsageTotals(resolvedDomainId, usageTotals);
   }
 
@@ -276,15 +298,16 @@ export class BillingService {
     }
 
     await this.prisma.$transaction(async (tx) => {
-      const domain = await tx.domainModel.findUnique({
+      const originDomain = await tx.domainModel.findUnique({
         where: { id: input.domainId },
+        select: { id: true, name: true },
       });
-
-      if (!domain) {
+      if (!originDomain) {
         throwsException(new InvalidParamError('Domínio não encontrado.'));
       }
 
-      const billingType = domain.billingType as OrganizationBillingType;
+      const billingType = await this.resolveEffectiveBillingType(tx, input.domainId);
+      const ancestors = await this.listAncestorDomains(tx, input.domainId);
 
       for (const consumption of input.consumptions) {
         await this.updateResourceUsage(
@@ -309,7 +332,11 @@ export class BillingService {
         const unitPrice =
           consumption.unitPriceInCents ??
           (billingType === OrganizationBillingType.PAYG
-            ? this.defaultPriceFor(consumption.resourceType)
+            ? await this.resolveEffectiveUnitPriceInCents(
+                tx,
+                input.domainId,
+                consumption.resourceType,
+              )
             : 0);
 
         if (consumption.billable ?? true) {
@@ -328,6 +355,90 @@ export class BillingService {
             },
           });
         }
+
+        // Cascading purchase model:
+        // when a child consumes, each non-root ancestor needs to acquire the same resource upstream.
+        for (const ancestor of ancestors) {
+          if (ancestor.type === DomainTypeModel.ROOT) {
+            continue;
+          }
+
+          const propagatedResourceId = this.buildPropagationResourceId(
+            input.domainId,
+            consumption,
+          );
+
+          const alreadyPropagated = await tx.resourceUsageEventModel.findFirst({
+            where: {
+              domainId: ancestor.id,
+              resourceId: propagatedResourceId,
+              resourceType: consumption.resourceType as ResourceType,
+            },
+            select: { id: true },
+          });
+
+          if (alreadyPropagated) {
+            continue;
+          }
+
+          const ancestorBillingType = await this.resolveEffectiveBillingType(
+            tx,
+            ancestor.id,
+          );
+
+          await this.updateResourceUsage(
+            tx,
+            ancestorBillingType,
+            ancestor.id,
+            consumption,
+          );
+
+          const propagatedMetadata = {
+            ...(consumption.metadata ?? {}),
+            sourceDomainId: input.domainId,
+            sourceDomainName: originDomain.name,
+            sourceResourceId: consumption.resourceId,
+            sourceProjectId: input.projectId,
+            propagatedFromChild: true,
+          };
+
+          await tx.resourceUsageEventModel.create({
+            data: {
+              domainId: ancestor.id,
+              resourceId: propagatedResourceId,
+              resourceType: consumption.resourceType as ResourceType,
+              amount: consumption.quantity,
+              metadata: propagatedMetadata as Prisma.JsonValue,
+              virtualMachineId: consumption.virtualMachineId ?? undefined,
+            },
+          });
+
+          const propagatedUnitPrice =
+            consumption.unitPriceInCents ??
+            (ancestorBillingType === OrganizationBillingType.PAYG
+              ? await this.resolveEffectiveUnitPriceInCents(
+                  tx,
+                  ancestor.id,
+                  consumption.resourceType,
+                )
+              : 0);
+
+          if (consumption.billable ?? true) {
+            await tx.billingEntryModel.create({
+              data: {
+                domainId: ancestor.id,
+                resourceId: propagatedResourceId,
+                resourceType: consumption.resourceType as ResourceType,
+                description: `Repasse automático do filho ${originDomain.name}: ${consumption.description}`,
+                quantity: consumption.quantity,
+                unitPriceInCents: propagatedUnitPrice,
+                totalInCents: propagatedUnitPrice * consumption.quantity,
+                virtualMachineId: consumption.virtualMachineId ?? undefined,
+                metadata: propagatedMetadata as Prisma.JsonValue,
+              },
+            });
+          }
+        }
       }
     });
   }
@@ -338,6 +449,15 @@ export class BillingService {
     domainId: string,
     consumption: ConsumptionItem,
   ): Promise<void> {
+    const domain = await tx.domainModel.findUnique({
+      where: { id: domainId },
+      select: { type: true },
+    });
+
+    if (!domain) {
+      throwsException(new InvalidParamError('Domínio não encontrado.'));
+    }
+
     let limit = await tx.resourceLimitModel.findFirst({
       where: {
         domainId,
@@ -360,6 +480,7 @@ export class BillingService {
     const newUsed = Math.max(0, limit.used + delta);
 
     if (
+      domain.type !== DomainTypeModel.ROOT &&
       billingType === OrganizationBillingType.POOL &&
       delta > 0 &&
       limit.limit > 0 &&
@@ -378,6 +499,66 @@ export class BillingService {
     });
   }
 
+  private async listAncestorDomains(
+    tx: Prisma.TransactionClient,
+    domainId: string,
+  ): Promise<Array<{ id: string; name: string; type: DomainTypeModel }>> {
+    const ancestors: Array<{ id: string; name: string; type: DomainTypeModel }> =
+      [];
+
+    let cursorId: string | null = domainId;
+    let guard = 0;
+
+    while (cursorId) {
+      const current = await tx.domainModel.findUnique({
+        where: { id: cursorId },
+        select: { rootId: true },
+      });
+      if (!current?.rootId) {
+        break;
+      }
+
+      const parent = await tx.domainModel.findUnique({
+        where: { id: current.rootId },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          rootId: true,
+        },
+      });
+
+      if (!parent) {
+        break;
+      }
+
+      ancestors.push({
+        id: parent.id,
+        name: parent.name,
+        type: parent.type,
+      });
+      cursorId = parent.id;
+      guard += 1;
+
+      if (guard > 20) {
+        throwsException(
+          new InvalidParamError(
+            'Hierarquia de domínios inválida. Verifique a configuração de rootId.',
+          ),
+        );
+      }
+    }
+
+    return ancestors;
+  }
+
+  private buildPropagationResourceId(
+    sourceDomainId: string,
+    consumption: ConsumptionItem,
+  ): string {
+    return `prop:${sourceDomainId}:${consumption.resourceType}:${consumption.resourceId}`;
+  }
+
   private defaultPriceFor(type: ResourceTypeEnum): number {
     const priceMap: Record<ResourceTypeEnum, number> = {
       [ResourceTypeEnum.INSTANCES]: 2500,
@@ -389,6 +570,68 @@ export class BillingService {
     };
 
     return priceMap[type] ?? 0;
+  }
+
+  private async resolveEffectiveUnitPriceInCents(
+    tx: Prisma.TransactionClient,
+    domainId: string,
+    resourceType: ResourceTypeEnum,
+  ): Promise<number> {
+    const chain: Array<{ id: string; rootId: string | null }> = [];
+    let cursorId: string | null = domainId;
+    let guard = 0;
+
+    while (cursorId) {
+      const domain = await tx.domainModel.findUnique({
+        where: { id: cursorId },
+        select: { id: true, rootId: true },
+      });
+
+      if (!domain) {
+        break;
+      }
+
+      chain.push({
+        id: domain.id,
+        rootId: domain.rootId,
+      });
+      cursorId = domain.rootId;
+      guard += 1;
+
+      if (guard > 20) {
+        throwsException(
+          new InvalidParamError(
+            'Hierarquia de domínios inválida. Verifique a configuração de rootId.',
+          ),
+        );
+      }
+    }
+
+    const rootToCurrent = chain.reverse();
+    let effectivePrice = 0;
+
+    for (const domain of rootToCurrent) {
+      const custom = await tx.domainResourcePriceModel.findUnique({
+        where: {
+          domainId_type: {
+            domainId: domain.id,
+            type: resourceType as unknown as ResourceType,
+          },
+        },
+        select: { unitPriceInCents: true },
+      });
+
+      // Absolute override at each level.
+      if (custom?.unitPriceInCents !== undefined) {
+        effectivePrice = custom.unitPriceInCents;
+      }
+    }
+
+    if (effectivePrice > 0) {
+      return effectivePrice;
+    }
+
+    return this.defaultPriceFor(resourceType);
   }
 
   private async resolveDomainId(
@@ -411,6 +654,70 @@ export class BillingService {
     return project?.domainId ?? null;
   }
 
+  private async resolveEffectiveBillingType(
+    tx: Prisma.TransactionClient,
+    domainId: string,
+  ): Promise<OrganizationBillingType> {
+    const chain: Array<{
+      id: string;
+      rootId: string | null;
+      billingType: OrganizationBillingType;
+      type: DomainTypeModel;
+    }> = [];
+
+    let cursorId: string | null = domainId;
+    let guard = 0;
+
+    while (cursorId) {
+      const domain = await tx.domainModel.findUnique({
+        where: { id: cursorId },
+        select: {
+          id: true,
+          rootId: true,
+          billingType: true,
+          type: true,
+        },
+      });
+
+      if (!domain) {
+        throwsException(new InvalidParamError('Domínio não encontrado.'));
+      }
+
+      chain.push({
+        id: domain.id,
+        rootId: domain.rootId,
+        billingType: domain.billingType as OrganizationBillingType,
+        type: domain.type,
+      });
+
+      cursorId = domain.rootId;
+      guard += 1;
+
+      if (guard > 20) {
+        throwsException(
+          new InvalidParamError(
+            'Hierarquia de domínios inválida. Verifique a configuração de rootId.',
+          ),
+        );
+      }
+    }
+
+    const rootToCurrent = chain.reverse();
+    let effective =
+      rootToCurrent[0]?.billingType ?? OrganizationBillingType.POOL;
+    for (let index = 1; index < rootToCurrent.length; index += 1) {
+      const parent = rootToCurrent[index - 1];
+      const current = rootToCurrent[index];
+      effective =
+        effective === OrganizationBillingType.POOL &&
+        parent.type !== DomainTypeModel.ROOT
+          ? OrganizationBillingType.POOL
+          : current.billingType;
+    }
+
+    return effective;
+  }
+
   private buildResourceKey(
     resourceId: string,
     type: ResourceType | ResourceTypeEnum,
@@ -419,7 +726,7 @@ export class BillingService {
   }
 
   private hasPositiveValue(value?: number | null): value is number {
-    return Number.isFinite(value) && (value as number) > 0;
+    return Number.isFinite(value) && value > 0;
   }
 
   private async syncUsageTotals(

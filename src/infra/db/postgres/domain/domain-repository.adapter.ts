@@ -16,6 +16,7 @@ export class DomainRepositoryAdapter implements IDomainRepository {
       data: {
         cloudstackAccountId: domain.cloudstackAccountId,
         type: IDomainType.ROOT,
+        isDistributor: domain.isDistributor ?? true,
         name: domain.name,
         billingType: domain.billingType ?? OrganizationBillingType.POOL,
       },
@@ -41,6 +42,7 @@ export class DomainRepositoryAdapter implements IDomainRepository {
         id: domain.id,
         cloudstackAccountId: domain.cloudstackAccountId,
         type: domain.type,
+        isDistributor: domain.isDistributor ?? domain.type !== IDomainType.CLIENT,
         billingType: domain.billingType ?? OrganizationBillingType.POOL,
         root: domain.root
           ? {
@@ -94,8 +96,11 @@ export class DomainRepositoryAdapter implements IDomainRepository {
           }
         : null,
       id: persistencyObject.id ?? null,
-      root: persistencyObject.rootId ?? null,
+      root: persistencyObject.rootId
+        ? ({ id: persistencyObject.rootId } as IDomain)
+        : null,
       type: persistencyObject.type,
+      isDistributor: Boolean(persistencyObject.isDistributor),
       cloudstackAccountId: persistencyObject.cloudstackAccountId,
       name: persistencyObject.name,
       billingType: persistencyObject.billingType as OrganizationBillingType,

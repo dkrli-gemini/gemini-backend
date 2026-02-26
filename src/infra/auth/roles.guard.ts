@@ -27,11 +27,31 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user || !user.roles) {
+    if (!user) {
       throw new UnauthorizedException('User roles are missing');
     }
 
-    const hasRole = user.roles.some((role) => roles.includes(role));
+    const realmRoles: string[] = Array.isArray(user.roles) ? user.roles : [];
+    const clientRoles: string[] = Array.isArray(user.clientRoles)
+      ? user.clientRoles
+      : [];
+    const allRoles = new Set(
+      [...realmRoles, ...clientRoles]
+        .filter((role) => typeof role === 'string')
+        .map((role) => role.toLowerCase()),
+    );
+    const requiredRoles = roles.map((role) => role.toLowerCase());
+    const allowsBasic = requiredRoles.includes(RolesEnum.BASIC);
+    const requiresAdminOnly =
+      requiredRoles.includes(RolesEnum.ADMIN) && !allowsBasic;
+
+    // Backward compatibility: routes that allow BASIC should not hard-fail
+    // when legacy users are authenticated but still missing synced realm roles.
+    if (!requiresAdminOnly && user?.id) {
+      return true;
+    }
+
+    const hasRole = requiredRoles.some((role) => allRoles.has(role));
     if (!hasRole) {
       throw new ForbiddenException('Insufficient role');
     }

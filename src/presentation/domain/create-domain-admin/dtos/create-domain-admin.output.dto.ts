@@ -5,10 +5,12 @@ export class CreateDomainAdminOutputDto {
   name: string;
   cloudstackDomainId: string;
   cloudstackAccountId: string;
+  isDistributor: boolean;
 
   constructor(domain: IDomain) {
     this.id = domain.id;
     this.cloudstackAccountId = domain.cloudstackAccountId;
     this.name = domain.name;
+    this.isDistributor = Boolean(domain.isDistributor);
   }
 }

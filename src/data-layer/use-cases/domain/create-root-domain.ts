@@ -25,27 +25,36 @@ export class CreateRootDomain implements ICreateRootDomain {
   ) {}
 
   async execute(input: ICreateRootDomainInput): Promise<IDomain> {
+    const rootAccountName = input.accountName?.trim() || 'RootAccount';
+    const ownerId = input.ownerId;
+
+    if (!ownerId) {
+      throw new Error(
+        'ownerId não informado. Faça login e tente novamente, ou envie ownerId explicitamente.',
+      );
+    }
+
     const accountResponse = await this.cloudstackService.handle({
       command: CloudstackCommands.Account.CreateAccount,
       additionalParams: {
         email: input.accountEmail,
-        firstname: 'RootAccount',
-        lastname: 'RootAccount',
+        firstname: rootAccountName,
+        lastname: rootAccountName,
         password: input.accountPassword,
-        username: 'RootAccount',
-        account: 'RootAccount', // Remove domainid, created on root
+        username: rootAccountName,
+        account: rootAccountName, // Remove domainid, created on root
         accounttype: '2', // For domain and account admin
       },
     });
 
-    const domain = await this.domainRepository.createRootDomain(
-      {
-        name: 'RootDomain',
-        type: IDomainType.ROOT, // Alter this
-        cloudstackAccountId: accountResponse.createaccountresponse.account.id,
-      },
-      input.ownerId,
-    );
+    const cloudstackAccountId = this.extractCreatedAccountId(accountResponse);
+
+    const domain = await this.domainRepository.createRootDomain({
+      name: 'RootDomain',
+      type: IDomainType.ROOT, // Alter this
+      isDistributor: true,
+      cloudstackAccountId,
+    });
 
     const project = await this.projectRepository.createProject({
       name: 'RootProject',
@@ -55,15 +64,62 @@ export class CreateRootDomain implements ICreateRootDomain {
       } as IDomain,
     });
 
+    await this.ensureOwnerUser(
+      ownerId,
+      input.ownerName ?? rootAccountName,
+      input.ownerEmail ?? input.accountEmail,
+    );
+
     await this.prisma.domainMemberModel.create({
       data: {
         role: ProjectRoleModel.OWNER,
         projectModelId: project.id,
-        userId: input.ownerId,
+        userId: ownerId,
       },
     });
 
     return domain as IDomain;
+  }
+
+  private extractCreatedAccountId(response: any): string {
+    const accountId = response?.createaccountresponse?.account?.id;
+    if (accountId) {
+      return accountId;
+    }
+
+    const cloudstackError =
+      response?.createaccountresponse?.errortext ||
+      response?.errorresponse?.errortext ||
+      response?.error?.response?.data?.errorresponse?.errortext ||
+      response?.error?.message ||
+      'Unknown CloudStack error';
+
+    throw new Error(
+      `CloudStack account creation failed for root domain: ${cloudstackError}`,
+    );
+  }
+
+  private async ensureOwnerUser(
+    ownerId: string,
+    ownerName: string,
+    ownerEmail: string,
+  ): Promise<void> {
+    const existingUser = await this.prisma.userModel.findUnique({
+      where: { id: ownerId },
+      select: { id: true },
+    });
+
+    if (existingUser) {
+      return;
+    }
+
+    await this.prisma.userModel.create({
+      data: {
+        id: ownerId,
+        name: ownerName,
+        email: ownerEmail,
+      },
+    });
   }
 }
 

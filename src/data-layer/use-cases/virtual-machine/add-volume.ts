@@ -50,12 +50,13 @@ export class AddVolume implements IAddVolume {
         id: project.domainId,
       },
     });
+    const cloudstackDomainId = await this.resolveCloudstackDomainId(domain);
 
     const diskJob = (
       await this.cloudstack.handle({
         command: CloudstackCommands.Volume.CreateVolume,
         additionalParams: {
-          domainid: domain.id,
+          domainid: cloudstackDomainId,
           account: domain.name,
           name: input.name,
           diskofferingid: offer.id,
@@ -111,6 +112,31 @@ export class AddVolume implements IAddVolume {
     if (!Number.isFinite(input.sizeInGb) || input.sizeInGb <= 0) {
       throw new InvalidParamError('sizeInGb must be greater than zero');
     }
+  }
+
+  private async resolveCloudstackDomainId(domain: {
+    id: string;
+    name: string;
+    cloudstackAccountId?: string | null;
+  }): Promise<string> {
+    const listAccountsResponse = await this.cloudstack.handle({
+      command: CloudstackCommands.Account.ListAccounts,
+      additionalParams: domain.cloudstackAccountId
+        ? { id: domain.cloudstackAccountId }
+        : { name: domain.name },
+    });
+
+    const accounts = listAccountsResponse?.listaccountsresponse?.account;
+    const account = Array.isArray(accounts) ? accounts[0] : accounts;
+    const cloudstackDomainId = account?.domainid;
+
+    if (!cloudstackDomainId) {
+      throw new InvalidParamError(
+        'Não foi possível resolver o domainid no CloudStack para criar volume.',
+      );
+    }
+
+    return String(cloudstackDomainId);
   }
 }
 

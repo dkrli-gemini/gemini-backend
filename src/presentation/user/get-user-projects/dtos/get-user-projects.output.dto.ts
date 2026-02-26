@@ -16,6 +16,7 @@ export class DomainMemberDto {
   project: ProjectDto;
   domainName: string;
   domainId: string;
+  isDistributor: boolean;
   role: string;
 
   constructor(domainMember: IGetUserProjectsDtoOutput) {
@@ -25,6 +26,7 @@ export class DomainMemberDto {
     this.role = domainMember.role;
     this.domainId = domainMember.domainId;
     this.domainName = domainMember.domainName;
+    this.isDistributor = domainMember.isDistributor;
   }
 }
 
@@ -35,6 +37,7 @@ export interface IGetUserProjectsDtoOutput {
   project: ProjectModel;
   domainId: string;
   domainName: string;
+  isDistributor: boolean;
 }
 
 export class GetUserProjectsOutputDto {

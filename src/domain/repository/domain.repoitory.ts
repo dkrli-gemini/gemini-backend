@@ -4,12 +4,12 @@ import { IDomain } from '../entities/domain';
 export abstract class IDomainRepository implements IRepositoryBase<IDomain> {
   abstract createDomain(
     domain: IDomain,
-    ownerId: string,
+    ownerId?: string,
   ): Promise<Partial<IDomain>>;
   abstract getDomainByVpc(vpcId: string): Promise<IDomain>;
   abstract createRootDomain(
     domain: Partial<IDomain>,
-    ownerId: string,
+    ownerId?: string,
   ): Promise<Partial<IDomain>>;
   abstract getDomain(id: string): Promise<IDomain>;
   abstract mapToDomain(persistencyObject: any): IDomain;

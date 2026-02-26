@@ -1,4 +1,11 @@
-import { NetworkModel } from '@prisma/client';
+type NetworkListView = {
+  id: string;
+  name: string;
+  gateway: string;
+  netmask: string;
+  aclName: string | null;
+  isL2: boolean;
+};
 
 export class NetworkDto {
   id: string;
@@ -9,7 +16,7 @@ export class NetworkDto {
   aclName: string;
   isL2: boolean;
 
-  constructor(network: NetworkModel) {
+  constructor(network: NetworkListView) {
     this.id = network.id;
     this.name = network.name;
     this.cloudstackId = network.id;
@@ -23,7 +30,7 @@ export class NetworkDto {
 export class ListNetworksOutputDto {
   networks: NetworkDto[];
 
-  constructor(input: NetworkModel[]) {
+  constructor(input: NetworkListView[]) {
     this.networks = input.map((n) => new NetworkDto(n));
   }
 }
